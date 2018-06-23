@@ -15,9 +15,9 @@ if [ "$1" == "bash" ]; then
 elif [ "$1" == "test" ]; then
     npm run test
 elif [ "$1" == "install" ]; then
-    install()
+    install
 else
-    install()
+    install
     # If environment development use nodemon to watch file changes
     # Otherwise just run the server
     if [ "$NODE_ENV" == "development" ]; then
