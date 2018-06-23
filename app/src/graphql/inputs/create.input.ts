@@ -1,4 +1,4 @@
-import { IsAlphanumeric, IsEmail, IsIn, IsLowercase, Length, MaxDate, MinDate } from "class-validator";
+import { IsAlphanumeric, IsEmail, IsIn, IsLowercase, Length, MaxDate, MinDate, IsArray } from "class-validator";
 import { Field, InputType } from 'type-graphql';
 import { Gender, Role } from '../../models/user.model';
 import { User } from '../schemas/user.schema';
@@ -46,4 +46,9 @@ export class CreateInput implements Partial<User> {
     @MaxDate(new Date())
     @MinDate(new Date('01.01.1960'))
     public birthday: Date;
+
+    @Field(type => [String], {nullable: true, description: 'User associated group ids.'})
+    @IsArray({each: true})
+    @Length(12, 24, {message: 'InvalidIDLength'})
+    public groups: string[];
 }

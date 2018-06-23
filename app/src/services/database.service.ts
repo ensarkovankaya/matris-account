@@ -94,7 +94,6 @@ export class DatabaseService {
 
     public async find(conditions: IUserFilterModel = {}) {
         try {
-            console.debug('DatabaseService:Find', {conditions});
             let query = User.find();
             if (typeof conditions.deleted === 'boolean') {
                 query = query.where('deleted', conditions.deleted);
@@ -119,6 +118,9 @@ export class DatabaseService {
             }
             if (conditions.birthday !== undefined) {
                 query = compareFilter(query, 'birthday', conditions.birthday);
+            }
+            if (conditions.groups && conditions.groups.length > 0) {
+                query = query.where('groups').in(conditions.groups);
             }
             return await query.exec();
         } catch (err) {

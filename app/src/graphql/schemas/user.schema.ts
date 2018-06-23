@@ -44,4 +44,7 @@ export class User {
 
     @Field({nullable: true, description: 'User birthday.'})
     public birthday: Date;
+
+    @Field(type => [String], {description: 'User associated group ids.'})
+    public groups: string[];
 }

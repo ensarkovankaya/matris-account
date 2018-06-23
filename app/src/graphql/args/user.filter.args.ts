@@ -39,4 +39,7 @@ export class UserFilterArgs {
 
     @Field({nullable: true, description: 'User birthday date'})
     public birthday?: CompareDateInput;
+
+    @Field(type => [String], {nullable: true, description: 'User associated group ids.'})
+    public groups?: string[];
 }
