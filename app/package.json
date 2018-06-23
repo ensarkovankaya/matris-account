@@ -49,5 +49,9 @@
     "nodemon": "^1.17.5",
     "tslint": "^5.10.0",
     "typescript": "^2.9.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ensarkovankaya/matris-account.git"
   }
 }
