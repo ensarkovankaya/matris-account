@@ -52,12 +52,10 @@ const UserSchema: Schema = new Schema({
     },
     createdAt: {
         type: Date,
-        required: true,
         default: Date.now
     },
     updatedAt: {
         type: Date,
-        required: true,
         default: Date.now,
     },
     deletedAt: {
@@ -71,6 +69,16 @@ const UserSchema: Schema = new Schema({
     lastLogin: {
         type: Date,
         default: null
+    },
+    groups: {
+        type: [String],
+        default: [],
+        validate: {
+            validator: (arr: string[]) => {
+                // Validate array is not contains duplicate id
+                return new Set(arr).size === arr.length;
+            }
+        }
     }
 });
 

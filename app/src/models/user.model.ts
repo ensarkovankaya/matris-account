@@ -27,6 +27,7 @@ export interface IUserFilterModel {
     createdAt?: ICompareModel;
     updatedAt?: ICompareModel;
     lastLogin?: ICompareModel;
+    groups?: string[];
 }
 
 export interface ICreateUserModel {
@@ -39,6 +40,7 @@ export interface ICreateUserModel {
     gender?: Gender;
     birthday?: Date;
     active?: boolean;
+    groups?: string[];
 }
 
 export interface IUpdateUserModel {
@@ -51,6 +53,7 @@ export interface IUpdateUserModel {
     gender?: Gender;
     birthday?: Date;
     active?: boolean;
+    groups?: string[];
 }
 
 export interface IUserModel extends Document {
@@ -69,4 +72,5 @@ export interface IUserModel extends Document {
     deletedAt: Date | null;
     deleted: boolean;
     lastLogin: Date | null;
+    groups: string[];
 }
