@@ -59,3 +59,7 @@ User object model.
 - `deleted`: Boolean
 
     Is user account deleted.
+
+- `groups`: String[]
+
+    User associated group ids.

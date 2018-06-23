@@ -40,6 +40,10 @@ Query filter arguments if not
 
     Account last login date.
 
+- `groups`: String[]
+
+    User associated group ids.
+
 ### [RoleQuery](#rolequery)
 
 Gender query input.

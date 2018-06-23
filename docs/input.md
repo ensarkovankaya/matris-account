@@ -51,6 +51,8 @@ See [User](user.md) model for field descriptions.
 
 - `birthday`: Date | null
 
+- `groups`: String[]
+
 
 ## [CreateUserInput](#createuserinput)
 
@@ -77,3 +79,5 @@ See [User](user.md) model for field descriptions.
 - `active`: Boolean
 
 - `birthday`: Date
+
+- `groups`: String[]
