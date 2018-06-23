@@ -2,7 +2,7 @@
 
 Search and filter users.
 
-Returns: [User](../models/user.md)\[\]
+Returns: [User](../user.md)\[\]
 
 ## Args
 
