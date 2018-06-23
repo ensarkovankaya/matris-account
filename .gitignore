@@ -1,3 +1,5 @@
 .env
-.idea
+.idea/
 app/node_modules/*
+app/build/
+db/*
