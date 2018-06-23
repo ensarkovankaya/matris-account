@@ -13,8 +13,7 @@
     "start": "ts-node ./src/index.ts",
     "watch": "nodemon"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Ensar Kovankaya <ensar@kovankaya.com>",
   "dependencies": {
     "bcrypt": "^2.0.1",
     "body-parser": "^1.18.3",
