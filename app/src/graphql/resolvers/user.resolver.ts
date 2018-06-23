@@ -93,7 +93,8 @@ export class UserResolver {
             }
         }
         try {
-            return await this.db.update(id, data);
+            await this.db.update(id, data);
+            return await this.db.findOne({_id: id});
         } catch (err) {
             console.error('UserResolver:Update', err);
             throw err;
