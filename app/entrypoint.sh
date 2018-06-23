@@ -1,17 +1,23 @@
 #!/usr/bin/env bash
 set -e
 
+install () {
+    # Install Dependencies
+    if [ "$NODE_ENV" == "development" ]; then
+        npm install
+    else
+        npm install --only=prod
+    fi
+}
+
 if [ "$1" == "bash" ]; then
     /usr/bin/env bash
 elif [ "$1" == "test" ]; then
     npm run test
+elif [ "$1" == "install" ]; then
+    install()
 else
-    if [ "$NODE_ENV" == "development" ]; then
-        npm install --only=prod
-    else
-        npm install
-    fi
-
+    install()
     # If environment development use nodemon to watch file changes
     # Otherwise just run the server
     if [ "$NODE_ENV" == "development" ]; then
