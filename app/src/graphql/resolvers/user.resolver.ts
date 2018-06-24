@@ -38,8 +38,8 @@ export class UserResolver {
     }
 
     @Query(returnType => Boolean, {description: 'Validate is user password is valid.'})
-    public async password(@Args() {id, password}: PasswordArgs) {
-        const user = await this.db.findOne({_id: id});
+    public async password(@Args() {email, password}: PasswordArgs) {
+        const user = await this.db.findOne({email});
         if (!user) {
             throw new UserNotFound();
         }
