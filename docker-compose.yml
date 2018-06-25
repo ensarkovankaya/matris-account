@@ -1,7 +1,7 @@
 version: '2'
 
 services:
-  db:
+  account_db:
     image: "mongo:3.2.20-jessie"
     env_file: .env
     volumes:
@@ -16,7 +16,7 @@ services:
     restart: always
     user: "node"
     depends_on:
-      - db
+      - account_db
     volumes:
       - ./app:/home/node/app
     entrypoint: /home/node/app/entrypoint.sh
