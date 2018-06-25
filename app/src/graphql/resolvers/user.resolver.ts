@@ -1,10 +1,10 @@
 import { Arg, Args, Mutation, Query, Resolver } from 'type-graphql';
 import { Service } from 'typedi';
-import { EmailAlreadyExists, UserNameExists, UserNotFound } from '../../errors';
 import { DatabaseService } from '../../services/database.service';
 import { PasswordArgs } from '../args/password.args';
 import { UserArgs } from '../args/user.args';
 import { UserFilterArgs } from '../args/user.filter.args';
+import { EmailAlreadyExists, UserNameExists, UserNotFound } from '../errors';
 import { CreateInput } from '../inputs/create.input';
 import { UpdateInput } from '../inputs/update.input';
 import { User } from '../schemas/user.schema';
@@ -40,7 +40,7 @@ export class UserResolver {
     @Query(returnType => Boolean, {description: 'Validate is user password is valid.'})
     public async password(@Args() {email, password}: PasswordArgs) {
         const user = await this.db.findOne({email});
-        if (!user) {
+        if (!user || !user.active) {
             throw new UserNotFound();
         }
         return this.db.isPasswordValid(password, user.get('password'));
