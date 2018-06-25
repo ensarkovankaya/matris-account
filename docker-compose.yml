@@ -1,11 +1,11 @@
-version: '2'
+version: '3'
 
 services:
-  account_db:
+  db:
     image: "mongo:3.2.20-jessie"
     env_file: .env
     volumes:
-      - ./db:/data/db
+      - dbdata:/data/db
     ports:
       - "27017:27017"
 
@@ -16,9 +16,12 @@ services:
     restart: always
     user: "node"
     depends_on:
-      - account_db
+      - db
     volumes:
       - ./app:/home/node/app
     entrypoint: /home/node/app/entrypoint.sh
     ports:
       - "3000:3000"
+
+volumes:
+  dbdata:
