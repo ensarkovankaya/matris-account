@@ -49,7 +49,6 @@ export class UserResolver {
 
     @Mutation(returnType => User, {description: 'Create user.'})
     public async create(@Arg('data') data: CreateInput) {
-        console.debug('UserResolver:Create', {data});
         if (data.username) {
             // Check username exists
             const isUsernameExists = await this.db.isUserNameExists(data.username);

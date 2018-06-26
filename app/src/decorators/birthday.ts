@@ -21,7 +21,6 @@ export const IsBirthday = (minDate: Date, maxDate: Date, nullable?: boolean,
             options: validationOptions,
             validator: {
                 validate(value: any) {
-                    console.log('IsBirthday', {value});
                     if (value === null && nullable) {
                         return true;
                     }
