@@ -1,5 +1,13 @@
-import { IsAlphanumeric, IsEmail, IsIn, IsLowercase, Length, MaxDate, MinDate, IsArray } from "class-validator";
+import {
+    IsAlphanumeric,
+    IsArray,
+    IsEmail,
+    IsIn,
+    IsLowercase,
+    Length
+} from "class-validator";
 import { Field, InputType } from 'type-graphql';
+import { IsBirthday } from '../../decorators/birthday';
 import { Gender, Role } from '../../models/user.model';
 import { User } from '../schemas/user.schema';
 
@@ -42,10 +50,9 @@ export class CreateInput implements Partial<User> {
     @IsIn([Gender.MALE, Gender.FEMALE])
     public gender: Gender;
 
-    @Field({nullable: true, description: 'User birthday'})
-    @MaxDate(new Date())
-    @MinDate(new Date('01.01.1960'))
-    public birthday: Date;
+    @Field({nullable: true, description: 'User birthday. Can be null if not defined.'})
+    @IsBirthday('birthday', new Date('01.01.1950'), new Date('01.01.2000'))
+    public birthday: Date | null;
 
     @Field(type => [String], {nullable: true, description: 'User associated group ids.'})
     @IsArray({each: true})
