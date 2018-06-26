@@ -38,8 +38,11 @@ const UserSchema: Schema = new Schema({
         enum: [Role.ADMIN, Role.MANAGER, Role.INSTRUCTOR, Role.PARENT, Role.STUDENT]
     },
     birthday: {
-        type: Date,
-        default: null
+        type: Schema.Types.Mixed,
+        default: null,
+        validate: (value: any) => {
+            return value === null || value instanceof Date;
+        }
     },
     gender: {
         type: String,
