@@ -37,13 +37,13 @@ export class User {
     public lastLogin: Date;
 
     @Field({nullable: true, description: 'User gender'})
-    public gender: Gender;
+    public gender: Gender | null;
 
     @Field({description: 'Is user active?'})
     public active: boolean;
 
     @Field({nullable: true, description: 'User birthday.'})
-    public birthday: Date;
+    public birthday: Date | null;
 
     @Field(type => [String], {description: 'User associated group ids.'})
     public groups: string[];

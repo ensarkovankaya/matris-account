@@ -1,10 +1,9 @@
-import { registerDecorator, ValidationOptions } from "class-validator";
+import { registerDecorator, ValidationOptions, ValidationArguments } from "class-validator";
 
 /**
  * Custom validator decorator for validating user birthday.
  * See: https://github.com/typestack/class-validator#custom-validation-decorators
  *
- * @param {string} property
  * @param nullable: if value can be null set this to true
  * @param {Date} minDate: Minimum date can user have
  * @param {Date} maxDate: Maximum date can user have
@@ -12,7 +11,7 @@ import { registerDecorator, ValidationOptions } from "class-validator";
  * @return {(object: object, propertyName: string) => void}
  * @constructor
  */
-export const IsBirthday = (property: string, minDate: Date, maxDate: Date, nullable: boolean = true,
+export const IsBirthday = (minDate: Date, maxDate: Date, nullable?: boolean,
                            validationOptions?: ValidationOptions) => {
     return (object: object, propertyName: string) => {
         registerDecorator({
@@ -22,6 +21,7 @@ export const IsBirthday = (property: string, minDate: Date, maxDate: Date, nulla
             options: validationOptions,
             validator: {
                 validate(value: any) {
+                    console.log('IsBirthday', {value});
                     if (value === null && nullable) {
                         return true;
                     }
@@ -29,7 +29,10 @@ export const IsBirthday = (property: string, minDate: Date, maxDate: Date, nulla
                     if (date.toString() === 'Invalid Date') {
                         return false;
                     }
-                    return date > minDate && date < maxDate;
+                    return date >= minDate && date <= maxDate;
+                },
+                defaultMessage: (validationArguments?: ValidationArguments) => {
+                    return 'Invalid Date';
                 }
             }
         });

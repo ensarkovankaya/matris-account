@@ -49,6 +49,7 @@ export class UserResolver {
 
     @Mutation(returnType => User, {description: 'Create user.'})
     public async create(@Arg('data') data: CreateInput) {
+        console.debug('UserResolver:Create', {data});
         if (data.username) {
             // Check username exists
             const isUsernameExists = await this.db.isUserNameExists(data.username);
@@ -59,6 +60,10 @@ export class UserResolver {
             data.username = normalizeUsername(data.firstName + data.lastName).slice(0, 20);
         }
 
+        // Transform birthday from string to Date object
+        if (data.birthday) {
+            data.birthday = new Date(data.birthday);
+        }
         // Check email exists
         const isEmailExists = await this.db.findOne({email: data.email});
         if (isEmailExists) {
@@ -78,6 +83,10 @@ export class UserResolver {
         const user = await this.db.findOne({_id: id});
         if (!user) {
             throw new UserNotFound();
+        }
+        // Transform birthday from string to Date object
+        if (data.birthday) {
+            data.birthday = new Date(data.birthday);
         }
         // If user email changed check is email already exists
         if (data.email && data.email !== user.email) {

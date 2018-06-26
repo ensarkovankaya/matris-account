@@ -44,18 +44,18 @@ export class CreateInput implements Partial<User> {
     public password: string;
 
     @Field({nullable: true, description: 'Is user active?'})
-    public active: boolean = true;
+    public active?: boolean;
 
     @Field(type => Gender, {nullable: true, description: 'User Gender. MALE or FEMALE'})
     @IsIn([Gender.MALE, Gender.FEMALE])
-    public gender: Gender;
+    public gender?: Gender | null;
 
-    @Field({nullable: true, description: 'User birthday. Can be null if not defined.'})
-    @IsBirthday('birthday', new Date('01.01.1950'), new Date('01.01.2000'))
-    public birthday: Date | null;
+    @Field(type => String, {nullable: true, description: 'User birthday. Can be null if not defined.'})
+    @IsBirthday(new Date('01.01.1950'), new Date('01.01.2000'), true)
+    public birthday?: Date | null;
 
     @Field(type => [String], {nullable: true, description: 'User associated group ids.'})
     @IsArray({each: true})
     @Length(12, 24, {message: 'InvalidIDLength'})
-    public groups: string[];
+    public groups?: string[];
 }
