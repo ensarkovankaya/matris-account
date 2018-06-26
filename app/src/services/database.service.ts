@@ -123,6 +123,13 @@ export class DatabaseService {
             if (conditions.groups && conditions.groups.length > 0) {
                 query = query.where('groups').in(conditions.groups);
             }
+            if (conditions.role) {
+                if (conditions.role.eq) {
+                    query = query.where('role', conditions.role.eq);
+                } else if (conditions.role.in) {
+                    query = query.where('role').in(conditions.role.in);
+                }
+            }
             return await query.exec();
         } catch (err) {
             console.error('DatabaseService:Find', err);
