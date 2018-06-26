@@ -4,6 +4,7 @@ import { Service } from 'typedi';
 import { ICompareModel } from '../models/compare.model';
 import { ICreateUserModel, IUpdateUserModel, IUserFilterModel, IUserModel } from '../models/user.model';
 import { User } from '../models/user.schema';
+import { generateRandomUsername, normalizeUsername } from '../utils';
 
 export const compareFilter = (query: DocumentQuery<IUserModel[], IUserModel>, path: string, filter: ICompareModel):
     DocumentQuery<IUserModel[], IUserModel> => {
@@ -29,7 +30,7 @@ export class DatabaseService {
     public async create(data: ICreateUserModel) {
         try {
             // Generate random username if not exists
-            const username = data.username || this.generateUsername(data.firstName + data.lastName);
+            const username = normalizeUsername(data.username || generateRandomUsername(7));
             const exists = await this.isUserNameExists(username);
             if (exists) {
                 return this.create({...data, username: null});
@@ -136,24 +137,6 @@ export class DatabaseService {
             console.error('DatabaseService:FindOne', err);
             throw err;
         }
-    }
-
-    public generateUsername(initial?: string, maxLenght: number = 20): string {
-        let username = initial || '';
-        if (username.length >= maxLenght) {
-            username = username.slice(0, maxLenght - 6) + Math.random().toString(36).substring(7);
-        } else {
-            username = username + Math.random().toString(36).substring(7);
-        }
-        return username.slice(0, maxLenght)
-            .normalize()
-            .toLocaleLowerCase()
-            .replace('ğ', 'g')
-            .replace('ü', 'u')
-            .replace('ç', 'c')
-            .replace('ş', 's')
-            .replace('ı', 'i')
-            .replace('ö', 'o');
     }
 
     public async isUserNameExists(username: string): Promise<boolean> {

@@ -1,6 +1,7 @@
 import { Arg, Args, Mutation, Query, Resolver } from 'type-graphql';
 import { Service } from 'typedi';
 import { DatabaseService } from '../../services/database.service';
+import { normalizeUsername } from '../../utils';
 import { PasswordArgs } from '../args/password.args';
 import { UserArgs } from '../args/user.args';
 import { UserFilterArgs } from '../args/user.filter.args';
@@ -55,7 +56,7 @@ export class UserResolver {
                 throw new UserNameExists();
             }
         } else {
-            data.username = data.firstName + data.lastName;
+            data.username = normalizeUsername(data.firstName + data.lastName).slice(0, 20);
         }
 
         // Check email exists
