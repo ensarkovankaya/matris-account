@@ -27,8 +27,8 @@ export class CreateInput implements Partial<User> {
     @IsAlphanumeric({message: 'NotAlphanumeric'})
     public username?: string;
 
-    @Field(type => Role, {description: 'User role. Can be one of SUPERADMIN, ADMIN, INSTRUCTOR, PARENT or STUDENT.'})
-    @IsIn([Role.SUPERADMIN, Role.ADMIN, Role.INSTRUCTOR, Role.PARENT, Role.STUDENT], {message: 'Invalid'})
+    @Field(type => Role, {description: 'User role. Can be one of ADMIN, MANAGER, INSTRUCTOR, PARENT or STUDENT.'})
+    @IsIn([Role.ADMIN, Role.MANAGER, Role.INSTRUCTOR, Role.PARENT, Role.STUDENT], {message: 'Invalid'})
     public role: Role;
 
     @Field({description: 'User password.  Must be between 8 and 32 characters.'})

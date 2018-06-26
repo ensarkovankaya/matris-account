@@ -11,8 +11,8 @@ User gender.
 
 User role.
 
-- SUPERADMIN
 - ADMIN
+- MANAGER
 - INSTRUCTOR
 - PARENT
 - STUDENT

@@ -35,7 +35,7 @@ const UserSchema: Schema = new Schema({
     },
     role: {
         type: String,
-        enum: [Role.SUPERADMIN, Role.ADMIN, Role.INSTRUCTOR, Role.PARENT, Role.STUDENT]
+        enum: [Role.ADMIN, Role.MANAGER, Role.INSTRUCTOR, Role.PARENT, Role.STUDENT]
     },
     birthday: {
         type: Date,

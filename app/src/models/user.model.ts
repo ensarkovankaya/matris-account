@@ -2,8 +2,8 @@ import { Document } from 'mongoose';
 import { ICompareModel } from './compare.model';
 
 export enum Role {
-    SUPERADMIN = 'SUPERADMIN',
     ADMIN = 'ADMIN',
+    MANAGER = 'MANAGER',
     INSTRUCTOR = 'INSTRUCTOR',
     PARENT = 'PARENT',
     STUDENT = 'STUDENT'

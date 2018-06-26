@@ -31,7 +31,7 @@ export class UpdateInput implements Partial<User> {
         nullable: true,
         description: 'User role. Can be one of SUPERADMIN, ADMIN, INSTRUCTOR, PARENT or STUDENT.'
     })
-    @IsIn([Role.SUPERADMIN, Role.ADMIN, Role.INSTRUCTOR, Role.PARENT, Role.STUDENT], {message: 'Invalid'})
+    @IsIn([Role.ADMIN, Role.MANAGER, Role.INSTRUCTOR, Role.PARENT, Role.STUDENT], {message: 'Invalid'})
     public role?: Role;
 
     @Field({nullable: true, description: 'User password.  Must be between 8 and 32 characters.'})
