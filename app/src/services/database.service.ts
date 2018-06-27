@@ -1,10 +1,8 @@
-import * as bcrypt from 'bcrypt';
 import { DocumentQuery } from 'mongoose';
 import { Service } from 'typedi';
 import { ICompareModel } from '../models/compare.model';
 import { ICreateUserModel, IUpdateUserModel, IUserFilterModel, IUserModel } from '../models/user.model';
 import { User } from '../models/user.schema';
-import { generateRandomUsername, normalizeUsername } from '../utils';
 
 export const compareFilter = (query: DocumentQuery<IUserModel[], IUserModel>, path: string, filter: ICompareModel):
     DocumentQuery<IUserModel[], IUserModel> => {
@@ -27,36 +25,18 @@ export const compareFilter = (query: DocumentQuery<IUserModel[], IUserModel>, pa
 @Service()
 export class DatabaseService {
 
-    public async create(data: ICreateUserModel) {
+    public async create(data: object) {
         try {
-            // Generate random username if not exists
-            const username = normalizeUsername(data.username || generateRandomUsername(7));
-            const exists = await this.isUserNameExists(username);
-            if (exists) {
-                return this.create({...data, username: null});
-            }
-
-            // Create User
-            return await new User({
-                ...data,
-                password: this.hashPassword(data.password),
-                username
-            }).save({validateBeforeSave: true});
+            return await new User(data).save({validateBeforeSave: true});
         } catch (err) {
             console.error('DatabaseService:Create', err);
             throw err;
         }
     }
 
-    public async update(id: string, data: IUpdateUserModel) {
+    public async update(id: string, data: object) {
         try {
-            if (data.password) {
-                data.password = this.hashPassword(data.password);
-            }
-            return await User.findByIdAndUpdate(id, {
-                ...data,
-                updatedAt: new Date()
-            }).exec();
+            return await User.findByIdAndUpdate(id, data).exec();
         } catch (err) {
             console.error('DatabaseService:Update', err);
             throw err;
@@ -65,35 +45,14 @@ export class DatabaseService {
 
     public async delete(id: string) {
         try {
-            await User.findByIdAndUpdate(id, {
-                deletedAt: new Date(),
-                deleted: true
-            }).exec();
+            await User.findOneAndRemove({_id: id}).exec();
         } catch (err) {
-            console.error('DatabaseService:Update', err);
+            console.error('DatabaseService:Delete', err);
             throw err;
         }
     }
 
-    public hashPassword(plain: string): string {
-        try {
-            return bcrypt.hashSync(plain, 10);
-        } catch (err) {
-            console.error('DatabaseService:HashPassword', err);
-            throw err;
-        }
-    }
-
-    public isPasswordValid(plain: string, hash: string): boolean {
-        try {
-            return bcrypt.compareSync(plain, hash);
-        } catch (err) {
-            console.error('DatabaseService:IsPasswordValid', err);
-            throw err;
-        }
-    }
-
-    public async find(conditions: IUserFilterModel = {}) {
+    public async all(conditions: IUserFilterModel = {}) {
         try {
             let query = User.find();
             if (typeof conditions.deleted === 'boolean') {
@@ -132,25 +91,16 @@ export class DatabaseService {
             }
             return await query.exec();
         } catch (err) {
-            console.error('DatabaseService:Find', err);
+            console.error('DatabaseService:All', err);
             throw err;
         }
     }
 
-    public async findOne(condition: { _id: string } | { email: string } | { username: string }, deleted = false) {
+    public async findOne(conditions?: object) {
         try {
-            return await User.findOne({...condition, deleted}).exec();
+            return await User.findOne(conditions).exec();
         } catch (err) {
             console.error('DatabaseService:FindOne', err);
-            throw err;
-        }
-    }
-
-    public async isUserNameExists(username: string): Promise<boolean> {
-        try {
-            return await User.findOne({username}).exec() !== null;
-        } catch (err) {
-            console.error('DatabaseService:IsUserNameExists', err);
             throw err;
         }
     }

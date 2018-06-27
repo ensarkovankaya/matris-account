@@ -1,6 +1,6 @@
 import { Arg, Args, Mutation, Query, Resolver } from 'type-graphql';
 import { Service } from 'typedi';
-import { DatabaseService } from '../../services/database.service';
+import { UserService } from '../../services/user.service';
 import { normalizeUsername } from '../../utils';
 import { PasswordArgs } from '../args/password.args';
 import { UserArgs } from '../args/user.args';
@@ -13,25 +13,18 @@ import { User } from '../schemas/user.schema';
 @Service()
 @Resolver(of => User)
 export class UserResolver {
-    constructor(private db: DatabaseService) {
+    constructor(private us: UserService) {
     }
 
     @Query(returnType => [User], {description: 'Find user.'})
     public async find(@Args() args: UserFilterArgs) {
-        return await this.db.find(args);
+        return await this.us.all(args);
     }
 
     @Query(returnType => User, {nullable: true, description: 'Get user by id, email or username.'})
     public async get(@Args() {id, email, username}: UserArgs) {
         try {
-            if (id) {
-                return await this.db.findOne({_id: id});
-            } else if (email) {
-                return await this.db.findOne({email});
-            } else if (username) {
-                return await this.db.findOne({username});
-            }
-            return null;
+            return await this.us.getBy(id, email, username);
         } catch (err) {
             console.error('UserResolver:User', err);
             throw err;
@@ -40,18 +33,18 @@ export class UserResolver {
 
     @Query(returnType => Boolean, {description: 'Validate is user password is valid.'})
     public async password(@Args() {email, password}: PasswordArgs) {
-        const user = await this.db.findOne({email});
+        const user = await this.us.getBy(null, email);
         if (!user || !user.active) {
             throw new UserNotFound();
         }
-        return this.db.isPasswordValid(password, user.get('password'));
+        return this.us.isPasswordValid(password, user.get('password'));
     }
 
     @Mutation(returnType => User, {description: 'Create user.'})
     public async create(@Arg('data') data: CreateInput) {
         if (data.username) {
             // Check username exists
-            const isUsernameExists = await this.db.isUserNameExists(data.username);
+            const isUsernameExists = await this.us.isUsernameExists(data.username);
             if (isUsernameExists) {
                 throw new UserNameExists();
             }
@@ -64,12 +57,12 @@ export class UserResolver {
             data.birthday = new Date(data.birthday);
         }
         // Check email exists
-        const isEmailExists = await this.db.findOne({email: data.email});
+        const isEmailExists = await this.us.getBy(null, data.email);
         if (isEmailExists) {
             throw new EmailAlreadyExists();
         }
         try {
-            return await this.db.create(data);
+            return await this.us.create(data);
         } catch (err) {
             console.error('UserResolver:Create', err);
             throw err;
@@ -79,7 +72,7 @@ export class UserResolver {
     @Mutation(returnType => User, {description: 'Update User'})
     public async update(@Arg('id') id: string, @Arg('data') data: UpdateInput) {
         // Check is user exists
-        const user = await this.db.findOne({_id: id});
+        const user = await this.us.getBy(id);
         if (!user) {
             throw new UserNotFound();
         }
@@ -89,21 +82,20 @@ export class UserResolver {
         }
         // If user email changed check is email already exists
         if (data.email && data.email !== user.email) {
-            const isEmailExists = await this.db.findOne({email: data.email});
+            const isEmailExists = await this.us.getBy(null, data.email);
             if (isEmailExists) {
                 throw new EmailAlreadyExists();
             }
         }
         // If user username changed check is username already exists
         if (data.username && data.username !== user.username) {
-            const isUsernameExists = await this.db.findOne({username: data.username});
+            const isUsernameExists = await this.us.getBy(null, null, data.username, null);
             if (isUsernameExists) {
                 throw new UserNameExists();
             }
         }
         try {
-            await this.db.update(id, data);
-            return await this.db.findOne({_id: id});
+            return await this.us.update(id, data);
         } catch (err) {
             console.error('UserResolver:Update', err);
             throw err;
@@ -113,12 +105,12 @@ export class UserResolver {
     @Mutation(returnType => Boolean, {description: 'Delete user'})
     public async delete(@Arg('id') id: string) {
         // Check is user exists
-        const user = await this.db.findOne({_id: id});
+        const user = await this.us.getBy(id);
         if (!user) {
             throw new UserNotFound();
         }
         try {
-            await this.db.delete(id);
+            await this.us.delete(id);
             return true;
         } catch (err) {
             console.error('UserResolver:Delete', err);
