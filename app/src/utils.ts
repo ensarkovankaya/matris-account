@@ -1,7 +1,7 @@
-export const generateRandomUsername = (maxLength: number): string => {
+export const generateRandomUsername = (length: number): string => {
     const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz";
     let username = '';
-    for (let i = 0; i < maxLength; i++) {
+    for (let i = 0; i < length; i++) {
         const num = Math.floor(Math.random() * chars.length);
         username += chars.substring(num, num + 1);
     }
