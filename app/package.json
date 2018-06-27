@@ -26,9 +26,10 @@
     "mongoose": "^5.1.5",
     "morgan": "^1.9.0",
     "reflect-metadata": "^0.1.12",
+    "ts-node": "^6.1.2",
     "type-graphql": "^0.12.1",
     "typedi": "^0.7.3",
-    "ts-node": "^6.1.2"
+    "validator": "^10.4.0"
   },
   "devDependencies": {
     "@types/bcrypt": "^2.0.0",
@@ -43,7 +44,9 @@
     "@types/mocha": "^5.2.3",
     "@types/mongoose": "^5.0.16",
     "@types/morgan": "^1.7.35",
+    "@types/validator": "^9.4.1",
     "chai": "^4.1.2",
+    "chai-datetime": "^1.5.0",
     "mocha": "^5.2.0",
     "nodemon": "^1.17.5",
     "tslint": "^5.10.0",
