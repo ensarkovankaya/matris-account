@@ -1,6 +1,7 @@
 import {
     IsAlphanumeric,
     IsArray,
+    IsDate,
     IsEmail,
     IsIn,
     IsLowercase,
@@ -61,4 +62,7 @@ export class UpdateInput implements Partial<User> {
     @IsArray({each: true})
     @Length(12, 24, {message: 'InvalidIDLength'})
     public groups?: string[];
+
+    @Field({nullable: true, description: 'If true updates user last login date to now.'})
+    public updateLastLogin?: boolean;
 }

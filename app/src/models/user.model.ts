@@ -54,6 +54,7 @@ export interface IUpdateUserModel {
     birthday?: Date;
     active?: boolean;
     groups?: string[];
+    updateLastLogin?: boolean;
 }
 
 export interface IUserModel extends Document {

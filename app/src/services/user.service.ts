@@ -138,6 +138,11 @@ export class UserService {
             if (data.username) {
                 update = {...update, username: data.username};
             }
+
+            if (data.updateLastLogin) {
+                update = {...update, lastLogin: new Date()};
+            }
+
             // Update user
             await this.db.update(id, {...update, updatedAt: new Date()});
 

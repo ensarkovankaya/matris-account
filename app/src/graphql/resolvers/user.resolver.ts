@@ -35,7 +35,7 @@ export class UserResolver {
     public async password(@Args() {email, password}: PasswordArgs) {
         const user = await this.us.getBy({email});
         if (!user || !user.active) {
-            throw new UserNotFound();
+            throw new UserNotFound({email});
         }
         return this.us.isPasswordValid(password, user.password);
     }
@@ -46,7 +46,7 @@ export class UserResolver {
             // Check username exists
             const isUsernameExists = await this.us.isUsernameExists(data.username);
             if (isUsernameExists) {
-                throw new UserNameExists();
+                throw new UserNameExists(data.username);
             }
         } else {
             data.username = normalizeUsername(data.firstName + data.lastName).slice(0, 20);
@@ -59,7 +59,7 @@ export class UserResolver {
         // Check email exists
         const isEmailExists = await this.us.getBy({email: data.email});
         if (isEmailExists) {
-            throw new EmailAlreadyExists();
+            throw new EmailAlreadyExists(data.email);
         }
         try {
             return await this.us.create(data);
@@ -74,7 +74,7 @@ export class UserResolver {
         // Check is user exists
         const user = await this.us.getBy({id});
         if (!user) {
-            throw new UserNotFound();
+            throw new UserNotFound({id});
         }
         // Transform birthday from string to Date object
         if (data.birthday) {
@@ -91,7 +91,7 @@ export class UserResolver {
         if (data.username && data.username !== user.username) {
             const isUsernameExists = await this.us.getBy({username: data.username}, null);
             if (isUsernameExists) {
-                throw new UserNameExists();
+                throw new UserNameExists(data.username);
             }
         }
         try {
@@ -107,7 +107,7 @@ export class UserResolver {
         // Check is user exists
         const user = await this.us.getBy({id});
         if (!user) {
-            throw new UserNotFound();
+            throw new UserNotFound({id});
         }
         try {
             await this.us.delete(id);

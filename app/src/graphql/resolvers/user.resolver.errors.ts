@@ -1,23 +1,32 @@
 export class UserNotFound extends Error {
     public name = 'UserNotFound';
 
-    constructor() {
-        super('UserNotFound');
+    constructor(by?: { id?: string, username?: string, email?: string }) {
+        super();
+        let message = 'User not found.';
+        if (by.id) {
+            message = `User not found with id '${by.id}'.`;
+        } else if (by.email) {
+            message = `User not found with email '${by.email}'.`;
+        } else if (by.username) {
+            message = `User not found with username '${by.username}'.`;
+        }
+        this.message = message;
     }
 }
 
 export class EmailAlreadyExists extends Error {
     public name = 'EmailAlreadyExists';
 
-    constructor() {
-        super('EmailAlreadyExists');
+    constructor(email?: string) {
+        super(email ? `Mail '${email}' already exists.` : undefined);
     }
 }
 
 export class UserNameExists extends Error {
     public name = 'UserNameExists';
 
-    constructor() {
-        super('UserNameExists');
+    constructor(username?: string) {
+        super(username ? `Username '${username}' already exists.` : undefined);
     }
 }
