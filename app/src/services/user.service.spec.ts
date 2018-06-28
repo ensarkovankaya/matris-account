@@ -88,6 +88,7 @@ describe('UserService', () => {
             lastName: 'Whates',
             role: Role.INSTRUCTOR,
             password: 'newpassword',
+            updateLastLogin: true,
             birthday: new Date("1993-02-26"),
             createdAt: new Date("2018-06-23T19:22:06.755Z"),
             updatedAt: new Date("2018-06-23T19:22:06.755Z")
@@ -98,6 +99,7 @@ describe('UserService', () => {
         expect(user.email).to.eq('new@email.com');
         expect(user.lastName).to.eq('Whates');
         expect(user.role).to.eq('INSTRUCTOR');
+        expect(user.lastLogin).to.be.a('date');
         expect(user.birthday.getTime()).to.eq(new Date("1993-02-26").getTime());
 
         // Check is hashed the password
@@ -241,7 +243,67 @@ describe('UserService', () => {
         const byUsername = await service.getBy({username: "user3"});
         expect(byUsername._id).to.eq("3");
 
-        const notExists = await service.getBy({id: "5"});
-        expect(notExists).to.eq(null);
+        const notExistById = await service.getBy({id: "5"});
+        expect(notExistById).to.eq(null);
+
+        const notExistByEmail = await service.getBy({email: "5@mail.com"});
+        expect(notExistByEmail).to.eq(null);
+
+        const notExistByUsername = await service.getBy({username: "user5"});
+        expect(notExistByUsername).to.eq(null);
+
+        try {
+            await service.getBy({});
+        } catch (err) {
+            expect(err.name).to.eq('ParameterRequired');
+        }
+    });
+
+    it('should check username exists', async () => {
+        const db = new FakeDatabase([
+            {
+                _id: "1",
+                birthday: new Date("1999-01-26T00:00:00.000Z"),
+                gender: "MALE",
+                active: false,
+                deletedAt: null,
+                deleted: false,
+                lastLogin: null,
+                groups: [],
+                email: "1@mail.com",
+                firstName: "Nelson",
+                lastName: "Ciccottio",
+                role: "STUDENT",
+                password: "$2b$10$H210fn813wmANL5FSLz3re6og0xwJ0fKT4HqSY3hi.QgelGGQPM7.",
+                username: "user1",
+                createdAt: new Date("2018-06-26T19:22:06.755Z"),
+                updatedAt: new Date("2018-06-26T19:22:06.755Z"),
+                __v: 0
+            }
+        ]);
+        const service = new UserService(db);
+        const shouldExists = await service.isUsernameExists('user1');
+        expect(shouldExists).to.eq(true);
+
+        const shouldNotExists = await service.isUsernameExists('user2');
+        expect(shouldNotExists).to.eq(false);
+    });
+
+    it('should check password', async () => {
+        const db = new FakeDatabase();
+        const service = new UserService(db);
+        const user = await service.create({
+            firstName: 'FirstName',
+            lastName: 'LastName',
+            email: 'email@mail.com',
+            password: '12345678',
+            role: Role.ADMIN
+        });
+
+        const shouldValid = await service.isPasswordValid('12345678', user.password);
+        expect(shouldValid).to.eq(true);
+
+        const shouldNotValid = await service.isPasswordValid('12345678asd', user.password);
+        expect(shouldNotValid).to.eq(false);
     });
 });
