@@ -20,7 +20,7 @@ export interface IUserFilterModel {
         eq?: Role;
         in: Role[];
     };
-    gender?: Gender;
+    gender?: Gender | null;
     birthday?: ICompareModel;
     deleted?: boolean;
     deletedAt?: ICompareModel;
@@ -57,7 +57,6 @@ export interface IUpdateUserModel {
 }
 
 export interface IUserModel extends Document {
-    _id: string;
     username: string;
     email: string;
     password: string;
