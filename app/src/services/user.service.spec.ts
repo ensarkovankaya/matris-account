@@ -134,7 +134,6 @@ describe('UserService', () => {
                 __v: 0
             }
         ]);
-        const before = Date.now();
         const service = new UserService(db);
         await service.delete("5b32925ea8b04a071c7f8bb0");
         const user = db.data[0];
@@ -142,7 +141,6 @@ describe('UserService', () => {
         expect(user).to.be.an('object');
         expect(user.deleted).to.be.eq(true);
         expect(user.deletedAt).to.be.a('date');
-        expect(user.deletedAt.getTime()).to.be.gt(before);
     });
 
     it('should hard delete user', async () => {
