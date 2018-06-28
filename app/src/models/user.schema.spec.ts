@@ -1,10 +1,7 @@
 import { ObjectID } from 'bson';
-import { expect, use } from 'chai';
-import chaiDateTime = require('chai-datetime');
+import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import { User } from './user.schema';
-
-use(chaiDateTime);
 
 class ValidationPassed extends Error {
     public name = 'ValidationPassed';
