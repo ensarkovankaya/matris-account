@@ -29,6 +29,14 @@ class LastNameRequired extends Error {
     public message = 'User must have valid last name.';
 }
 
+class ParameterRequired extends Error {
+    public name = 'ParameterRequired';
+
+    constructor(paramName: string) {
+        super(`Parameter '${paramName}' required.`);
+    }
+}
+
 @Service()
 export class UserService {
 
@@ -177,7 +185,7 @@ export class UserService {
 
     public async getBy(by: { id?: string, email?: string, username?: string }, deleted: boolean | null = false) {
         if (!by.id && !by.email && !by.username) {
-            throw new Error('One of parameter id, email or username required');
+            throw new ParameterRequired('id, email or username');
         }
         try {
             let condition: object = {};
@@ -198,7 +206,7 @@ export class UserService {
 
     public async isUsernameExists(username: string): Promise<boolean> {
         try {
-            return await this.db.findOne({username}) !== null;
+            return await this.db.findOne({username: normalizeUsername(username)}) !== null;
         } catch (err) {
             console.error('UserService:IsUsernameExists', err);
             throw err;
