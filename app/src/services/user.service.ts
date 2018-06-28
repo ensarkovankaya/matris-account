@@ -1,8 +1,35 @@
 import * as bcrypt from 'bcrypt';
-import { ICreateUserModel, IUpdateUserModel, IUserFilterModel } from '../models/user.model';
+import { Service } from 'typedi';
+import { ICreateUserModel, IUpdateUserModel, IUserFilterModel, IUserModel } from '../models/user.model';
 import { generateRandomUsername, normalizeUsername } from '../utils';
 import { DatabaseService } from './database.service';
 
+class PasswordRequired extends Error {
+    public name = 'PasswordRequired';
+    public message = 'User must have valid password.';
+}
+
+class RoleRequired extends Error {
+    public name = 'RoleRequired';
+    public message = 'User must have valid role.';
+}
+
+class EmailRequired extends Error {
+    public name = 'EmailRequired';
+    public message = 'User must have valid email address.';
+}
+
+class FirstNameRequired extends Error {
+    public name = 'FirstNameRequired';
+    public message = 'User must have valid first name.';
+}
+
+class LastNameRequired extends Error {
+    public name = 'LastNameRequired';
+    public message = 'User must have valid last name.';
+}
+
+@Service()
 export class UserService {
 
     private static hashPassword(plain: string): string {
@@ -17,37 +44,105 @@ export class UserService {
     constructor(private db: DatabaseService) {
     }
 
-    public async create(data: ICreateUserModel) {
+    public async create(data: ICreateUserModel): Promise<IUserModel> {
+        if (!data.password) {
+            throw new PasswordRequired();
+        }
+        if (!data.role) {
+            throw new RoleRequired();
+        }
+        if (!data.email) {
+            throw new EmailRequired();
+        }
+        if (!data.firstName) {
+            throw new FirstNameRequired();
+        }
+        if (!data.lastName) {
+            throw new LastNameRequired();
+        }
         try {
+            // Hash the password
+            const password = UserService.hashPassword(data.password);
             // Generate random username if not exists
-            const username = normalizeUsername(data.username || generateRandomUsername(7)).slice(0, 15);
-            const exists = await this.isUsernameExists(username);
-            if (exists) {
-                return this.create({...data, username: null});
+            const username = normalizeUsername(data.username || generateRandomUsername(7)).slice(0, 20);
+
+            let create: object = {
+                username,
+                password,
+                firstName: data.firstName,
+                lastName: data.lastName,
+                role: data.role,
+                email: data.email
+            };
+
+            if (typeof data.active === 'boolean') {
+                create = {...create, active: data.active};
             }
 
+            if (data.gender !== undefined) {
+                create = {...create, gender: data.gender};
+            }
+
+            if (data.birthday === null || data.birthday instanceof Date) {
+                create = {...create, birthday: data.birthday};
+            }
+
+            if (data.groups && data.groups instanceof Array) {
+                create = {...create, groups: data.groups};
+            }
             // Create User
-            return await this.db.create({
-                ...data,
-                password: UserService.hashPassword(data.password),
-                username,
-                createdAt: new Date(),
-                updatedAt: new Date()
-            });
+            return await this.db.create({...create});
         } catch (err) {
             console.error('UserService:Create', err);
             throw err;
         }
     }
 
-    public async update(id: string, data: IUpdateUserModel) {
+    public async update(id: string, data: IUpdateUserModel): Promise<IUserModel> {
         try {
+            let update = {};  // Build update object
+
             if (data.password) {
-                // Hash password
-                data.password = UserService.hashPassword(data.password);
+                update = {...update, password: UserService.hashPassword(data.password)};
+            }
+
+            if (typeof data.active === 'boolean') {
+                update = {...update, active: data.active};
+            }
+
+            if (data.birthday === null || data.birthday instanceof Date) {
+                update = {...update, birthday: data.birthday};
+            }
+
+            if (data.email) {
+                update = {...update, email: data.email};
+            }
+
+            if (data.firstName) {
+                update = {...update, firstName: data.firstName};
+            }
+
+            if (data.lastName) {
+                update = {...update, lastName: data.lastName};
+            }
+
+            if (data.gender !== undefined) {
+                update = {...update, gender: data.gender};
+            }
+
+            if (data.groups) {
+                update = {...update, groups: data.groups};
+            }
+
+            if (data.role) {
+                update = {...update, role: data.role};
+            }
+
+            if (data.username) {
+                update = {...update, username: data.username};
             }
             // Update user
-            await this.db.update(id, {...data, updatedAt: new Date()});
+            await this.db.update(id, {...update, updatedAt: new Date()});
 
             // Return updated user
             return await this.getBy(id);
@@ -57,7 +152,7 @@ export class UserService {
         }
     }
 
-    public async delete(id: string, hard: boolean = false) {
+    public async delete(id: string, hard: boolean = false): Promise<void> {
         try {
             if (hard) {
                 return await this.db.delete(id);
@@ -69,7 +164,7 @@ export class UserService {
         }
     }
 
-    public async all(filters: IUserFilterModel = {}) {
+    public async all(filters: IUserFilterModel = {}): Promise<IUserModel[]> {
         try {
             return await this.db.all(filters);
         } catch (err) {
