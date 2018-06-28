@@ -5,10 +5,10 @@ import { normalizeUsername } from '../../utils';
 import { PasswordArgs } from '../args/password.args';
 import { UserArgs } from '../args/user.args';
 import { UserFilterArgs } from '../args/user.filter.args';
-import { EmailAlreadyExists, UserNameExists, UserNotFound } from '../errors';
 import { CreateInput } from '../inputs/create.input';
 import { UpdateInput } from '../inputs/update.input';
 import { User } from '../schemas/user.schema';
+import { EmailAlreadyExists, UserNameExists, UserNotFound } from './user.resolver.errors';
 
 @Service()
 @Resolver(of => User)
