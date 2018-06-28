@@ -8,7 +8,7 @@ import { UserFilterArgs } from '../args/user.filter.args';
 import { CreateInput } from '../inputs/create.input';
 import { UpdateInput } from '../inputs/update.input';
 import { User } from '../schemas/user.schema';
-import { EmailAlreadyExists, UserNameExists, UserNotFound } from './user.resolver.errors';
+import { EmailAlreadyExists, ParameterRequired, UserNameExists, UserNotFound } from './user.resolver.errors';
 
 @Service()
 @Resolver(of => User)
@@ -22,9 +22,12 @@ export class UserResolver {
     }
 
     @Query(returnType => User, {nullable: true, description: 'Get user by id, email or username.'})
-    public async get(@Args() args: UserArgs) {
+    public async get(@Args() by: UserArgs) {
+        if (!by.id && !by.email && !by.username) {
+            throw new ParameterRequired('id, email or username');
+        }
         try {
-            return await this.us.getBy(args);
+            return await this.us.getBy(by);
         } catch (err) {
             console.error('UserResolver:User', err);
             throw err;
