@@ -60,5 +60,5 @@ export class UpdateInput implements Partial<User> {
     @Field(type => [String], {nullable: true, description: 'User associated group ids.'})
     @IsArray({each: true})
     @Length(12, 24, {message: 'InvalidIDLength'})
-    public groups: string[];
+    public groups?: string[];
 }
