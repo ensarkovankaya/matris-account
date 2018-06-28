@@ -37,7 +37,7 @@ export class UserResolver {
         if (!user || !user.active) {
             throw new UserNotFound();
         }
-        return this.us.isPasswordValid(password, user.get('password'));
+        return this.us.isPasswordValid(password, user.password);
     }
 
     @Mutation(returnType => User, {description: 'Create user.'})
@@ -53,7 +53,7 @@ export class UserResolver {
         }
 
         // Transform birthday from string to Date object
-        if (data.birthday) {
+        if (typeof data.birthday === 'string' || data.birthday instanceof Date) {
             data.birthday = new Date(data.birthday);
         }
         // Check email exists
