@@ -37,8 +37,8 @@ export interface ICreateUserModel {
     password: string;
     role: Role;
     username?: string;
-    gender?: Gender;
-    birthday?: Date;
+    gender?: Gender | null;
+    birthday?: Date | null;
     active?: boolean;
     groups?: string[];
 }
@@ -50,8 +50,8 @@ export interface IUpdateUserModel {
     password?: string;
     role?: Role;
     username?: string;
-    gender?: Gender;
-    birthday?: Date;
+    gender?: Gender | null;
+    birthday?: Date | null;
     active?: boolean;
     groups?: string[];
     updateLastLogin?: boolean;
