@@ -3,7 +3,7 @@ set -e
 
 install () {
     # Install Dependencies
-    if [ "$NODE_ENV" == "development" ]; then
+    if [ "$NODE_ENV" == "development" ] || [ "$NODE_ENV" == "dev" ]; then
         npm install
     else
         npm install --only=prod
