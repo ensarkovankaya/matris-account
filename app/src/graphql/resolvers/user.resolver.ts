@@ -22,9 +22,9 @@ export class UserResolver {
     }
 
     @Query(returnType => User, {nullable: true, description: 'Get user by id, email or username.'})
-    public async get(@Args() {id, email, username}: UserArgs) {
+    public async get(@Args() args: UserArgs) {
         try {
-            return await this.us.getBy(id, email, username);
+            return await this.us.getBy(args);
         } catch (err) {
             console.error('UserResolver:User', err);
             throw err;
@@ -33,7 +33,7 @@ export class UserResolver {
 
     @Query(returnType => Boolean, {description: 'Validate is user password is valid.'})
     public async password(@Args() {email, password}: PasswordArgs) {
-        const user = await this.us.getBy(null, email);
+        const user = await this.us.getBy({email});
         if (!user || !user.active) {
             throw new UserNotFound();
         }
@@ -57,7 +57,7 @@ export class UserResolver {
             data.birthday = new Date(data.birthday);
         }
         // Check email exists
-        const isEmailExists = await this.us.getBy(null, data.email);
+        const isEmailExists = await this.us.getBy({email: data.email});
         if (isEmailExists) {
             throw new EmailAlreadyExists();
         }
@@ -72,7 +72,7 @@ export class UserResolver {
     @Mutation(returnType => User, {description: 'Update User'})
     public async update(@Arg('id') id: string, @Arg('data') data: UpdateInput) {
         // Check is user exists
-        const user = await this.us.getBy(id);
+        const user = await this.us.getBy({id});
         if (!user) {
             throw new UserNotFound();
         }
@@ -82,14 +82,14 @@ export class UserResolver {
         }
         // If user email changed check is email already exists
         if (data.email && data.email !== user.email) {
-            const isEmailExists = await this.us.getBy(null, data.email);
+            const isEmailExists = await this.us.getBy({email: data.email});
             if (isEmailExists) {
                 throw new EmailAlreadyExists();
             }
         }
         // If user username changed check is username already exists
         if (data.username && data.username !== user.username) {
-            const isUsernameExists = await this.us.getBy(null, null, data.username, null);
+            const isUsernameExists = await this.us.getBy({username: data.username}, null);
             if (isUsernameExists) {
                 throw new UserNameExists();
             }
@@ -105,7 +105,7 @@ export class UserResolver {
     @Mutation(returnType => Boolean, {description: 'Delete user'})
     public async delete(@Arg('id') id: string) {
         // Check is user exists
-        const user = await this.us.getBy(id);
+        const user = await this.us.getBy({id});
         if (!user) {
             throw new UserNotFound();
         }

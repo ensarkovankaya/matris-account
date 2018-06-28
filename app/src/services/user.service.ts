@@ -145,7 +145,7 @@ export class UserService {
             await this.db.update(id, {...update, updatedAt: new Date()});
 
             // Return updated user
-            return await this.getBy(id);
+            return await this.getBy({id});
         } catch (err) {
             console.error('UserService:Update', err);
             throw err;
@@ -173,20 +173,21 @@ export class UserService {
         }
     }
 
-    public async getBy(id?: string, email?: string, username?: string, deleted: boolean | null = false) {
+    public async getBy(by: {id?: string, email?: string, username?: string}, deleted: boolean | null = false) {
+        if (!by.id && !by.email && !by.username) {
+            throw new Error('One of parameter id, email or username required');
+        }
         try {
             let condition: object = {};
             if (typeof deleted === 'boolean') {
                 condition = {deleted};
             }
-            if (id) {
-                return await this.db.findOne({...condition, _id: id});
-            } else if (email) {
-                return await this.db.findOne({...condition, email});
-            } else if (username) {
-                return await this.db.findOne({...condition, username});
+            if (by.id) {
+                return await this.db.findOne({...condition, _id: by.id});
+            } else if (by.email) {
+                return await this.db.findOne({...condition, email: by.email});
             }
-            throw new Error('Parameter id, email or username required');
+            return await this.db.findOne({...condition, username: by.username});
         } catch (err) {
             console.error('UserService:Get', err);
             throw err;
