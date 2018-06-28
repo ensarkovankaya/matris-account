@@ -1,58 +1,74 @@
 import { DocumentQuery } from 'mongoose';
 import { Service } from 'typedi';
 import { ICompareModel } from '../models/compare.model';
-import { ICreateUserModel, IUpdateUserModel, IUserFilterModel, IUserModel } from '../models/user.model';
+import { IUserFilterModel, IUserModel } from '../models/user.model';
 import { User } from '../models/user.schema';
 
-export const compareFilter = (query: DocumentQuery<IUserModel[], IUserModel>, path: string, filter: ICompareModel):
-    DocumentQuery<IUserModel[], IUserModel> => {
-    if (typeof filter.eq === 'number' || filter.eq) {
+export interface IDatabaseService<T> {
+    create(data: object): Promise<T> | T;
+
+    update(id: string, data: object): Promise<void> | void;
+
+    delete(id: string): void;
+
+    all(conditions: object): Promise<T[]> | T[];
+
+    findOne(conditions: object): Promise<T> | null | T | null;
+}
+
+export const compareFilter = (query: DocumentQuery<any[], any>, path: string, filter: ICompareModel):
+    DocumentQuery<any[], any> => {
+    if (filter.eq !== undefined) {
         return query.where(path, filter.eq);
     }
-    if (typeof filter.gt === 'number' || filter.gt) {
+    if (filter.gt !== undefined) {
         query = query.where(path).gt(filter.gt as number);
-    } else if (typeof filter.gte === 'number' || filter.gte) {
+    } else if (filter.gte !== undefined) {
         query = query.where(path).gte(filter.gte as number);
     }
-    if (typeof filter.lt === 'number' || filter.lt) {
+    if (filter.lt !== undefined) {
         query = query.where(path).lt(filter.lt as number);
-    } else if (typeof filter.lte === 'number' || filter.lte) {
+    } else if (filter.lte !== undefined) {
         query = query.where(path).lte(filter.lte as number);
     }
     return query;
 };
 
 @Service()
-export class DatabaseService {
+export class DatabaseService implements IDatabaseService<IUserModel> {
 
-    public async create(data: object) {
+    public async create(data: object): Promise<IUserModel> {
         try {
-            return await new User(data).save({validateBeforeSave: true});
+            return await new User({
+                ...data,
+                createdAt: new Date(),
+                updatedAt: new Date()
+            }).save({validateBeforeSave: true});
         } catch (err) {
             console.error('DatabaseService:Create', err);
             throw err;
         }
     }
 
-    public async update(id: string, data: object) {
+    public async update(id: string, data: object): Promise<void> {
         try {
-            return await User.findByIdAndUpdate(id, data).exec();
+            await User.findByIdAndUpdate(id, {...data, updatedAt: new Date()}).exec();
         } catch (err) {
             console.error('DatabaseService:Update', err);
             throw err;
         }
     }
 
-    public async delete(id: string) {
+    public async delete(id: string): Promise<void> {
         try {
-            await User.findOneAndRemove({_id: id}).exec();
+            await User.findByIdAndRemove(id).exec();
         } catch (err) {
             console.error('DatabaseService:Delete', err);
             throw err;
         }
     }
 
-    public async all(conditions: IUserFilterModel = {}) {
+    public async all(conditions: IUserFilterModel = {}): Promise<IUserModel[]> {
         try {
             let query = User.find();
             if (typeof conditions.deleted === 'boolean') {
@@ -96,7 +112,7 @@ export class DatabaseService {
         }
     }
 
-    public async findOne(conditions?: object) {
+    public async findOne(conditions: object): Promise<IUserModel | null> {
         try {
             return await User.findOne(conditions).exec();
         } catch (err) {
