@@ -72,12 +72,9 @@ export class UserService {
                 firstName: data.firstName,
                 lastName: data.lastName,
                 role: data.role,
-                email: data.email
+                email: data.email,
+                active: data.active !== false
             };
-
-            if (typeof data.active === 'boolean') {
-                create = {...create, active: data.active};
-            }
 
             if (data.gender !== undefined) {
                 create = {...create, gender: data.gender};
@@ -173,7 +170,7 @@ export class UserService {
         }
     }
 
-    public async getBy(by: {id?: string, email?: string, username?: string}, deleted: boolean | null = false) {
+    public async getBy(by: { id?: string, email?: string, username?: string }, deleted: boolean | null = false) {
         if (!by.id && !by.email && !by.username) {
             throw new Error('One of parameter id, email or username required');
         }
