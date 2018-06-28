@@ -1,5 +1,5 @@
 import { model, Schema } from "mongoose";
-import { isEmail, isAlpha, isAlphanumeric } from 'validator';
+import { isAlpha, isAlphanumeric, isEmail } from 'validator';
 import { Gender, IUserModel, Role } from './user.model';
 
 const isNotContainEmptySpaces = (value: string): boolean => value.replace(/\s/g, '') === value;
