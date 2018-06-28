@@ -56,7 +56,7 @@ export class FakeDatabase implements IDatabaseModel<IUserModel> {
             username: data.username,
             gender: data.gender || null,
             birthday: data.birthday || null,
-            active: data.active || true,
+            active: data.active !== false,
             groups: data.groups || [],
             lastLogin: null,
             createdAt: new Date(),
