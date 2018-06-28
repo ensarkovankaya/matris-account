@@ -157,7 +157,7 @@ export class UserService {
             if (hard) {
                 return await this.db.delete(id);
             }
-            return await this.db.update(id, {deleted: true, deletedAt: new Date()});
+            await this.db.update(id, {deleted: true, deletedAt: new Date()});
         } catch (err) {
             console.error('UserService:Delete', err);
             throw err;
