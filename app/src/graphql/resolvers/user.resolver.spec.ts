@@ -107,7 +107,8 @@ describe('UserResolver', () => {
             email: 'email@example.com',
             role: Role.INSTRUCTOR,
             password: 'newpassword',
-            username: 'user23'
+            username: 'user23',
+            updateLastLogin: true
         });
         expect(user).to.be.a('object');
         expect(user.firstName).to.be.eq('John');
@@ -117,6 +118,7 @@ describe('UserResolver', () => {
         expect(user.role).to.be.eq('INSTRUCTOR');
         expect(user.gender).to.be.eq('FEMALE');
         expect(user.birthday).to.be.a('date');
+        expect(user.lastLogin).to.be.a('date');
         expect(user.birthday.getTime()).to.be.eq(new Date(1987, 2, 4).getTime());
         expect(user.password).to.be.not.eq('$2b$10$H210fn813wmANL5FSLz3re6og0xwJ0fKT4HqSY3hi.QgelGGQPM7.');
         expect(user.password).to.have.lengthOf.at.within(50, 80);
@@ -178,6 +180,90 @@ describe('UserResolver', () => {
             await resolver.password({email: '123@mail.com', password: '123456789'});
         } catch (e) {
             expect(e.name).to.eq('UserNotFound');
+        }
+    });
+
+    it('should get user by id, email or username', async () => {
+        const db = new FakeDatabase([
+            {
+                _id: "1",
+                birthday: new Date("1999-01-26T00:00:00.000Z"),
+                gender: "MALE",
+                active: false,
+                deletedAt: null,
+                deleted: false,
+                lastLogin: null,
+                groups: [],
+                email: "1@mail.com",
+                firstName: "Nelson",
+                lastName: "Ciccottio",
+                role: "STUDENT",
+                password: "$2b$10$H210fn813wmANL5FSLz3re6og0xwJ0fKT4HqSY3hi.QgelGGQPM7.",
+                username: "user1",
+                createdAt: new Date("2018-06-26T19:22:06.755Z"),
+                updatedAt: new Date("2018-06-26T19:22:06.755Z"),
+                __v: 0
+            },
+            {
+                _id: "2",
+                birthday: new Date("1999-01-26T00:00:00.000Z"),
+                gender: "MALE",
+                active: false,
+                deletedAt: null,
+                deleted: false,
+                lastLogin: null,
+                groups: [],
+                email: "2@mail.com",
+                firstName: "Nelson",
+                lastName: "Ciccottio",
+                role: "STUDENT",
+                password: "$2b$10$H210fn813wmANL5FSLz3re6og0xwJ0fKT4HqSY3hi.QgelGGQPM7.",
+                username: "user2",
+                createdAt: new Date("2018-06-26T19:22:06.755Z"),
+                updatedAt: new Date("2018-06-26T19:22:06.755Z"),
+                __v: 0
+            },
+            {
+                _id: "3",
+                birthday: new Date("1999-01-26T00:00:00.000Z"),
+                gender: "MALE",
+                active: false,
+                deletedAt: null,
+                deleted: false,
+                lastLogin: null,
+                groups: [],
+                email: "3@mail.com",
+                firstName: "Nelson",
+                lastName: "Ciccottio",
+                role: "STUDENT",
+                password: "$2b$10$H210fn813wmANL5FSLz3re6og0xwJ0fKT4HqSY3hi.QgelGGQPM7.",
+                username: "user3",
+                createdAt: new Date("2018-06-26T19:22:06.755Z"),
+                updatedAt: new Date("2018-06-26T19:22:06.755Z"),
+                __v: 0
+            }
+        ]);
+        const resolver = new UserResolver(new UserService(db));
+
+        const userByID = await resolver.get({id: '1'});
+        expect(userByID).to.be.a('object');
+        expect(userByID._id).to.eq('1');
+
+        const userByEmail = await resolver.get({email: '2@mail.com'});
+        expect(userByEmail).to.be.a('object');
+        expect(userByEmail._id).to.eq('2');
+
+        const userByUsername = await resolver.get({username: 'user3'});
+        expect(userByUsername).to.be.a('object');
+        expect(userByUsername._id).to.eq('3');
+
+        const shouldNull = await resolver.get({id: 'a'});
+        expect(shouldNull).to.be.eq(null);
+
+        try {
+            await resolver.get({});
+        } catch (e) {
+            expect(e.name).to.be.eq('ParameterRequired');
         }
     });
 });
