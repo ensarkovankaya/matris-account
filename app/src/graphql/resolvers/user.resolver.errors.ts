@@ -30,3 +30,11 @@ export class UserNameExists extends Error {
         super(username ? `Username '${username}' already exists.` : undefined);
     }
 }
+
+export class ParameterRequired extends Error {
+    public name = 'ParameterRequired';
+
+    constructor(paramName: string) {
+        super(`Parameter '${paramName}' required.`);
+    }
+}
