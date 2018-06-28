@@ -1,20 +1,9 @@
 import { DocumentQuery } from 'mongoose';
 import { Service } from 'typedi';
 import { ICompareModel } from '../models/compare.model';
+import { IDatabaseModel } from '../models/database.model';
 import { IUserFilterModel, IUserModel } from '../models/user.model';
 import { User } from '../models/user.schema';
-
-export interface IDatabaseService<T> {
-    create(data: object): Promise<T> | T;
-
-    update(id: string, data: object): Promise<void> | void;
-
-    delete(id: string): void;
-
-    all(conditions: object): Promise<T[]> | T[];
-
-    findOne(conditions: object): Promise<T> | null | T | null;
-}
 
 export const compareFilter = (query: DocumentQuery<any[], any>, path: string, filter: ICompareModel):
     DocumentQuery<any[], any> => {
@@ -35,7 +24,7 @@ export const compareFilter = (query: DocumentQuery<any[], any>, path: string, fi
 };
 
 @Service()
-export class DatabaseService implements IDatabaseService<IUserModel> {
+export class DatabaseService implements IDatabaseModel<IUserModel> {
 
     public async create(data: object): Promise<IUserModel> {
         try {

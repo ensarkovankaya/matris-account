@@ -1,6 +1,6 @@
 import { ICompareModel } from '../models/compare.model';
+import { IDatabaseModel } from '../models/database.model';
 import { IUserFilterModel, IUserModel } from '../models/user.model';
-import { IDatabaseService } from './database.service';
 
 interface IFilterModel extends IUserFilterModel {
     _id?: string;
@@ -8,7 +8,7 @@ interface IFilterModel extends IUserFilterModel {
     username?: string;
 }
 
-export class FakeDatabase implements IDatabaseService<IUserModel> {
+export class FakeDatabase implements IDatabaseModel<IUserModel> {
 
     private static compare(data: any[], path: string, filter: ICompareModel): any[] {
         if (filter.eq !== undefined) {
