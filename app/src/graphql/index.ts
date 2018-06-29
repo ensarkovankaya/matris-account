@@ -27,7 +27,7 @@ export async function getRootSchema(): Promise<GraphQLSchema> {
 export const getGraphQLHTTPServer = () => graphqlHTTP(async (): Promise<OptionsData> => {
     return {
         schema: await getRootSchema(),
-        graphiql: process.env.NODE_ENV === 'development',
+        graphiql: process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'dev',
         formatError: formatArgumentValidationError
     };
 });
