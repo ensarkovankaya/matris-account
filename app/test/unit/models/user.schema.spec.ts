@@ -1,7 +1,7 @@
 import { ObjectID } from 'bson';
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
-import { User } from './user.schema';
+import { User } from '../../../src/models/user.schema';
 
 class ValidationPassed extends Error {
     public name = 'ValidationPassed';

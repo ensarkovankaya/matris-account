@@ -1,14 +1,14 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import 'reflect-metadata';
-import { Gender, Role } from '../../models/user.model';
-import { FakeDatabase } from '../../services/fake.database.service';
-import { UserService } from '../../services/user.service';
-import { UserResolver } from './user.resolver';
+import { UserResolver } from '../../../../src/graphql/resolvers/user.resolver';
+import { Gender, Role } from '../../../../src/models/user.model';
+import { UserService } from '../../../../src/services/user.service';
+import { MockDatabase } from '../../mock.database';
 
 describe('UserResolver', () => {
     it('should create user with minimum arguments', async () => {
-        const db = new FakeDatabase();
+        const db = new MockDatabase();
         const resolver = new UserResolver(new UserService(db));
 
         const user = await resolver.create({
@@ -41,7 +41,7 @@ describe('UserResolver', () => {
     });
 
     it('should create user with all arguments', async () => {
-        const db = new FakeDatabase();
+        const db = new MockDatabase();
         const resolver = new UserResolver(new UserService(db));
         const user = await resolver.create({
             firstName: 'FirstName',
@@ -75,7 +75,7 @@ describe('UserResolver', () => {
     });
 
     it('should update user', async () => {
-        const db = new FakeDatabase([
+        const db = new MockDatabase([
             {
                 _id: "5b32925ea8b04a071c7f8bb0",
                 birthday: new Date(1989, 1, 26),
@@ -129,7 +129,7 @@ describe('UserResolver', () => {
     });
 
     it('should delete user', async () => {
-        const db = new FakeDatabase([
+        const db = new MockDatabase([
             {
                 _id: "5b32925ea8b04a071c7f8bb0",
                 birthday: new Date(1989, 1, 26),
@@ -160,7 +160,7 @@ describe('UserResolver', () => {
     });
 
     it('should validate password', async () => {
-        const db = new FakeDatabase();
+        const db = new MockDatabase();
         const resolver = new UserResolver(new UserService(db));
         await resolver.create({
             firstName: 'FirstName',
@@ -184,7 +184,7 @@ describe('UserResolver', () => {
     });
 
     it('should get user by id, email or username', async () => {
-        const db = new FakeDatabase([
+        const db = new MockDatabase([
             {
                 _id: "1",
                 birthday: new Date("1999-01-26T00:00:00.000Z"),

@@ -1,6 +1,6 @@
-import { ICompareModel } from '../models/compare.model';
-import { IDatabaseModel } from '../models/database.model';
-import { IUserFilterModel, IUserModel } from '../models/user.model';
+import { ICompareModel } from '../../src/models/compare.model';
+import { IDatabaseModel } from '../../src/models/database.model';
+import { IUserFilterModel, IUserModel } from '../../src/models/user.model';
 
 interface IFilterModel extends IUserFilterModel {
     _id?: string;
@@ -8,7 +8,7 @@ interface IFilterModel extends IUserFilterModel {
     username?: string;
 }
 
-export class FakeDatabase implements IDatabaseModel<IUserModel> {
+export class MockDatabase implements IDatabaseModel<IUserModel> {
 
     private static compare(data: any[], path: string, filter: ICompareModel): any[] {
         if (filter.eq !== undefined) {
@@ -47,7 +47,7 @@ export class FakeDatabase implements IDatabaseModel<IUserModel> {
 
     public async create(data: Partial<IUserModel>) {
         const user = {
-            _id: FakeDatabase.generateID(),
+            _id: MockDatabase.generateID(),
             email: data.email,
             firstName: data.firstName,
             lastName: data.lastName,
@@ -122,22 +122,22 @@ export class FakeDatabase implements IDatabaseModel<IUserModel> {
             data = data.filter(u => u.gender === filters.gender);
         }
         if (filters.birthday) {
-            data = FakeDatabase.compare(data, 'birthday', filters.birthday);
+            data = MockDatabase.compare(data, 'birthday', filters.birthday);
         }
         if (filters.deleted !== undefined) {
             data = data.filter(u => u.deleted === filters.deleted);
         }
         if (filters.deletedAt) {
-            data = FakeDatabase.compare(data, 'deletedAt', filters.deletedAt);
+            data = MockDatabase.compare(data, 'deletedAt', filters.deletedAt);
         }
         if (filters.createdAt) {
-            data = FakeDatabase.compare(data, 'createdAt', filters.createdAt);
+            data = MockDatabase.compare(data, 'createdAt', filters.createdAt);
         }
         if (filters.updatedAt) {
-            data = FakeDatabase.compare(data, 'updatedAt', filters.updatedAt);
+            data = MockDatabase.compare(data, 'updatedAt', filters.updatedAt);
         }
         if (filters.lastLogin) {
-            data = FakeDatabase.compare(data, 'lastLogin', filters.lastLogin);
+            data = MockDatabase.compare(data, 'lastLogin', filters.lastLogin);
         }
         if (filters.groups && filters.groups.length > 0) {
             data = data.filter(u => u.groups.some(id => filters.groups.indexOf(id) > 0));

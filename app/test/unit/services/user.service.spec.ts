@@ -1,12 +1,12 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
-import { Gender, IUpdateUserModel, Role } from '../models/user.model';
-import { FakeDatabase } from './fake.database.service';
-import { UserService } from './user.service';
+import { Gender, IUpdateUserModel, Role } from '../../../src/models/user.model';
+import { UserService } from '../../../src/services/user.service';
+import { MockDatabase } from '../mock.database';
 
 describe('UserService', () => {
     it('should create user with basic information', async () => {
-        const db = new FakeDatabase();
+        const db = new MockDatabase();
         const service = new UserService(db);
         const user = await service.create({
             email: 'email@mail.com',
@@ -30,7 +30,7 @@ describe('UserService', () => {
     });
 
     it('should create user with all information', async () => {
-        const db = new FakeDatabase();
+        const db = new MockDatabase();
         const service = new UserService(db);
         const user = await service.create({
             email: 'email@mail.com',
@@ -60,7 +60,7 @@ describe('UserService', () => {
     });
 
     it('should update user', async () => {
-        const db = new FakeDatabase([
+        const db = new MockDatabase([
             {
                 _id: "5b32925ea8b04a071c7f8bb0",
                 birthday: new Date("1999-01-26T00:00:00.000Z"),
@@ -115,7 +115,7 @@ describe('UserService', () => {
     });
 
     it('should soft delete user', async () => {
-        const db = new FakeDatabase([
+        const db = new MockDatabase([
             {
                 _id: "5b32925ea8b04a071c7f8bb0",
                 birthday: new Date("1999-01-26T00:00:00.000Z"),
@@ -146,7 +146,7 @@ describe('UserService', () => {
     });
 
     it('should hard delete user', async () => {
-        const db = new FakeDatabase([
+        const db = new MockDatabase([
             {
                 _id: "5b32925ea8b04a071c7f8bb0",
                 birthday: new Date("1999-01-26T00:00:00.000Z"),
@@ -174,7 +174,7 @@ describe('UserService', () => {
     });
 
     it('should get user by id, email and username', async () => {
-        const db = new FakeDatabase([
+        const db = new MockDatabase([
             {
                 _id: "1",
                 birthday: new Date("1999-01-26T00:00:00.000Z"),
@@ -260,7 +260,7 @@ describe('UserService', () => {
     });
 
     it('should check username exists', async () => {
-        const db = new FakeDatabase([
+        const db = new MockDatabase([
             {
                 _id: "1",
                 birthday: new Date("1999-01-26T00:00:00.000Z"),
@@ -290,7 +290,7 @@ describe('UserService', () => {
     });
 
     it('should check password', async () => {
-        const db = new FakeDatabase();
+        const db = new MockDatabase();
         const service = new UserService(db);
         const user = await service.create({
             firstName: 'FirstName',
