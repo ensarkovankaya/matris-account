@@ -6,7 +6,7 @@ import { Gender, Role } from '../../../../src/models/user.model';
 import { UserService } from '../../../../src/services/user.service';
 import { MockDatabase } from '../../mock.database';
 
-describe('UserResolver', () => {
+describe('Resolvers -> User', () => {
     it('should create user with minimum arguments', async () => {
         const db = new MockDatabase();
         const resolver = new UserResolver(new UserService(db));

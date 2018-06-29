@@ -7,7 +7,7 @@ class ValidationPassed extends Error {
     public name = 'ValidationPassed';
 }
 
-describe('UserSchema', () => {
+describe('Models -> User', () => {
     it('should create user object with default values and validate raise required errors', async () => {
         const now = Date.now();
         const before = new Date(now - (2 * 60000)); // Two minutes after

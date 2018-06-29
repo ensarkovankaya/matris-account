@@ -4,7 +4,7 @@ import { Gender, IUpdateUserModel, Role } from '../../../src/models/user.model';
 import { UserService } from '../../../src/services/user.service';
 import { MockDatabase } from '../mock.database';
 
-describe('UserService', () => {
+describe('Services -> User', () => {
     it('should create user with basic information', async () => {
         const db = new MockDatabase();
         const service = new UserService(db);
