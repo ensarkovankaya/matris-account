@@ -13,6 +13,7 @@ install () {
 if [ "$1" == "bash" ]; then
     /usr/bin/env bash
 elif [ "$1" == "test" ]; then
+    NODE_ENV=test # Set Environment to test
     npm run test
 elif [ "$1" == "install" ]; then
     install
