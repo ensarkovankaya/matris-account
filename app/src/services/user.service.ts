@@ -37,7 +37,7 @@ class ParameterRequired extends Error {
     }
 }
 
-@Service()
+@Service('UserService')
 export class UserService {
 
     private static hashPassword(plain: string): string {
