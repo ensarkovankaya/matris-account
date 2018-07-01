@@ -23,7 +23,7 @@ export const compareFilter = (query: DocumentQuery<any[], any>, path: string, fi
     return query;
 };
 
-@Service()
+@Service('DatabaseService')
 export class DatabaseService implements IDatabaseModel<IUserModel> {
 
     public async create(data: object): Promise<IUserModel> {
