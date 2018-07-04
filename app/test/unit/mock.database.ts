@@ -1,6 +1,9 @@
+import { Service } from 'typedi';
+import { ParameterRequired } from '../../src/graphql/resolvers/user.resolver.errors';
 import { ICompareModel } from '../../src/models/compare.model';
 import { IDatabaseModel } from '../../src/models/database.model';
 import { IUserFilterModel, IUserModel } from '../../src/models/user.model';
+import { User } from '../../src/models/user.schema';
 
 interface IFilterModel extends IUserFilterModel {
     _id?: string;
@@ -8,6 +11,7 @@ interface IFilterModel extends IUserFilterModel {
     username?: string;
 }
 
+@Service()
 export class MockDatabase implements IDatabaseModel<IUserModel> {
 
     private static compare(data: any[], path: string, filter: ICompareModel): any[] {
@@ -46,36 +50,34 @@ export class MockDatabase implements IDatabaseModel<IUserModel> {
     }
 
     public async create(data: Partial<IUserModel>) {
-        const user = {
-            _id: MockDatabase.generateID(),
-            email: data.email,
-            firstName: data.firstName,
-            lastName: data.lastName,
-            password: data.password,
-            role: data.role,
-            username: data.username,
-            gender: data.gender || null,
-            birthday: data.birthday || null,
-            active: data.active !== false,
-            groups: data.groups || [],
-            lastLogin: null,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-            deleted: false,
-            deletedAt: null,
-            __v: 0
-        } as IUserModel;
-        this._data.push(user);
-        return user;
+        try {
+            const user = new User(data);
+            await user.validate();
+            this._data.push(user);
+            return user;
+        } catch (err) {
+            console.error('MockDatabase:Create', err);
+            throw err;
+        }
     }
 
-    public async update(id: string, data: any) {
-        this._data = this._data.map(user => {
+    public async update(id: string, data: any): Promise<void> {
+        if (!id) {
+            throw new ParameterRequired('id');
+        }
+        this._data = await Promise.all(this._data.map(async user => {
             if (user._id === id) {
-                return Object.assign({}, user, data, {__v: user.__v + 1});
+                try {
+                    const updated = new User({...user.toObject(), ...data});
+                    await updated.validate();
+                    return updated;
+                } catch (err) {
+                    console.error('MockDatabase:Update', {id, data, user, err});
+                    throw err;
+                }
             }
             return user;
-        });
+        }));
     }
 
     public async delete(id: string) {
@@ -86,7 +88,7 @@ export class MockDatabase implements IDatabaseModel<IUserModel> {
         return this.filter(this._data.slice(), filters);
     }
 
-    public async findOne(conditions: IUserFilterModel) {
+    public async findOne(conditions: IFilterModel) {
         return this.filter(this._data.slice(), conditions)[0] || null;
     }
 
@@ -100,7 +102,7 @@ export class MockDatabase implements IDatabaseModel<IUserModel> {
 
     private filter(data: IUserModel[], filters: IFilterModel): IUserModel[] {
         if (filters._id) {
-            data = data.filter(d => d._id === filters._id);
+            data = data.filter(d => d._id.toString() === filters._id.toString());
         }
         if (filters.username) {
             data = data.filter(d => d.username === filters.username);
