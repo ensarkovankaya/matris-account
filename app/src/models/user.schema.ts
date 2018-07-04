@@ -65,11 +65,13 @@ const UserSchema: Schema = new Schema({
         validate: [
             {
                 validator: (val: any) => isNotContainEmptySpaces(val),
-                msg: 'Should not contains empty spaces'
+                msg: 'Should not contains empty spaces',
+                type: 'EmptySpaces'
             },
             {
                 validator: (val: any) => isAlphanumeric(val),
-                msg: 'AlphaNumeric'
+                msg: 'Username must contain lower or uppercase characters and numbers.',
+                type: 'AlphaNumeric'
             }
         ]
     },
@@ -106,19 +108,11 @@ const UserSchema: Schema = new Schema({
     },
     deletedAt: {
         type: Date,
-        default: null,
-        validate: {
-            validator: (val: any) => !(val instanceof Date && this.deleted !== true), // Check if deleted is set true.
-            type: 'ValueDependency'
-        }
+        default: null
     },
     deleted: {
         type: Boolean,
-        default: false,
-        validate: {
-            validator: (val: any) => !(val && !this.deletedAt), // Check if deletedAt set
-            type: 'ValueDependency'
-        }
+        default: false
     },
     lastLogin: {
         type: Date,

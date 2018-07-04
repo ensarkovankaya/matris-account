@@ -49,7 +49,7 @@ export class UserService {
         }
     }
 
-    constructor(private db: DatabaseService) {
+    constructor(public db: DatabaseService) {
     }
 
     public async create(data: ICreateUserModel): Promise<IUserModel> {

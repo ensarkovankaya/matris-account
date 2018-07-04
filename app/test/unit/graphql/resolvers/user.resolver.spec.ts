@@ -6,11 +6,13 @@ import { Gender, Role } from '../../../../src/models/user.model';
 import { UserService } from '../../../../src/services/user.service';
 import { MockDatabase } from '../../mock.database';
 
+class ShouldNotSucceed extends Error {
+    public name = 'ShouldNotSucceed';
+}
+
 describe('Resolvers -> User', () => {
     it('should create user with minimum arguments', async () => {
-        const db = new MockDatabase();
-        const resolver = new UserResolver(new UserService(db));
-
+        const resolver = new UserResolver(new UserService(new MockDatabase()));
         const user = await resolver.create({
             firstName: 'FirstName',
             lastName: 'LastName',
@@ -19,7 +21,7 @@ describe('Resolvers -> User', () => {
             password: '12345678',
         });
         expect(user).to.be.a('object');
-        expect(user._id).to.be.a('string');
+        expect(user._id).to.be.an('object');
         expect(user.firstName).to.be.eq('FirstName');
         expect(user.lastName).to.be.eq('LastName');
         expect(user.email).to.be.eq('email@mail.com');
@@ -27,6 +29,7 @@ describe('Resolvers -> User', () => {
         expect(user.username).to.be.a('string');
         expect(user.username).to.be.eq('firstnamelastname');
         expect(user.password).to.be.a('string');
+        expect(user.password).to.not.eq('12345678');
         expect(user.password).to.have.lengthOf.at.within(50, 80);
         expect(user.birthday).to.be.eq(null);
         expect(user.updatedAt).to.be.a('date');
@@ -41,8 +44,7 @@ describe('Resolvers -> User', () => {
     });
 
     it('should create user with all arguments', async () => {
-        const db = new MockDatabase();
-        const resolver = new UserResolver(new UserService(db));
+        const resolver = new UserResolver(new UserService(new MockDatabase()));
         const user = await resolver.create({
             firstName: 'FirstName',
             lastName: 'LastName',
@@ -56,7 +58,7 @@ describe('Resolvers -> User', () => {
             username: 'customusername'
         });
         expect(user).to.be.a('object');
-        expect(user._id).to.be.a('string');
+        expect(user._id).to.be.an('object');
         expect(user.firstName).to.be.eq('FirstName');
         expect(user.lastName).to.be.eq('LastName');
         expect(user.email).to.be.eq('email@mail.com');
@@ -75,29 +77,20 @@ describe('Resolvers -> User', () => {
     });
 
     it('should update user', async () => {
-        const db = new MockDatabase([
-            {
-                _id: "5b32925ea8b04a071c7f8bb0",
-                birthday: new Date(1989, 1, 26),
-                gender: "MALE",
-                active: false,
-                deletedAt: null,
-                deleted: false,
-                lastLogin: null,
-                groups: ['group-1', 'group-2'],
-                email: "nciccottio2r@pen.io",
-                firstName: "Nelson",
-                lastName: "Ciccottio",
-                role: "STUDENT",
-                password: "$2b$10$H210fn813wmANL5FSLz3re6og0xwJ0fKT4HqSY3hi.QgelGGQPM7.",
-                username: "nelsonciccottio",
-                createdAt: new Date("2018-06-26T19:22:06.755Z"),
-                updatedAt: new Date("2018-06-26T19:22:06.755Z"),
-                __v: 0
-            }
-        ]);
-        const resolver = new UserResolver(new UserService(db));
-        const user = await resolver.update("5b32925ea8b04a071c7f8bb0", {
+        const resolver = new UserResolver(new UserService(new MockDatabase()));
+        const user = await resolver.create({
+            birthday: new Date(1989, 1, 26),
+            gender: Gender.MALE,
+            active: false,
+            groups: ['group-1', 'group-2'],
+            email: "nciccottio2r@pen.io",
+            firstName: "Nelson",
+            lastName: "Ciccottio",
+            role: Role.STUDENT,
+            password: "12345678",
+            username: "nelsonciccottio"
+        });
+        const updated = await resolver.update(user._id, {
             firstName: 'John',
             lastName: 'Nick',
             birthday: new Date(1987, 2, 4),
@@ -110,58 +103,46 @@ describe('Resolvers -> User', () => {
             username: 'user23',
             updateLastLogin: true
         });
-        expect(user).to.be.a('object');
-        expect(user.firstName).to.be.eq('John');
-        expect(user.lastName).to.be.eq('Nick');
-        expect(user.email).to.be.eq('email@example.com');
-        expect(user.username).to.be.eq('user23');
-        expect(user.role).to.be.eq('INSTRUCTOR');
-        expect(user.gender).to.be.eq('FEMALE');
-        expect(user.birthday).to.be.a('date');
-        expect(user.lastLogin).to.be.a('date');
-        expect(user.birthday.getTime()).to.be.eq(new Date(1987, 2, 4).getTime());
-        expect(user.password).to.be.not.eq('$2b$10$H210fn813wmANL5FSLz3re6og0xwJ0fKT4HqSY3hi.QgelGGQPM7.');
-        expect(user.password).to.have.lengthOf.at.within(50, 80);
-        expect(user.updatedAt).to.be.a('date');
-        expect(user.updatedAt).to.be.not.eq(new Date("2018-06-26T19:22:06.755Z"));
-        expect(user.active).to.be.eq(true);
-        expect(user.groups.length).to.be.eq(1);
+        expect(updated).to.be.a('object');
+        expect(updated.firstName).to.be.eq('John');
+        expect(updated.lastName).to.be.eq('Nick');
+        expect(updated.email).to.be.eq('email@example.com');
+        expect(updated.username).to.be.eq('user23');
+        expect(updated.role).to.be.eq('INSTRUCTOR');
+        expect(updated.gender).to.be.eq('FEMALE');
+        expect(updated.birthday).to.be.a('date');
+        expect(updated.lastLogin).to.be.a('date');
+        expect(updated.birthday.getTime()).to.be.eq(new Date(1987, 2, 4).getTime());
+        expect(updated.password).to.be.not.eq(user.password);
+        expect(updated.password).to.be.not.eq('newpassword');
+        expect(updated.password).to.have.lengthOf.at.within(50, 80);
+        expect(updated.updatedAt).to.be.a('date');
+        expect(updated.updatedAt).to.be.not.eq(user.updatedAt);
+        expect(updated.active).to.be.eq(true);
+        expect(updated.groups.length).to.be.eq(1);
     });
 
-    it('should delete user', async () => {
-        const db = new MockDatabase([
-            {
-                _id: "5b32925ea8b04a071c7f8bb0",
-                birthday: new Date(1989, 1, 26),
-                gender: "MALE",
-                active: false,
-                deletedAt: null,
-                deleted: false,
-                lastLogin: null,
-                groups: ['group-1', 'group-2'],
-                email: "nciccottio2r@pen.io",
-                firstName: "Nelson",
-                lastName: "Ciccottio",
-                role: "STUDENT",
-                password: "$2b$10$H210fn813wmANL5FSLz3re6og0xwJ0fKT4HqSY3hi.QgelGGQPM7.",
-                username: "nelsonciccottio",
-                createdAt: new Date("2018-06-26T19:22:06.755Z"),
-                updatedAt: new Date("2018-06-26T19:22:06.755Z"),
-                __v: 0
-            }
-        ]);
+    it('should soft delete user', async () => {
+        const db = new MockDatabase();
         const resolver = new UserResolver(new UserService(db));
-        await resolver.delete("5b32925ea8b04a071c7f8bb0");
+        const user = await resolver.create({
+            birthday: new Date(1989, 1, 26),
+            gender: Gender.MALE,
+            active: false,
+            groups: ['group-1', 'group-2'],
+            email: "nciccottio2r@pen.io",
+            firstName: "Nelson",
+            lastName: "Ciccottio",
+            role: Role.STUDENT,
+            password: "12345678",
+            username: "nelsonciccottio"
+        });
+        await resolver.delete(user._id);
         expect(db.data.length).to.eq(1);
-        const user = db.data[0];
-        expect(user).to.be.an('object');
-        expect(user.deleted).to.eq(true);
-        expect(user.deletedAt).to.be.a('date');
     });
 
     it('should validate password', async () => {
-        const db = new MockDatabase();
-        const resolver = new UserResolver(new UserService(db));
+        const resolver = new UserResolver(new UserService(new MockDatabase()));
         await resolver.create({
             firstName: 'FirstName',
             lastName: 'LastName',
@@ -178,90 +159,65 @@ describe('Resolvers -> User', () => {
 
         try {
             await resolver.password({email: '123@mail.com', password: '123456789'});
+            throw new ShouldNotSucceed();
         } catch (e) {
             expect(e.name).to.eq('UserNotFound');
         }
     });
 
     it('should get user by id, email or username', async () => {
-        const db = new MockDatabase([
-            {
-                _id: "1",
-                birthday: new Date("1999-01-26T00:00:00.000Z"),
-                gender: "MALE",
-                active: false,
-                deletedAt: null,
-                deleted: false,
-                lastLogin: null,
-                groups: [],
-                email: "1@mail.com",
-                firstName: "Nelson",
-                lastName: "Ciccottio",
-                role: "STUDENT",
-                password: "$2b$10$H210fn813wmANL5FSLz3re6og0xwJ0fKT4HqSY3hi.QgelGGQPM7.",
-                username: "user1",
-                createdAt: new Date("2018-06-26T19:22:06.755Z"),
-                updatedAt: new Date("2018-06-26T19:22:06.755Z"),
-                __v: 0
-            },
-            {
-                _id: "2",
-                birthday: new Date("1999-01-26T00:00:00.000Z"),
-                gender: "MALE",
-                active: false,
-                deletedAt: null,
-                deleted: false,
-                lastLogin: null,
-                groups: [],
-                email: "2@mail.com",
-                firstName: "Nelson",
-                lastName: "Ciccottio",
-                role: "STUDENT",
-                password: "$2b$10$H210fn813wmANL5FSLz3re6og0xwJ0fKT4HqSY3hi.QgelGGQPM7.",
-                username: "user2",
-                createdAt: new Date("2018-06-26T19:22:06.755Z"),
-                updatedAt: new Date("2018-06-26T19:22:06.755Z"),
-                __v: 0
-            },
-            {
-                _id: "3",
-                birthday: new Date("1999-01-26T00:00:00.000Z"),
-                gender: "MALE",
-                active: false,
-                deletedAt: null,
-                deleted: false,
-                lastLogin: null,
-                groups: [],
-                email: "3@mail.com",
-                firstName: "Nelson",
-                lastName: "Ciccottio",
-                role: "STUDENT",
-                password: "$2b$10$H210fn813wmANL5FSLz3re6og0xwJ0fKT4HqSY3hi.QgelGGQPM7.",
-                username: "user3",
-                createdAt: new Date("2018-06-26T19:22:06.755Z"),
-                updatedAt: new Date("2018-06-26T19:22:06.755Z"),
-                __v: 0
-            }
-        ]);
-        const resolver = new UserResolver(new UserService(db));
-
-        const userByID = await resolver.get({id: '1'});
+        const resolver = new UserResolver(new UserService(new MockDatabase()));
+        const user1 = await resolver.create({
+            birthday: new Date(1999, 1, 26),
+            gender: Gender.MALE,
+            active: false,
+            email: "1@mail.com",
+            firstName: "Nelson",
+            lastName: "Ciccottio",
+            role: Role.STUDENT,
+            password: "12345678",
+            username: "user1"
+        });
+        const user2 = await resolver.create({
+            birthday: new Date(1999, 1, 26),
+            gender: Gender.MALE,
+            active: false,
+            email: "2@mail.com",
+            firstName: "Nelson",
+            lastName: "Ciccottio",
+            role: Role.STUDENT,
+            password: "12345678",
+            username: "user2"
+        });
+        const user3 = await resolver.create({
+            birthday: new Date(1999, 1, 26),
+            gender: Gender.MALE,
+            active: false,
+            email: "3@mail.com",
+            firstName: "Nelson",
+            lastName: "Ciccottio",
+            role: Role.STUDENT,
+            password: "12345678",
+            username: "user3"
+        });
+        const userByID = await resolver.get({id: user1._id});
         expect(userByID).to.be.a('object');
-        expect(userByID._id).to.eq('1');
+        expect(userByID._id).to.eq(user1._id);
 
-        const userByEmail = await resolver.get({email: '2@mail.com'});
+        const userByEmail = await resolver.get({email: user2.email});
         expect(userByEmail).to.be.a('object');
-        expect(userByEmail._id).to.eq('2');
+        expect(userByEmail._id).to.eq(user2._id);
 
-        const userByUsername = await resolver.get({username: 'user3'});
+        const userByUsername = await resolver.get({username: user3.username});
         expect(userByUsername).to.be.a('object');
-        expect(userByUsername._id).to.eq('3');
+        expect(userByUsername._id).to.eq(user3._id);
 
         const shouldNull = await resolver.get({id: 'a'});
         expect(shouldNull).to.be.eq(null);
 
         try {
             await resolver.get({});
+            throw new ShouldNotSucceed();
         } catch (e) {
             expect(e.name).to.be.eq('ParameterRequired');
         }

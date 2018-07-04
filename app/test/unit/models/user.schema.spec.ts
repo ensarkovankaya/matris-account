@@ -45,6 +45,7 @@ describe('Models -> User', () => {
 
         try {
             await user.validate();
+            throw new ValidationPassed();
         } catch (err) {
             expect(err.name).to.eq('ValidationError');
             expect(err.errors.username.kind).to.eq('required');
@@ -85,9 +86,8 @@ describe('Models -> User', () => {
             role: 'INVALIDROLE'
         });
         try {
-            await user.validate().then(() => {
-                throw new Error('ValidationPassed');
-            });
+            await user.validate();
+            throw new ValidationPassed();
         } catch (err) {
             expect(err.name).to.eq('ValidationError');
             expect(err.errors.role.kind).to.eq('enum');
@@ -104,54 +104,13 @@ describe('Models -> User', () => {
             role: 'ADMIN'
         });
         try {
-            await user.validate().then(() => {
-                throw new ValidationPassed();
-            });
+            await user.validate();
+            throw new ValidationPassed();
         } catch (err) {
             expect(err.name).to.eq('ValidationError');
             expect(err.errors.email.kind).to.eq('InvalidEmail');
             expect(err.errors.firstName.kind).to.eq('Alpha');
             expect(err.errors.lastName.kind).to.match(new RegExp('Alpha|EmptySpace', 'g'));
-        }
-    });
-
-    it('should raise ValidationError for deleted', async () => {
-        const user = new User({
-            firstName: 'Firstname',
-            lastName: 'Lastname',
-            email: 'mail@email.com',
-            username: 'username',
-            password: '$2b$10$lGsV.ebrEirwro.83ZHKqeHuEvfZmrJU9.AF6JUGxiKmuyPop/djC',
-            role: 'ADMIN',
-            deleted: true
-        });
-        try {
-            await user.validate().then(() => {
-                throw new ValidationPassed();
-            });
-        } catch (err) {
-            expect(err.name).to.eq('ValidationError');
-            expect(err.errors.deleted.kind).to.eq('ValueDependency');
-        }
-    });
-
-    it('should raise ValidationError for deletedAt', async () => {
-        const user = new User({
-            firstName: 'Firstname',
-            lastName: 'Lastname',
-            email: 'mail@email.com',
-            username: 'username',
-            password: '$2b$10$lGsV.ebrEirwro.83ZHKqeHuEvfZmrJU9.AF6JUGxiKmuyPop/djC',
-            role: 'ADMIN',
-            deletedAt: new Date()
-        });
-        try {
-            await user.validate().then(() => {
-                throw new ValidationPassed();
-            });
-        } catch (err) {
-            expect(err.name).to.eq('ValidationError');
-            expect(err.errors.deletedAt.kind).to.eq('ValueDependency');
         }
     });
 });

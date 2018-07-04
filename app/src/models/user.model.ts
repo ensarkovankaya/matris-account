@@ -28,6 +28,7 @@ export interface IUserFilterModel {
     updatedAt?: ICompareModel;
     lastLogin?: ICompareModel;
     groups?: string[];
+    _id?: string;
 }
 
 export interface ICreateUserModel {

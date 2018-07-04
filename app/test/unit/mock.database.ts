@@ -45,8 +45,8 @@ export class MockDatabase implements IDatabaseModel<IUserModel> {
 
     private _data: IUserModel[];
 
-    constructor(data: any[] = []) {
-        this._data = data;
+    constructor() {
+        this._data = [];
     }
 
     public async create(data: Partial<IUserModel>) {

@@ -4,7 +4,7 @@
   "description": "Account API",
   "main": "src/index.ts",
   "scripts": {
-    "test": "mocha -r ts-node/register src/**/*.spec.ts src/**/**/*.spec.ts",
+    "test": "mocha -b -r ts-node/register test/**/*.spec.ts test/**/**/*.spec.ts test/**/**/**/*.spec.ts",
     "check": "tslint -p tslint.json",
     "build": "tsc",
     "build:clean": "rm -rf ./build/* && npm run build",
@@ -44,6 +44,7 @@
     "@types/morgan": "^1.7.35",
     "@types/validator": "^9.4.1",
     "chai": "^4.1.2",
+    "graphql-request": "^1.6.0",
     "mocha": "^5.2.0",
     "nodemon": "^1.17.5",
     "tslint": "^5.10.0",

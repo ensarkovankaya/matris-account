@@ -10,7 +10,7 @@ import { UpdateInput } from '../inputs/update.input';
 import { User } from '../schemas/user.schema';
 import { EmailAlreadyExists, ParameterRequired, UserNameExists, UserNotFound } from './user.resolver.errors';
 
-@Service()
+@Service('UserResolver')
 @Resolver(of => User)
 export class UserResolver {
     constructor(private us: UserService) {
