@@ -71,7 +71,7 @@ export class Logger {
         });
     }
 
-    public error(message: string, err: Error, data?: object) {
+    public error(message: string, err: Error, data?: any) {
         this.logger.log('error', message, {
             name: this.name,
             labels: this.labels,
@@ -80,19 +80,19 @@ export class Logger {
         });
     }
 
-    public warn(message: string, data?: object) {
+    public warn(message: string, data?: any) {
         this.logger.log('warning', message, {name: this.name, labels: this.labels, data});
     }
 
-    public info(message: string, data?: object) {
+    public info(message: string, data?: any) {
         this.logger.log('info', message, {name: this.name, labels: this.labels, data});
     }
 
-    public debug(message: string, data?: object) {
+    public debug(message: string, data?: any) {
         this.logger.log('debug', message, {name: this.name, labels: this.labels, data});
     }
 
-    public http(message: string, req: Request, data?: object) {
+    public http(message: string, req: Request, data?: any) {
         this.logger.log('http', message, {name: this.name, labels: this.labels, request: req, data});
     }
 }
