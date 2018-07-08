@@ -70,7 +70,7 @@ export class Logger {
             name: this.name,
             labels: this.labels,
             data,
-            error: {name: err.name, message: err.message, stack: err.stack}
+            error: err ? {name: err.name, message: err.message, stack: err.stack} : err
         });
     }
 
