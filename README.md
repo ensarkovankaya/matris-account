@@ -22,20 +22,20 @@ touch .env
 ```
 
 ```
-MONGO_INITDB_ROOT_USERNAME=
-MONGO_INITDB_ROOT_PASSWORD=
-NODE_ENV=development
+MONGO_INITDB_ROOT_USERNAME=root
+MONGO_INITDB_ROOT_PASSWORD=root
+NODE_ENV=dev
 MONGODB_HOST=db
 MONGODB_PORT=27017
-MONGODB_USERNAME=
-MONGODB_PASSWORD=
+MONGODB_USERNAME=root
+MONGODB_PASSWORD=root
 PORT=3000
 HOST=0.0.0.0
 ```
 
 * MONGO_INITDB_ROOT_USERNAME: Mongodb root user for initialization.
 * MONGO_INITDB_ROOT_PASSWORD: Mongodb root password for initialization.
-* NODE_ENV: Use `development` for development and `production` for production.
+* NODE_ENV: Use `dev` for development, `prod` for production and `test` for testing. While environment is test all logs will be silent (no console output).
 * MONGODB_HOST: Hostname for mongoose to connect database.
 * MONGODB_PORT: Database port.
 * MONGODB_USERNAME: Database username. Should be same with MONGO_INITDB_ROOT_USERNAME.
