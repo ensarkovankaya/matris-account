@@ -55,7 +55,7 @@ export class CreateInput implements Partial<User> {
     public birthday?: Date | null;
 
     @Field(type => [String], {nullable: true, description: 'User associated group ids.'})
-    @IsArray({each: true})
-    @Length(12, 24, {message: 'InvalidIDLength'})
+    @IsArray()
+    @Length(20, 25, {message: 'InvalidIDLength', each: true})
     public groups?: string[];
 }
