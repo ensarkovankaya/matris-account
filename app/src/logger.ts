@@ -86,7 +86,7 @@ export class Logger {
         this.logger.log('debug', message, {name: this.name, labels: this.labels, data});
     }
 
-    public http(message: string, req: Request, data?: any) {
+    public http(message: string, req: Partial<Request>, data?: any) {
         this.logger.log('http', message, {name: this.name, labels: this.labels, request: req, data});
     }
 }

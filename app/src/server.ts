@@ -60,7 +60,17 @@ class Server {
 
             // Http Log
             this.app.use((req, res, next) => {
-                this.logger.http('Incoming Request', req);
+                this.logger.http('Incoming Request', {
+                    params: req.params,
+                    query: req.query,
+                    headers: req.headers,
+                    body: req.body,
+                    baseUrl: req.baseUrl,
+                    originalUrl: req.originalUrl,
+                    httpVersion: req.httpVersion,
+                    url: req.url,
+                    method: req.method
+                });
                 return next();
             });
         } catch (err) {
