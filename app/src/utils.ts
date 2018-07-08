@@ -25,3 +25,10 @@ export const normalizeUsername = (username: string) => {
         .replace('ö', 'o');
     return username;
 };
+
+export const isTest = (): boolean => process.env.NODE_ENV.toLowerCase() === 'test';
+
+export const isDevelopment = (): boolean => {
+    const env = process.env.NODE_ENV.toLowerCase();
+    return env === 'dev' || env === 'development';
+};
