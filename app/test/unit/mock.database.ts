@@ -1,9 +1,10 @@
 import { Service } from 'typedi';
 import { ParameterRequired } from '../../src/graphql/resolvers/user.resolver.errors';
+import { Logger } from '../../src/logger';
 import { ICompareModel } from '../../src/models/compare.model';
-import { IDatabaseModel } from '../../src/models/database.model';
 import { IUserFilterModel, IUserModel } from '../../src/models/user.model';
 import { User } from '../../src/models/user.schema';
+import { DatabaseService } from '../../src/services/database.service';
 
 interface IFilterModel extends IUserFilterModel {
     _id?: string;
@@ -12,7 +13,7 @@ interface IFilterModel extends IUserFilterModel {
 }
 
 @Service()
-export class MockDatabase implements IDatabaseModel<IUserModel> {
+export class MockDatabase extends DatabaseService {
 
     private static compare(data: any[], path: string, filter: ICompareModel): any[] {
         if (filter.eq !== undefined) {
@@ -33,35 +34,30 @@ export class MockDatabase implements IDatabaseModel<IUserModel> {
         return data;
     }
 
-    private static generateID(length: number = 24) {
-        const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz";
-        let id = '';
-        for (let i = 0; i < length; i++) {
-            const num = Math.floor(Math.random() * chars.length);
-            id += chars.substring(num, num + 1);
-        }
-        return id;
-    }
-
     private _data: IUserModel[];
 
     constructor() {
+        super(new Logger('MockDatabaseService'));
         this._data = [];
     }
 
     public async create(data: Partial<IUserModel>) {
+        this.logger.debug('Create', data);
         try {
             const user = new User(data);
+            this.logger.debug('Create', {user});
             await user.validate();
             this._data.push(user);
+            this.logger.debug('Create', {data: this._data});
             return user;
         } catch (err) {
-            console.error('MockDatabase:Create', err);
+            this.logger.error('Create', err);
             throw err;
         }
     }
 
     public async update(id: string, data: any): Promise<void> {
+        this.logger.debug('Update', {id, data});
         if (!id) {
             throw new ParameterRequired('id');
         }
@@ -70,9 +66,10 @@ export class MockDatabase implements IDatabaseModel<IUserModel> {
                 try {
                     const updated = new User({...user.toObject(), ...data});
                     await updated.validate();
+                    this.logger.debug('Update', {updated});
                     return updated;
                 } catch (err) {
-                    console.error('MockDatabase:Update', {id, data, user, err});
+                    this.logger.error('Update', err, {id, data, user});
                     throw err;
                 }
             }
@@ -81,19 +78,19 @@ export class MockDatabase implements IDatabaseModel<IUserModel> {
     }
 
     public async delete(id: string) {
+        this.logger.debug('Delete', {id});
         this._data = this._data.filter(user => user._id !== id);
+        this.logger.debug('Delete', {data: this._data});
     }
 
     public async all(filters: IUserFilterModel) {
+        this.logger.debug('All', filters);
         return this.filter(this._data.slice(), filters);
     }
 
     public async findOne(conditions: IFilterModel) {
+        this.logger.debug('FindOne', conditions);
         return this.filter(this._data.slice(), conditions)[0] || null;
-    }
-
-    set data(data: IUserModel[]) {
-        this._data = data;
     }
 
     get data() {
@@ -101,6 +98,7 @@ export class MockDatabase implements IDatabaseModel<IUserModel> {
     }
 
     private filter(data: IUserModel[], filters: IFilterModel): IUserModel[] {
+        this.logger.debug('Filter', {data, filters});
         if (filters._id) {
             data = data.filter(d => d._id.toString() === filters._id.toString());
         }
@@ -144,6 +142,7 @@ export class MockDatabase implements IDatabaseModel<IUserModel> {
         if (filters.groups && filters.groups.length > 0) {
             data = data.filter(u => u.groups.some(id => filters.groups.indexOf(id) > 0));
         }
+        this.logger.debug('Filter', {returnData: data});
         return data;
     }
 }

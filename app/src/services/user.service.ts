@@ -1,5 +1,6 @@
 import * as bcrypt from 'bcrypt';
 import { Service } from 'typedi';
+import { Logger } from '../logger';
 import { ICreateUserModel, IUpdateUserModel, IUserFilterModel, IUserModel } from '../models/user.model';
 import { generateRandomUsername, normalizeUsername } from '../utils';
 import { DatabaseService } from './database.service';
@@ -40,19 +41,14 @@ class ParameterRequired extends Error {
 @Service('UserService')
 export class UserService {
 
-    private static hashPassword(plain: string): string {
-        try {
-            return bcrypt.hashSync(plain, 10);
-        } catch (err) {
-            console.error('UserService:HashPassword', err);
-            throw err;
-        }
-    }
+    private logger: Logger;
 
     constructor(public db: DatabaseService) {
+        this.logger = new Logger('UserService');
     }
 
     public async create(data: ICreateUserModel): Promise<IUserModel> {
+        this.logger.debug('Create', data);
         if (!data.password) {
             throw new PasswordRequired();
         }
@@ -70,7 +66,7 @@ export class UserService {
         }
         try {
             // Hash the password
-            const password = UserService.hashPassword(data.password);
+            const password = this.hashPassword(data.password);
             // Generate random username if not exists
             const username = normalizeUsername(data.username || generateRandomUsername(7)).slice(0, 20);
 
@@ -98,17 +94,18 @@ export class UserService {
             // Create User
             return await this.db.create({...create});
         } catch (err) {
-            console.error('UserService:Create', err);
+            this.logger.error('Create', err);
             throw err;
         }
     }
 
     public async update(id: string, data: IUpdateUserModel): Promise<IUserModel> {
+        this.logger.debug('Update', {id, data});
         try {
             let update = {};  // Build update object
 
             if (data.password) {
-                update = {...update, password: UserService.hashPassword(data.password)};
+                update = {...update, password: this.hashPassword(data.password)};
             }
 
             if (typeof data.active === 'boolean') {
@@ -157,33 +154,36 @@ export class UserService {
             // Return updated user
             return await this.getBy({id});
         } catch (err) {
-            console.error('UserService:Update', err);
+            this.logger.error('Update', err);
             throw err;
         }
     }
 
     public async delete(id: string, hard: boolean = false): Promise<void> {
+        this.logger.debug('Delete', {id, hard});
         try {
             if (hard) {
                 return await this.db.delete(id);
             }
             await this.db.update(id, {deleted: true, deletedAt: new Date()});
         } catch (err) {
-            console.error('UserService:Delete', err);
+            this.logger.error('Delete', err);
             throw err;
         }
     }
 
     public async all(filters: IUserFilterModel = {}): Promise<IUserModel[]> {
+        this.logger.debug('All', filters);
         try {
             return await this.db.all(filters);
         } catch (err) {
-            console.error('UserService:All', err);
+            this.logger.error('All', err);
             throw err;
         }
     }
 
     public async getBy(by: { id?: string, email?: string, username?: string }, deleted: boolean | null = false) {
+        this.logger.debug('GetBy', {by, deleted});
         if (!by.id && !by.email && !by.username) {
             throw new ParameterRequired('id, email or username');
         }
@@ -199,27 +199,37 @@ export class UserService {
             }
             return await this.db.findOne({...condition, username: by.username});
         } catch (err) {
-            console.error('UserService:Get', err);
+            this.logger.error('GetBy', err);
             throw err;
         }
     }
 
     public async isUsernameExists(username: string): Promise<boolean> {
+        this.logger.debug('IsUsernameExists', {username});
         try {
             return await this.db.findOne({username: normalizeUsername(username)}) !== null;
         } catch (err) {
-            console.error('UserService:IsUsernameExists', err);
+            this.logger.error('IsUsernameExists', err);
             throw err;
         }
     }
 
     public isPasswordValid(plain: string, hash: string): boolean {
+        this.logger.debug('IsPasswordValid', {plain, hash});
         try {
             return bcrypt.compareSync(plain, hash);
         } catch (err) {
-            console.error('UserService:IsPasswordValid', err);
+            this.logger.error('IsPasswordValid', err);
             throw err;
         }
     }
 
+    private hashPassword(plain: string): string {
+        try {
+            return bcrypt.hashSync(plain, 10);
+        } catch (err) {
+            this.logger.error('HashPassword', err);
+            throw err;
+        }
+    }
 }

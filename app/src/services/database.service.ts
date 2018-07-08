@@ -1,5 +1,6 @@
 import { DocumentQuery } from 'mongoose';
 import { Service } from 'typedi';
+import { Logger } from '../logger';
 import { ICompareModel } from '../models/compare.model';
 import { IDatabaseModel } from '../models/database.model';
 import { IUserFilterModel, IUserModel } from '../models/user.model';
@@ -26,7 +27,11 @@ export const compareFilter = (query: DocumentQuery<any[], any>, path: string, fi
 @Service('DatabaseService')
 export class DatabaseService implements IDatabaseModel<IUserModel> {
 
+    constructor(public logger: Logger = new Logger('DatabaseService')) {
+    }
+
     public async create(data: object): Promise<IUserModel> {
+        this.logger.debug('Create', data);
         try {
             return await new User({
                 ...data,
@@ -34,30 +39,33 @@ export class DatabaseService implements IDatabaseModel<IUserModel> {
                 updatedAt: new Date()
             }).save({validateBeforeSave: true});
         } catch (err) {
-            console.error('DatabaseService:Create', err);
+            this.logger.error('Create', err);
             throw err;
         }
     }
 
     public async update(id: string, data: object): Promise<void> {
+        this.logger.debug('Update', {id, data});
         try {
             await User.findByIdAndUpdate(id, {...data, updatedAt: new Date()}).exec();
         } catch (err) {
-            console.error('DatabaseService:Update', err);
+            this.logger.error('Update', err);
             throw err;
         }
     }
 
     public async delete(id: string): Promise<void> {
+        this.logger.debug('Delete', id);
         try {
             await User.findByIdAndRemove(id).exec();
         } catch (err) {
-            console.error('DatabaseService:Delete', err);
+            this.logger.error('Delete', err);
             throw err;
         }
     }
 
     public async all(conditions: IUserFilterModel = {}): Promise<IUserModel[]> {
+        this.logger.debug('All', {conditions});
         try {
             let query = User.find();
             if (typeof conditions.deleted === 'boolean') {
@@ -96,16 +104,17 @@ export class DatabaseService implements IDatabaseModel<IUserModel> {
             }
             return await query.exec();
         } catch (err) {
-            console.error('DatabaseService:All', err);
+            this.logger.error('All', err);
             throw err;
         }
     }
 
     public async findOne(conditions: object): Promise<IUserModel | null> {
+        this.logger.debug('FindOne', conditions);
         try {
             return await User.findOne(conditions).exec();
         } catch (err) {
-            console.error('DatabaseService:FindOne', err);
+            this.logger.error('FindOne', err);
             throw err;
         }
     }

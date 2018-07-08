@@ -1,12 +1,6 @@
 import { Request } from 'express';
 import { createLogger, format, Logger as WinstonLogger, transports } from 'winston';
-
-const isTest = (): boolean => process.env.NODE_ENV.toLowerCase() === 'test';
-
-const isDevelopment = (): boolean => {
-    const env = process.env.NODE_ENV.toLowerCase();
-    return env === 'dev' || env === 'development';
-};
+import { isDevelopment, isTest } from './utils';
 
 export class Logger {
     private logger: WinstonLogger;

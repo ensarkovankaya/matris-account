@@ -7,12 +7,15 @@ import * as helmet from "helmet";
 import * as mongoose from "mongoose";
 import * as morgan from "morgan";
 import { getGraphQLHTTPServer } from './graphql';
+import { Logger } from './logger';
 
 class Server {
     // set app to be of type express.Application
     public app: express.Application;
+    private logger: Logger;
 
     constructor() {
+        this.logger = new Logger('Server');
         this.app = express();
         this.connectDatabase().then().catch(() => process.exit(1));
         this.config();
@@ -20,44 +23,54 @@ class Server {
     }
 
     public async connectDatabase() {
+        const username = process.env.MONGODB_USERNAME;
+        const password = process.env.MONGODB_PASSWORD;
+        const host = process.env.MONGODB_HOST;
+        const port = process.env.MONGODB_PORT;
         try {
-            const username = process.env.MONGODB_USERNAME;
-            const password = process.env.MONGODB_PASSWORD;
-            const host = process.env.MONGODB_HOST;
-            const port = process.env.MONGODB_PORT;
             await mongoose.connect(`mongodb://${username}:${password}@${host}:${port}`);
         } catch (err) {
-            console.error('Database Connection Failed', err);
+            this.logger.error('Database Connection Failed', err, {host, port, username});
             throw err;
         }
     }
 
     // application config
     public config() {
-        // express middleware
-        // this.app.use(bodyParser.urlencoded({extended: true}));
-        this.app.use(bodyParser.json());
-        this.app.use(morgan("dev"));
-        this.app.use(compression());
-        this.app.use(helmet());
-        this.app.use(cors());
-        this.app.use(expressValidator());
+        try {
+            // express middleware
+            // this.app.use(bodyParser.urlencoded({extended: true}));
+            this.app.use(bodyParser.json());
+            this.app.use(morgan("dev"));
+            this.app.use(compression());
+            this.app.use(helmet());
+            this.app.use(cors());
+            this.app.use(expressValidator());
 
-        // cors
-        this.app.use((req, res, next) => {
-            res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-            res.header(
-                "Access-Control-Allow-Headers",
-                "Origin, X-Requested-With, Content-Type, Accept, Authorization, Access-Control-Allow-Credentials",
-            );
-            res.header("Access-Control-Allow-Credentials", "true");
-            next();
-        });
+            // cors
+            this.app.use((req, res, next) => {
+                res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+                res.header(
+                    "Access-Control-Allow-Headers",
+                    "Origin, X-Requested-With, Content-Type, Accept, Authorization, Access-Control-Allow-Credentials",
+                );
+                res.header("Access-Control-Allow-Credentials", "true");
+                next();
+            });
+        } catch (err) {
+            this.logger.error('Configuration failed', err);
+            throw err;
+        }
     }
 
     // application routes
     public routes(): void {
-        this.app.use('/graphql', getGraphQLHTTPServer());
+        try {
+            this.app.use('/graphql', getGraphQLHTTPServer());
+        } catch (err) {
+            this.logger.error('Route configuration failed', err);
+            throw err;
+        }
     }
 }
 
