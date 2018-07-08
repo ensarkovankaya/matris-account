@@ -57,6 +57,12 @@ class Server {
                 res.header("Access-Control-Allow-Credentials", "true");
                 next();
             });
+
+            // Http Log
+            this.app.use((req, res, next) => {
+                this.logger.http('Incoming Request', req);
+                return next();
+            });
         } catch (err) {
             this.logger.error('Configuration failed', err);
             throw err;
