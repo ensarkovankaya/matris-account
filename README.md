@@ -1,15 +1,19 @@
 # Account API
 
-Create, Update, Delete and Search users.
+Example nodejs/express microservice for basic account management.
+This service use [Mongodb](https://www.mongodb.com/) as database and
+[Graphql](https://graphql.org/) query language as api.
+
+See [API Documentation](docs/api.md) to how to use.
 
 ## Prerequisites
 
-* Docker
-* docker-compose
+* [Docker](https://www.docker.com/)
+* [Docker Compose](https://docs.docker.com/compose/)
 
 ## Installation
 
-### 1) Environment
+### 1) Setting up Environment
 
 Create `.env` file and add following environment variables.
 
@@ -40,7 +44,7 @@ HOST=0.0.0.0
 * HOST: Express app listen host.
 
 
-### 2) Install Dependencies
+### 2) Installing Dependencies
 Because [bcrypt](https://www.google.com) package uses different tools
 for hashing password depends on os, you should install dependencies
 in the container.
@@ -52,7 +56,3 @@ Run `docker-compose run app install` only installing dependencies.
 We are using mocha and chai for testing.
 
 `docker-compose run app test` will run all tests.
-
-## How to Use
-
-See [API Documentation](docs/api.md)
