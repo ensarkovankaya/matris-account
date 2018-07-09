@@ -47,12 +47,10 @@ HOST=0.0.0.0
 ### 2) Installing Dependencies
 Because [bcrypt](https://www.google.com) package uses different tools
 for hashing password depends on os, you should install dependencies
-in the container.
+inside the container.
 
-Run `docker-compose run app install` only installing dependencies.
+Run `docker-compose run app install` installing dependencies.
 
 ## Running the tests
 
-We are using mocha and chai for testing.
-
-`docker-compose run app test` will run all tests.
+`docker-compose run app test` or inside the container `npm run test`
