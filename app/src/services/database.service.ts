@@ -27,7 +27,10 @@ export const compareFilter = (query: DocumentQuery<any[], any>, path: string, fi
 @Service('DatabaseService')
 export class DatabaseService implements IDatabaseModel<IUserModel> {
 
-    constructor(public logger: Logger = getLogger('DatabaseService')) {
+    private logger: Logger;
+
+    constructor() {
+        this.logger = getLogger('DatabaseService');
     }
 
     public async create(data: object): Promise<IUserModel> {
