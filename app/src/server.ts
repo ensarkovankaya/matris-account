@@ -17,22 +17,8 @@ class Server {
     constructor() {
         this.logger = new Logger('Server');
         this.app = express();
-        this.connectDatabase().then().catch(() => process.exit(1));
         this.config();
         this.routes();
-    }
-
-    public async connectDatabase() {
-        const username = process.env.MONGODB_USERNAME;
-        const password = process.env.MONGODB_PASSWORD;
-        const host = process.env.MONGODB_HOST;
-        const port = process.env.MONGODB_PORT;
-        try {
-            await mongoose.connect(`mongodb://${username}:${password}@${host}:${port}`);
-        } catch (err) {
-            this.logger.error('Database Connection Failed', err, {host, port, username});
-            throw err;
-        }
     }
 
     // application config
