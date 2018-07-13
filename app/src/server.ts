@@ -4,7 +4,6 @@ import * as cors from "cors";
 import * as express from "express";
 import * as expressValidator from 'express-validator';
 import * as helmet from "helmet";
-import * as mongoose from "mongoose";
 import * as morgan from "morgan";
 import { getGraphQLHTTPServer } from './graphql';
 import { Logger } from './logger';
