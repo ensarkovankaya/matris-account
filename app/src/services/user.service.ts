@@ -1,6 +1,6 @@
 import * as bcrypt from 'bcrypt';
 import { Service } from 'typedi';
-import { Logger } from '../logger';
+import { getLogger, Logger } from '../logger';
 import { ICreateUserModel, IUpdateUserModel, IUserFilterModel, IUserModel } from '../models/user.model';
 import { generateRandomUsername, normalizeUsername } from '../utils';
 import { DatabaseService } from './database.service';
@@ -44,7 +44,7 @@ export class UserService {
     private logger: Logger;
 
     constructor(public db: DatabaseService) {
-        this.logger = new Logger('UserService');
+        this.logger = getLogger('UserService', ['service']);
     }
 
     public async create(data: ICreateUserModel): Promise<IUserModel> {

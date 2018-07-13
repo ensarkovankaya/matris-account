@@ -1,6 +1,6 @@
 import { DocumentQuery } from 'mongoose';
 import { Service } from 'typedi';
-import { Logger } from '../logger';
+import { getLogger, Logger } from '../logger';
 import { ICompareModel } from '../models/compare.model';
 import { IDatabaseModel } from '../models/database.model';
 import { IUserFilterModel, IUserModel } from '../models/user.model';
@@ -27,7 +27,7 @@ export const compareFilter = (query: DocumentQuery<any[], any>, path: string, fi
 @Service('DatabaseService')
 export class DatabaseService implements IDatabaseModel<IUserModel> {
 
-    constructor(public logger: Logger = new Logger('DatabaseService')) {
+    constructor(public logger: Logger = getLogger('DatabaseService')) {
     }
 
     public async create(data: object): Promise<IUserModel> {

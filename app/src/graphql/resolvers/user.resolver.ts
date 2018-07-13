@@ -1,6 +1,6 @@
 import { Arg, Args, Mutation, Query, Resolver } from 'type-graphql';
 import { Service } from 'typedi';
-import { Logger } from '../../logger';
+import { getLogger, Logger } from '../../logger';
 import { UserService } from '../../services/user.service';
 import { normalizeUsername } from '../../utils';
 import { PasswordArgs } from '../args/password.args';
@@ -18,7 +18,7 @@ export class UserResolver {
     private logger: Logger;
 
     constructor(private us: UserService) {
-        this.logger = new Logger('UserResolver');
+        this.logger = getLogger('UserResolver', ['resolver']);
     }
 
     @Query(returnType => [User], {description: 'Find user.'})

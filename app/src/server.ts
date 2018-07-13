@@ -4,27 +4,43 @@ import * as cors from "cors";
 import * as express from "express";
 import * as expressValidator from 'express-validator';
 import * as helmet from "helmet";
+import * as mongoose from "mongoose";
 import * as morgan from "morgan";
 import { getGraphQLHTTPServer } from './graphql';
-import { Logger } from './logger';
+import { getLogger, Logger } from './logger';
 
-class Server {
+export class Server {
     // set app to be of type express.Application
     public app: express.Application;
     private logger: Logger;
 
     constructor() {
-        this.logger = new Logger('Server');
+        this.logger = getLogger('Server');
         this.app = express();
         this.config();
         this.routes();
     }
 
-    // application config
-    public config() {
+    /**
+     * Connect Database
+     * @return {Promise<void>}
+     */
+    public async connect() {
+        const username = process.env.MONGODB_USERNAME;
+        const password = process.env.MONGODB_PASSWORD;
+        const host = process.env.MONGODB_HOST;
+        const port = process.env.MONGODB_PORT;
         try {
-            // express middleware
-            // this.app.use(bodyParser.urlencoded({extended: true}));
+            await mongoose.connect(`mongodb://${username}:${password}@${host}:${port}`);
+        } catch (err) {
+            this.logger.error('Database Connection Failed', err, {host, port, username});
+            throw err;
+        }
+    }
+
+    // Setup application config
+    private config() {
+        try {
             this.app.use(bodyParser.json());
             this.app.use(morgan("dev"));
             this.app.use(compression());
@@ -45,18 +61,8 @@ class Server {
 
             // Http Log
             this.app.use((req, res, next) => {
-                this.logger.http('Incoming Request', {
-                    params: req.params,
-                    query: req.query,
-                    headers: req.headers,
-                    body: req.body,
-                    baseUrl: req.baseUrl,
-                    originalUrl: req.originalUrl,
-                    httpVersion: req.httpVersion,
-                    url: req.url,
-                    method: req.method
-                });
-                return next();
+                this.logger.http('Incoming Request', req, res);
+                next();
             });
         } catch (err) {
             this.logger.error('Configuration failed', err);
@@ -64,8 +70,8 @@ class Server {
         }
     }
 
-    // application routes
-    public routes(): void {
+    // Setup application routes
+    private routes(): void {
         try {
             this.app.use('/graphql', getGraphQLHTTPServer());
         } catch (err) {
@@ -74,5 +80,3 @@ class Server {
         }
     }
 }
-
-export default new Server().app;

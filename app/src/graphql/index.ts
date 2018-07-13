@@ -2,7 +2,7 @@ import { GraphQLSchema } from 'graphql';
 import { buildSchemaSync, formatArgumentValidationError, useContainer } from 'type-graphql';
 import { registerEnumType } from "type-graphql";
 import { Container } from "typedi";
-import { Logger } from '../logger';
+import { getLogger } from '../logger';
 import { Gender, Role } from '../models/user.model';
 import { isDevelopment } from '../utils';
 import { UserResolver } from './resolvers/user.resolver';
@@ -12,7 +12,7 @@ import * as graphqlHTTP from 'express-graphql';
 
 useContainer(Container);
 
-const logger = new Logger('Graphql');
+const logger = getLogger('GraphQL');
 
 export const getRootSchema = (): GraphQLSchema => {
     try {
@@ -41,7 +41,7 @@ export const getGraphQLHTTPServer = () => graphqlHTTP((): OptionsData => {
             formatError: formatArgumentValidationError
         };
     } catch (err) {
-        logger.error('Create graphql server failed.', err);
+        logger.error('GraphQL server creation failed.', err);
         throw err;
     }
 });
