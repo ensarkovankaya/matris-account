@@ -30,7 +30,7 @@ export class DatabaseService implements IDatabaseModel<IUserModel> {
     private logger: Logger;
 
     constructor() {
-        this.logger = getLogger('DatabaseService');
+        this.logger = getLogger('DatabaseService', ['service']);
     }
 
     public async create(data: object): Promise<IUserModel> {
