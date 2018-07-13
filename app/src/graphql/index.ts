@@ -1,5 +1,5 @@
 import { GraphQLSchema } from 'graphql';
-import { buildSchema, formatArgumentValidationError, useContainer } from 'type-graphql';
+import { buildSchemaSync, formatArgumentValidationError, useContainer } from 'type-graphql';
 import { registerEnumType } from "type-graphql";
 import { Container } from "typedi";
 import { Logger } from '../logger';
@@ -14,7 +14,7 @@ useContainer(Container);
 
 const logger = new Logger('Graphql');
 
-const getRootSchema = async (): Promise<GraphQLSchema> => {
+export const getRootSchema = (): GraphQLSchema => {
     try {
         registerEnumType(Role, {
             name: "Role",
@@ -24,7 +24,7 @@ const getRootSchema = async (): Promise<GraphQLSchema> => {
             name: "Gender",
             description: "User gender",
         });
-        return await buildSchema({
+        return buildSchemaSync({
             resolvers: [UserResolver]
         });
     } catch (err) {
@@ -33,11 +33,10 @@ const getRootSchema = async (): Promise<GraphQLSchema> => {
     }
 };
 
-export const getGraphQLHTTPServer = () => graphqlHTTP(async (): Promise<OptionsData> => {
-    const schema = await getRootSchema();
+export const getGraphQLHTTPServer = () => graphqlHTTP((): OptionsData => {
     try {
         return {
-            schema,
+            schema: getRootSchema(),
             graphiql: isDevelopment(),
             formatError: formatArgumentValidationError
         };
