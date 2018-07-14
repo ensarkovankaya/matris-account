@@ -4,9 +4,8 @@ import * as http from 'http';
 import { after, before, beforeEach, describe, it } from 'mocha';
 import "reflect-metadata";
 import { Container } from 'typedi';
-import { Logger } from '../../src/logger';
 import { Gender, Role } from '../../src/models/user.model';
-import Server from '../../src/server';
+import { Server } from '../../src/server';
 import { DatabaseService } from '../../src/services/database.service';
 import { MockDatabase } from '../unit/mock.database';
 
@@ -16,16 +15,14 @@ const headers = {
     'Accept': 'application/json'
 };
 
-const logger = new Logger('GraphQL Spec File');
-
 let server: http.Server;
 
 before('Start Server', async () => {
     const PORT = parseInt(process.env.PORT || '3000', 10);
     const HOST = process.env.HOST || '0.0.0.0';
-
-    server = http.createServer(Server);
-    return await server.listen(PORT, HOST, () => logger.info(`Test Server start on host ${HOST} port ${PORT}.`));
+    const express = new Server();
+    server = http.createServer(express.app);
+    return await server.listen(PORT, HOST, () => console.info(`Test Server start on host ${HOST} port ${PORT}.`));
 });
 
 class ShouldNotSucceed extends Error {
@@ -227,6 +224,6 @@ describe('GraphQL', () => {
 });
 
 after('Stop Server', () => server.close(() => {
-    logger.info('Test Server closed.');
+    console.info('Test Server closed.');
     process.exit();
 }));
