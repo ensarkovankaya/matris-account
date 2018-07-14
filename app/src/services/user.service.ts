@@ -173,7 +173,7 @@ export class UserService {
     }
 
     public async all(filters: IUserFilterModel = {}): Promise<IUserModel[]> {
-        this.logger.debug('All', filters);
+        this.logger.debug('All', {filters});
         try {
             return await this.db.all(filters);
         } catch (err) {

@@ -23,13 +23,13 @@ export class UserResolver {
 
     @Query(returnType => [User], {description: 'Find user.'})
     public async find(@Args() args: UserFilterArgs) {
-        this.logger.debug('Find', args);
+        this.logger.debug('Find', {args});
         return await this.us.all(args);
     }
 
     @Query(returnType => User, {nullable: true, description: 'Get user by id, email or username.'})
     public async get(@Args() by: UserArgs) {
-        this.logger.debug('Get', by);
+        this.logger.debug('Get', {by});
         if (!by.id && !by.email && !by.username) {
             throw new ParameterRequired('id, email or username');
         }
@@ -54,7 +54,7 @@ export class UserResolver {
 
     @Mutation(returnType => User, {description: 'Create user.'})
     public async create(@Arg('data') data: CreateInput) {
-        this.logger.debug('Create', data);
+        this.logger.debug('Create', {data});
         if (data.username) {
             // Check username exists
             const isUsernameExists = await this.us.isUsernameExists(data.username);

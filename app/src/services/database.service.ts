@@ -34,7 +34,7 @@ export class DatabaseService implements IDatabaseModel<IUserModel> {
     }
 
     public async create(data: object): Promise<IUserModel> {
-        this.logger.debug('Create', data);
+        this.logger.debug('Create', {data});
         try {
             return await new User({
                 ...data,
@@ -58,7 +58,7 @@ export class DatabaseService implements IDatabaseModel<IUserModel> {
     }
 
     public async delete(id: string): Promise<void> {
-        this.logger.debug('Delete', id);
+        this.logger.debug('Delete', {id});
         try {
             await User.findByIdAndRemove(id).exec();
         } catch (err) {
@@ -113,7 +113,7 @@ export class DatabaseService implements IDatabaseModel<IUserModel> {
     }
 
     public async findOne(conditions: object): Promise<IUserModel | null> {
-        this.logger.debug('FindOne', conditions);
+        this.logger.debug('FindOne', {conditions});
         try {
             return await User.findOne(conditions).exec();
         } catch (err) {
