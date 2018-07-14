@@ -23,6 +23,10 @@ else
     if [ "$NODE_ENV" == "development" ] || [ "$NODE_ENV" == "dev" ]; then
         npm run watch
     else
+        # Install dependencies if node_modules not exists
+        if [ ! -d "node_modules" ]; then
+            install
+        fi
         npm run start
     fi
 fi
