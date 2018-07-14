@@ -4,7 +4,7 @@
   ],
   "ext": "ts",
   "ignore": [
-    "src/**/*.spec.ts"
+    "test/"
   ],
-  "exec": "npm run start"
+  "exec": "ts-node src/index.ts"
 }
