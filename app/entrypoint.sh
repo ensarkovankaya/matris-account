@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 set -e
 
-mkdir -p logs # Create logs folder if not exits
-
 install () {
     # Install Dependencies
     if [ "$NODE_ENV" == "development" ] || [ "$NODE_ENV" == "dev" ]; then
@@ -22,7 +20,7 @@ elif [ "$1" == "install" ]; then
 else
     # If environment development use nodemon to watch file changes
     # Otherwise just run the server
-    if [ "$NODE_ENV" == "development" ]; then
+    if [ "$NODE_ENV" == "development" ] || [ "$NODE_ENV" == "dev" ]; then
         npm run watch
     else
         npm run start
