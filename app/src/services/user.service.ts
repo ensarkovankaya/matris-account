@@ -1,4 +1,5 @@
 import * as bcrypt from 'bcrypt';
+import { Types } from 'mongoose';
 import { Service } from 'typedi';
 import { getLogger, Logger } from '../logger';
 import { ICreateUserModel, IUpdateUserModel, IUserFilterModel, IUserModel } from '../models/user.model';
@@ -193,6 +194,10 @@ export class UserService {
                 condition = {deleted};
             }
             if (by.id) {
+                // If given id is not valid return null
+                if (!Types.ObjectId.isValid(by.id)) {
+                    return null;
+                }
                 return await this.db.findOne({...condition, _id: by.id});
             } else if (by.email) {
                 return await this.db.findOne({...condition, email: by.email});
