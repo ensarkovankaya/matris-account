@@ -1,5 +1,7 @@
 {
   "compilerOptions": {
+    "declaration": true,
+    "strict": true,
     "lib": [
       "es6",
       "esnext.asynciterable"
@@ -19,10 +21,10 @@
   },
   "compileOnSave": true,
   "include": [
-    "src"
+    "src/",
+    "test/"
   ],
   "exclude": [
-    "node_modules/",
-    "**/*.spec.ts"
+    "node_modules/"
   ]
 }
