@@ -1,5 +1,5 @@
 import { model, Schema } from "mongoose";
-import { isAlpha, isAlphanumeric, isEmail } from 'validator';
+import { isAlphanumeric, isEmail } from 'validator';
 import { Gender, IUserModel, Role } from './user.model';
 
 const isNotContainEmptySpaces = (value: string): boolean => value.replace(/\s/g, '') === value;
@@ -23,11 +23,7 @@ const UserSchema: Schema = new Schema({
         minlength: 1,
         maxlength: 32,
         trim: true,
-        validate: {
-            validator: (val: any) => isAlpha(val, 'tr-TR'),
-            msg: 'First name should be alphanumeric.',
-            type: 'Alpha'
-        }
+        match: new RegExp('^([A-Za-z ]+)$')
     },
     lastName: {
         type: String,
@@ -35,13 +31,7 @@ const UserSchema: Schema = new Schema({
         trim: true,
         minlength: 1,
         maxlength: 32,
-        validate: [
-            {
-                validator: (val: any) => isAlpha(val, 'tr-TR'),
-                msg: 'Last name should only contains alpha numeric values.',
-                type: 'Alpha'
-            }
-        ]
+        match: new RegExp('^([A-Za-z ]+)$')
     },
     password: {
         type: String,
