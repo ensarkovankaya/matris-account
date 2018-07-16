@@ -18,6 +18,8 @@ services:
       - ./app:/home/node/app
     ports:
       - "3000:3000"
+    entrypoint:
+      /home/node/app/entrypoint.sh
 
 volumes:
   dbdata:
