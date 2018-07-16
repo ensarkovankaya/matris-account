@@ -116,7 +116,7 @@ export class MockDatabase extends DatabaseService {
     }
 
     /**
-     * Returns random choice user from data
+     * Returns random user from data
      * @return {IUserModel}
      */
     public getOne(): IUserModel {
