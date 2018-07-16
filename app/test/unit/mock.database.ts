@@ -1,10 +1,11 @@
+import { readFileSync } from 'fs';
 import { Service } from 'typedi';
 import { ParameterRequired } from '../../src/graphql/resolvers/user.resolver.errors';
-import { getLogger, Logger } from '../../src/logger';
 import { ICompareModel } from '../../src/models/compare.model';
-import { IUserFilterModel, IUserModel } from '../../src/models/user.model';
+import { ICreateUserModel, IUpdateUserModel, IUserFilterModel, IUserModel } from '../../src/models/user.model';
 import { User } from '../../src/models/user.schema';
 import { DatabaseService } from '../../src/services/database.service';
+import { IDBUserModel } from '../data/db.model';
 
 interface IFilterModel extends IUserFilterModel {
     _id?: string;
@@ -34,44 +35,41 @@ export class MockDatabase extends DatabaseService {
         return data;
     }
 
-    private _data: IUserModel[];
-    private _logger: Logger;
+    public data: IUserModel[];
 
     constructor() {
         super();
-        this._logger = getLogger('MockDatabaseService');
-        this._data = [];
+        this.data = [];
     }
 
-    public async create(data: Partial<IUserModel>) {
-        this._logger.debug('Create', {data});
+    public async create(data: ICreateUserModel): Promise<IUserModel> {
+        this.logger.debug('Create', {data});
         try {
             const user = new User(data);
-            this._logger.debug('Create', {user});
+            this.logger.debug('Create', {user});
             await user.validate();
-            this._data.push(user);
-            this._logger.debug('Create', {data: this._data});
+            this.data.push(user);
             return user;
         } catch (err) {
-            this._logger.error('Create', err);
+            this.logger.error('Create', err);
             throw err;
         }
     }
 
-    public async update(id: string, data: any): Promise<void> {
-        this._logger.debug('Update', {id, data});
+    public async update(id: string, data: IUpdateUserModel): Promise<void> {
+        this.logger.debug('Update', {id, data});
         if (!id) {
             throw new ParameterRequired('id');
         }
-        this._data = await Promise.all(this._data.map(async user => {
+        this.data = await Promise.all(this.data.map(async user => {
             if (user._id === id) {
                 try {
                     const updated = new User({...user.toObject(), ...data});
                     await updated.validate();
-                    this._logger.debug('Update', {updated});
+                    this.logger.debug('Update', {updated});
                     return updated;
                 } catch (err) {
-                    this._logger.error('Update', err, {id, data, user});
+                    this.logger.error('Update', err, {id, data, user});
                     throw err;
                 }
             }
@@ -80,27 +78,76 @@ export class MockDatabase extends DatabaseService {
     }
 
     public async delete(id: string) {
-        this._logger.debug('Delete', {id});
-        this._data = this._data.filter(user => user._id !== id);
-        this._logger.debug('Delete', {data: this._data});
+        this.logger.debug('Delete', {id});
+        this.data = this.data.filter(user => user._id !== id);
+        this.logger.debug('Delete', {data: this.data});
     }
 
     public async all(filters: IUserFilterModel) {
-        this._logger.debug('All', filters);
-        return this.filter(this._data.slice(), filters);
+        this.logger.debug('All', filters);
+        return this.filter(this.data.slice(), filters);
     }
 
     public async findOne(conditions: IFilterModel) {
-        this._logger.debug('FindOne', conditions);
-        return this.filter(this._data.slice(), conditions)[0] || null;
+        this.logger.debug('FindOne', conditions);
+        return this.filter(this.data.slice(), conditions)[0] || null;
     }
 
-    get data() {
-        return this._data;
+    /**
+     * Loads mock users from db.json
+     * @param {number} n: Only load n number of user
+     * @param path: Data path
+     * @return {Promise<void>}
+     */
+    public async load(n?: number, path: string = __dirname + '/../data/db.json') {
+        try {
+            const file = readFileSync(path, {encoding: 'utf8'});
+            const users: IDBUserModel[] = JSON.parse(file);
+            if (n) {
+                this.data = await Promise.all(this.shuffle(users.slice(0, n)).map(data => this.toUser(data)));
+            } else {
+                this.data = await Promise.all(users.map(data => this.toUser(data)));
+            }
+            this.logger.debug(`${this.data.length} mock user loaded.`);
+        } catch (e) {
+            this.logger.error('Mock data could not load.', e);
+            throw e;
+        }
+    }
+
+    /**
+     * Returns random choice user from data
+     * @return {IUserModel}
+     */
+    public getOne(): IUserModel {
+        if (this.data.length === 0) {
+            throw new Error('Data is empty');
+        }
+        const index = Math.floor(Math.random() * this.data.length);
+        return this.data[index];
+    }
+
+    private shuffle(array: any[]): any[] {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
+    private async toUser(data: IDBUserModel): Promise<IUserModel> {
+        try {
+            const user = new User(data);
+            await user.validate();
+            return user;
+        } catch (e) {
+            this.logger.error('User validation failed', e, {data});
+            throw e;
+        }
     }
 
     private filter(data: IUserModel[], filters: IFilterModel): IUserModel[] {
-        this._logger.debug('Filter', {data, filters});
+        this.logger.debug('Filter', {data, filters});
         if (filters._id) {
             data = data.filter(d => d._id.toString() === filters._id.toString());
         }
@@ -144,7 +191,7 @@ export class MockDatabase extends DatabaseService {
         if (filters.groups && filters.groups.length > 0) {
             data = data.filter(u => u.groups.some(id => filters.groups.indexOf(id) > 0));
         }
-        this._logger.debug('Filter', {returnData: data});
+        this.logger.debug('Filter', {returnData: data});
         return data;
     }
 }
