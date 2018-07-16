@@ -37,11 +37,6 @@ const UserSchema: Schema = new Schema({
         maxlength: 32,
         validate: [
             {
-                validator: (val: any) => isNotContainEmptySpaces(val),
-                msg: 'Should not contains empty spaces.',
-                type: 'EmptySpace'
-            },
-            {
                 validator: (val: any) => isAlpha(val, 'tr-TR'),
                 msg: 'Last name should only contains alpha numeric values.',
                 type: 'Alpha'
