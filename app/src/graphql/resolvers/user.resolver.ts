@@ -49,7 +49,7 @@ export class UserResolver {
         if (!user || !user.active) {
             throw new UserNotFound({email});
         }
-        return this.us.isPasswordValid(password, user.password);
+        return await this.us.isPasswordValid(password, user.password);
     }
 
     @Mutation(returnType => User, {description: 'Create user.'})
