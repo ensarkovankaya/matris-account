@@ -13,20 +13,24 @@ export const normalizeUsername = (username: string) => {
     username = username.replace(/\s/g, '');
 
     // Lowercase
-    username = username.normalize().toLocaleLowerCase();
+    username = username.normalize().toLowerCase();
 
     // Replace Turkish characters
     username = username
-        .replace('ğ', 'g')
-        .replace('ü', 'u')
-        .replace('ç', 'c')
-        .replace('ş', 's')
-        .replace('ı', 'i')
-        .replace('ö', 'o');
+        .replace(new RegExp('ğ', 'g'), 'g')
+        .replace(new RegExp('Ğ', 'g'), 'g')
+        .replace(new RegExp('ü', 'g'), 'u')
+        .replace(new RegExp('Ü', 'g'), 'u')
+        .replace(new RegExp('ç', 'g'), 'c')
+        .replace(new RegExp('Ç', 'g'), 'c')
+        .replace(new RegExp('ş', 'g'), 's')
+        .replace(new RegExp('Ş', 'g'), 's')
+        .replace(new RegExp('ı', 'g'), 'i')
+        .replace(new RegExp('I', 'g'), 'i')
+        .replace(new RegExp('ö', 'g'), 'o')
+        .replace(new RegExp('Ö', 'g'), 'o');
     return username;
 };
-
-export const isTest = (): boolean => process.env.NODE_ENV.toLowerCase() === 'test';
 
 export const isDevelopment = (): boolean => {
     const env = process.env.NODE_ENV.toLowerCase();

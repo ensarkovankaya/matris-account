@@ -36,6 +36,8 @@ export class MockDatabase extends DatabaseService {
     }
 
     public data: IUserModel[];
+    public called: string;
+    public parameters: { [key: string]: any };
 
     constructor() {
         super();
@@ -44,6 +46,8 @@ export class MockDatabase extends DatabaseService {
 
     public async create(data: ICreateUserModel): Promise<IUserModel> {
         this.logger.debug('Create', {data});
+        this.called = 'create';
+        this.parameters = {data};
         try {
             const user = new User(data);
             this.logger.debug('Create', {user});
@@ -58,6 +62,8 @@ export class MockDatabase extends DatabaseService {
 
     public async update(id: string, data: IUpdateUserModel): Promise<void> {
         this.logger.debug('Update', {id, data});
+        this.called = 'update';
+        this.parameters = {id, data};
         if (!id) {
             throw new ParameterRequired('id');
         }
@@ -79,17 +85,23 @@ export class MockDatabase extends DatabaseService {
 
     public async delete(id: string) {
         this.logger.debug('Delete', {id});
+        this.called = 'delete';
+        this.parameters = {id};
         this.data = this.data.filter(user => user._id !== id);
         this.logger.debug('Delete', {data: this.data});
     }
 
     public async all(filters: IUserFilterModel) {
         this.logger.debug('All', filters);
+        this.called = 'all';
+        this.parameters = {filters};
         return this.filter(this.data.slice(), filters);
     }
 
     public async findOne(conditions: IFilterModel) {
         this.logger.debug('FindOne', conditions);
+        this.called = 'findOne';
+        this.parameters = {conditions};
         return this.filter(this.data.slice(), conditions)[0] || null;
     }
 

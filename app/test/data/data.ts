@@ -1,41 +1,7 @@
 import { readFileSync } from 'fs';
 import { IUserModel, UserField } from './user.model';
 
-const USERS: IUserModel[] = JSON.parse(readFileSync('test/data/valid.json', 'utf8'));
-
-// Group ids
-const GROUPS: string[] = [
-    'IN1NFAZ2NlcdQKnknJ632rq7',
-    'MxmXdcHjz2Hm914jAM8XsNtY',
-    'qZS0yyG9huFPfMDK5erflQRw',
-    'zs9wK8J3YmUiseO7m3Dezj2n',
-    'R7T1zWfc5FiZ8nViYaYKQiFx',
-    'weEFNEu7eoG04I2ktwp593Kf',
-    'oBReCBDEn8jzvJ9fmz1Bk6Rr',
-    '924bRMCWrlkrEsjGuoRb4KCM',
-    'NJNEo4ZBhuve4Pw47y9tV9Qa',
-    'AjxJQlEKZzkST3C4b1fE6FgV',
-    'SeOtFel5zNYQt5utYlidQOss',
-    'kIQr53FcQGiiI6MFtl7Q1lYv',
-    '810gDNf6xspAhDvIIOfNXATc',
-    '7wWAvU0FiV0s2UNH5nvgzIRZ',
-    'NZkMs1jnUllwwvkJlhjSUux1',
-    'QrHZO4Pk8D3mC1iVlJAnyqWP',
-    '65ojiILsLpiRDLCpif839o3r',
-    'f9azdpcGDy9vEC15ch4CII8L',
-    'QIEFj1fPyqcuxiZ7lCT0reQD',
-    'jp1ERjtijMzSwtjX7ib4GwKx',
-    'YnFR1wprDhbk8ddw06U0rUOU',
-    'xYWw6IHKL93BZfQAP1g5Loe7',
-    'KoTvER8ivsVN8XWaPCmbLdXo',
-    '59zmqeh6yAGhASmJ4V35iWqq',
-    'xOsC25HWAJpWSTOdwTWpPSzP',
-    '5SKhQY6uc9qo9ezMV8R0dYXf',
-    'iADgnvdwvPKBKhMGTspb6cwD',
-    'KIR2esWXz3wgXIf8djTdklhd',
-    'lIoSW4y3GjJEnygzwN2i6H7h',
-    '76xzryRqhtAXLP9j4e7hJF7m'
-];
+export const USERS: IUserModel[] = JSON.parse(readFileSync(__dirname + '/db.json', 'utf8'));
 
 /**
  * Shuffles array in place. ES6 version
