@@ -39,6 +39,14 @@ class ParameterRequired extends Error {
     }
 }
 
+class InvalidID extends Error {
+    public name = 'InvalidID';
+}
+
+export class NothingToUpdate extends Error {
+    public name = 'NothingToUpdate';
+}
+
 @Service('UserService')
 export class UserService {
 
@@ -67,7 +75,7 @@ export class UserService {
         }
         try {
             // Hash the password
-            const password = this.hashPassword(data.password);
+            const password = await this.hashPassword(data.password);
             // Generate random username if not exists
             const username = normalizeUsername(data.username || generateRandomUsername(7)).slice(0, 20);
 
@@ -85,11 +93,11 @@ export class UserService {
                 create = {...create, gender: data.gender};
             }
 
-            if (data.birthday === null || data.birthday instanceof Date) {
-                create = {...create, birthday: data.birthday};
+            if (data.birthday === null || data.birthday) {
+                create = {...create, birthday: data.birthday ? new Date(data.birthday) : null};
             }
 
-            if (data.groups && data.groups instanceof Array) {
+            if (data.groups) {
                 create = {...create, groups: data.groups};
             }
             // Create User
@@ -106,15 +114,15 @@ export class UserService {
             let update = {};  // Build update object
 
             if (data.password) {
-                update = {...update, password: this.hashPassword(data.password)};
+                update = {...update, password: await this.hashPassword(data.password)};
             }
 
             if (typeof data.active === 'boolean') {
                 update = {...update, active: data.active};
             }
 
-            if (data.birthday === null || data.birthday instanceof Date) {
-                update = {...update, birthday: data.birthday};
+            if (data.birthday === null || data.birthday) {
+                update = {...update, birthday: data.birthday ? new Date(data.birthday) : null};
             }
 
             if (data.email) {
@@ -149,11 +157,15 @@ export class UserService {
                 update = {...update, lastLogin: new Date()};
             }
 
+            if (Object.keys(update).length === 0) {
+                throw new NothingToUpdate();
+            }
+
             // Update user
             await this.db.update(id, {...update, updatedAt: new Date()});
 
             // Return updated user
-            return await this.getBy({id});
+            return await this.db.findOne({_id: id});
         } catch (err) {
             this.logger.error('Update', err);
             throw err;
@@ -164,9 +176,10 @@ export class UserService {
         this.logger.debug('Delete', {id, hard});
         try {
             if (hard) {
-                return await this.db.delete(id);
+                await this.db.delete(id);
+            } else {
+                await this.db.update(id, {deleted: true, deletedAt: new Date()});
             }
-            await this.db.update(id, {deleted: true, deletedAt: new Date()});
         } catch (err) {
             this.logger.error('Delete', err);
             throw err;
@@ -196,7 +209,7 @@ export class UserService {
             if (by.id) {
                 // If given id is not valid return null
                 if (!Types.ObjectId.isValid(by.id)) {
-                    return null;
+                    throw new InvalidID();
                 }
                 return await this.db.findOne({...condition, _id: by.id});
             } else if (by.email) {
@@ -219,19 +232,19 @@ export class UserService {
         }
     }
 
-    public isPasswordValid(plain: string, hash: string): boolean {
+    public async isPasswordValid(plain: string, hash: string): Promise<boolean> {
         this.logger.debug('IsPasswordValid', {plain, hash});
         try {
-            return bcrypt.compareSync(plain, hash);
+            return await bcrypt.compare(plain, hash);
         } catch (err) {
             this.logger.error('IsPasswordValid', err);
             throw err;
         }
     }
 
-    private hashPassword(plain: string): string {
+    public async hashPassword(plain: string): Promise<string> {
         try {
-            return bcrypt.hashSync(plain, 10);
+            return await bcrypt.hash(String(plain), 10);
         } catch (err) {
             this.logger.error('HashPassword', err);
             throw err;

@@ -1,223 +1,533 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import 'reflect-metadata';
-import { Gender, IUpdateUserModel, Role } from '../../../src/models/user.model';
-import { UserService } from '../../../src/services/user.service';
-import { MockDatabase } from '../mock.database';
+import { Gender, IUserModel, Role } from '../../../src/models/user.model';
+import { NothingToUpdate, UserService } from '../../../src/services/user.service';
+
+class ShouldNotSucceed extends Error {
+    public name = 'ShouldNotSucceed';
+}
 
 describe('Services -> User', () => {
     describe('Create', () => {
-        it('should create user with basic information', async () => {
-            const service = new UserService(new MockDatabase());
-            const user = await service.create({
-                email: 'email@mail.com',
-                firstName: 'FirstName',
-                lastName: 'LastName',
-                password: '12345678',
-                role: Role.STUDENT
-            });
-            // Generated Fields
-            expect(user._id).to.be.an('object');
-            expect(user.username).to.be.a('string');
-
-            expect(user.password).to.not.eq('12345678');
-            expect(user.password).to.lengthOf.gt(50);
-
-            expect(user.firstName).to.eq('FirstName');
-            expect(user.lastName).to.eq('LastName');
-            expect(user.email).to.eq('email@mail.com');
-            expect(user.role).to.eq('STUDENT');
+        it('should raise PasswordRequired', async () => {
+            try {
+                const service = new UserService({} as any);
+                await service.create({
+                    role: Role.MANAGER,
+                    email: 'email@mail.com',
+                    firstName: 'FirstName',
+                    lastName: 'LastName'
+                } as any);
+                throw new ShouldNotSucceed();
+            } catch (e) {
+                expect(e.name).to.be.eq('PasswordRequired');
+            }
+        });
+        it('should raise RoleRequired', async () => {
+            try {
+                const service = new UserService({} as any);
+                await service.create({
+                    password: '12345678',
+                    email: 'email@mail.com',
+                    firstName: 'FirstName',
+                    lastName: 'LastName'
+                } as any);
+                throw new ShouldNotSucceed();
+            } catch (e) {
+                expect(e.name).to.be.eq('RoleRequired');
+            }
+        });
+        it('should raise EmailRequired', async () => {
+            try {
+                const service = new UserService({} as any);
+                await service.create({
+                    role: Role.MANAGER,
+                    password: '12345678',
+                    firstName: 'FirstName',
+                    lastName: 'LastName'
+                } as any);
+                throw new ShouldNotSucceed();
+            } catch (e) {
+                expect(e.name).to.be.eq('EmailRequired');
+            }
+        });
+        it('should raise FirstNameRequired', async () => {
+            try {
+                const service = new UserService({} as any);
+                await service.create({
+                    role: Role.MANAGER,
+                    password: '12345678',
+                    email: 'email@mail.com',
+                    lastName: 'LastName'
+                } as any);
+                throw new ShouldNotSucceed();
+            } catch (e) {
+                expect(e.name).to.be.eq('FirstNameRequired');
+            }
+        });
+        it('should raise LastNameRequired', async () => {
+            try {
+                const service = new UserService({} as any);
+                await service.create({
+                    role: Role.MANAGER,
+                    password: '12345678',
+                    email: 'email@mail.com',
+                    firstName: 'FirstName',
+                } as any);
+                throw new ShouldNotSucceed();
+            } catch (e) {
+                expect(e.name).to.be.eq('LastNameRequired');
+            }
         });
 
-        it('should create user with all information', async () => {
-            const service = new UserService(new MockDatabase());
-            const user = await service.create({
+        it('should call database create with minimum data', async () => {
+            class Database {
+                public data: Partial<IUserModel>;
+
+                public create(params: any) {
+                    this.data = params;
+                    return 'a';
+                }
+            }
+
+            const db = new Database();
+            const service = new UserService(db as any);
+            const result = await service.create({
                 email: 'email@mail.com',
                 firstName: 'FirstName',
                 lastName: 'LastName',
                 password: '12345678',
                 role: Role.STUDENT,
-                birthday: new Date(1993, 4, 21),
-                gender: Gender.MALE
-            });
+                extra: 'key'
+            } as any);
 
-            expect(user._id).to.be.an('object');
+            expect(result).to.be.eq('a');
+            expect(db.data).to.be.an('object');
 
-            expect(user.password).to.not.eq('12345678');
-            expect(user.password).to.lengthOf.gt(50);
+            expect(db.data).to.have.keys(['username', 'password', 'email', 'firstName', 'lastName', 'role', 'active']);
 
-            expect(user.firstName).to.eq('FirstName');
-            expect(user.lastName).to.eq('LastName');
-            expect(user.email).to.eq('email@mail.com');
-            expect(user.role).to.eq('STUDENT');
-            expect(user.username).to.be.a('string');
-            expect(user.username).to.be.a('string');
+            expect(db.data.username).to.be.a('string');
+            expect(db.data.role).to.be.eq('STUDENT');
 
-            expect(user.birthday).to.be.a('date');
-            expect(user.gender).to.eq('MALE');
+            expect(db.data.password).to.be.a('string');
+            expect(db.data.password).to.be.not.eq('12345678');
+            expect(db.data.password.length).to.be.gte(50);
+
+            expect(db.data.email).to.be.eq('email@mail.com');
+            expect(db.data.firstName).to.be.eq('FirstName');
+            expect(db.data.lastName).to.be.eq('LastName');
+            expect(db.data.active).to.be.eq(true);
+        });
+
+        it('should call database create with all data', async () => {
+            class Database {
+                public data: Partial<IUserModel>;
+
+                public create(params: any) {
+                    this.data = params;
+                    return 'a';
+                }
+            }
+
+            const db = new Database();
+            const service = new UserService(db as any);
+            const result = await service.create({
+                email: 'email@mail.com',
+                firstName: 'FirstName',
+                lastName: 'LastName',
+                password: '12345678',
+                role: Role.STUDENT,
+                gender: Gender.MALE,
+                birthday: '06/21/1956',
+                groups: ['groupID'],
+                extra: 'key'
+            } as any);
+
+            expect(result).to.be.eq('a');
+            expect(db.data).to.be.an('object');
+
+            expect(db.data).to.have.keys(['username', 'email', 'password', 'firstName',
+                'lastName', 'role', 'active', 'birthday', 'gender', 'groups']);
+
+            expect(db.data.username).to.be.a('string');
+            expect(db.data.role).to.be.eq('STUDENT');
+
+            expect(db.data.password).to.be.a('string');
+            expect(db.data.password).to.be.not.eq('12345678');
+            expect(db.data.password.length).to.be.gte(50);
+
+            expect(db.data.email).to.be.eq('email@mail.com');
+            expect(db.data.firstName).to.be.eq('FirstName');
+            expect(db.data.lastName).to.be.eq('LastName');
+            expect(db.data.active).to.be.eq(true);
+
+            expect(db.data.gender).to.be.eq('MALE');
+            expect(db.data.birthday).to.be.a('date');
+
+            expect(db.data.groups).to.be.an('array');
+            expect(db.data.groups).to.have.lengthOf(1);
         });
     });
 
-    it('should update user', async () => {
-        const service = new UserService(new MockDatabase());
-        const user = await service.create({
-            email: "nciccottio2r@pen.io",
-            firstName: "Nelson",
-            lastName: "Ciccottio",
-            role: Role.STUDENT,
-            username: "nelsonciccottio",
-            password: '12345678',
-            birthday: new Date(1999, 1, 26),
-            active: false,
-            gender: Gender.MALE,
+    describe('Update', () => {
+
+        it('should raise NothingToUpdate', async () => {
+            try {
+                const service = new UserService({} as any);
+                await service.update('id', {});
+                throw new ShouldNotSucceed();
+            } catch (e) {
+                expect(e.name).to.be.eq('NothingToUpdate');
+            }
         });
-        const updated = await service.update(user._id, {
-            gender: Gender.FEMALE,
-            email: 'new@email.com',
-            lastName: 'Whates',
-            role: Role.INSTRUCTOR,
-            password: 'newpassword',
-            updateLastLogin: true,
-            birthday: new Date(1993, 2, 26)
-        } as IUpdateUserModel);
 
-        // Check is updated related fields
-        expect(updated.gender).to.eq('FEMALE');
-        expect(updated.email).to.eq('new@email.com');
-        expect(updated.lastName).to.eq('Whates');
-        expect(updated.role).to.eq('INSTRUCTOR');
-        expect(updated.lastLogin).to.be.a('date');
-        expect(updated.birthday.toJSON()).to.eq(new Date(1993, 2, 26).toJSON());
+        it('should call database update method', async () => {
+            class Database {
+                public data: Partial<IUserModel>;
+                public id: string;
+                public condition: object;
 
-        // Check is hashed the password
-        expect(updated.password).to.not.eq(user.password);
-        expect(updated.password).to.not.eq('newpassword');
+                public update(id: string, data: any) {
+                    this.id = id;
+                    this.data = data;
+                }
 
-        // Check is not updated unrelated fields
-        expect(updated.updatedAt.toJSON()).to.not.eq(user.updatedAt.toJSON());
-        expect(updated.createdAt.toJSON()).to.eq(user.createdAt.toJSON());
+                public findOne(condition: object) {
+                    this.condition = condition;
+                    return 'a';
+                }
+            }
+
+            const db = new Database();
+            const service = new UserService(db as any);
+            const result = await service.update('id', {
+                email: 'new@mail.com',
+                extra: 'key'
+            } as any);
+
+            expect(result).to.be.eq('a');
+            expect(db.id).to.be.eq('id');
+            expect(db.condition).to.be.deep.eq({_id: 'id'});
+            expect(db.data).to.have.keys(['email', 'updatedAt']);
+            expect(db.data.email).to.be.eq('new@mail.com');
+            expect(db.data.updatedAt).to.be.a('date');
+        });
+
+        it('should transform an update object', async () => {
+            class Database {
+                public data: Partial<IUserModel>;
+                public id: string;
+                public condition: object;
+
+                public update(id: string, data: any) {
+                    this.id = id;
+                    this.data = data;
+                }
+
+                public findOne(condition: object) {
+                    this.condition = condition;
+                    return 'a';
+                }
+            }
+
+            const db = new Database();
+            const service = new UserService(db as any);
+            const result = await service.update('id', {
+                password: '12345678',
+                active: false,
+                birthday: '04/17/1987',
+                email: 'new@mail.com',
+                firstName: 'FirstName',
+                lastName: 'LastName',
+                gender: null,
+                groups: ['group-id'],
+                role: Role.INSTRUCTOR,
+                username: 'username',
+                updateLastLogin: true,
+                extra: 'key'
+            } as any);
+
+            expect(result).to.be.eq('a');
+            expect(db.id).to.be.eq('id');
+            expect(db.condition).to.be.deep.eq({_id: 'id'});
+            expect(db.data).to.have.keys([
+                'password', 'active', 'birthday', 'email', 'firstName', 'lastName', 'gender', 'groups', 'role',
+                'username', 'lastLogin', 'updatedAt'
+            ]);
+            expect(db.data.password).to.be.not.eq('12345678');
+            expect(db.data.password).to.be.a('string');
+            expect(db.data.password.length).to.be.gte(50);
+
+            expect(db.data.active).to.be.eq(false);
+            expect(db.data.birthday).to.be.a('date');
+            expect(db.data.email).to.be.eq('new@mail.com');
+            expect(db.data.firstName).to.be.eq('FirstName');
+            expect(db.data.lastName).to.be.eq('LastName');
+            expect(db.data.gender).to.be.eq(null);
+
+            expect(db.data.groups).to.be.an('array');
+            expect(db.data.groups).to.have.lengthOf(1);
+
+            expect(db.data.role).to.be.eq('INSTRUCTOR');
+            expect(db.data.username).to.be.eq('username');
+            expect(db.data.lastLogin).to.be.a('date');
+
+            expect(db.data.updatedAt).to.be.a('date');
+        });
     });
 
-    it('should soft delete user', async () => {
-        const service = new UserService(new MockDatabase());
+    describe('Delete', () => {
+        it('should soft delete', async () => {
+            class Database {
+                public data: { deleted: boolean, deletedAt: Date };
+                public id: string;
 
-        const user = await service.create({
-            email: "nciccottio2r@pen.io",
-            firstName: "Nelson",
-            lastName: "Ciccottio",
-            role: Role.STUDENT,
-            password: "12345678"
+                public update(id: string, data: any) {
+                    this.id = id;
+                    this.data = data;
+                }
+            }
+
+            const db = new Database();
+            const service = new UserService(db as any);
+
+            const result = await service.delete('id');
+
+            expect(result).to.be.eq(undefined);
+            expect(db.id).to.be.eq('id');
+            expect(db.data.deleted).to.be.eq(true);
+            expect(db.data.deletedAt).to.be.a('date');
         });
-        expect(user).to.be.an('object');
-        expect(user._id).to.be.an('object');
+        it('should hard delete', async () => {
+            class Database {
+                public id: string;
 
-        await service.delete(user._id);
+                public delete(id: string) {
+                    this.id = id;
+                }
+            }
 
-        const deleted = await service.getBy({id: user._id}, true);
-        expect(deleted).to.be.an('object');
-        expect(deleted.deleted).to.be.eq(true);
-        expect(deleted.deletedAt).to.be.a('date');
+            const db = new Database();
+            const service = new UserService(db as any);
+
+            const result = await service.delete('id', true);
+
+            expect(result).to.be.eq(undefined);
+            expect(db.id).to.be.eq('id');
+        });
     });
 
-    it('should hard delete user', async () => {
-        const service = new UserService(new MockDatabase());
+    describe('All', () => {
+        it('should call all method from db', async () => {
+            class Database {
+                public filters: object;
 
-        const user = await service.create({
-            email: "nciccottio2r@pen.io",
-            firstName: "Nelson",
-            lastName: "Ciccottio",
-            role: Role.STUDENT,
-            password: "12345678"
+                public all(filters: object) {
+                    this.filters = filters;
+                    return 1;
+                }
+            }
+
+            const db = new Database();
+            const service = new UserService(db as any);
+
+            const result = await service.all({role: {eq: Role.INSTRUCTOR}});
+            expect(result).to.be.eq(1);
+            expect(db.filters).to.be.deep.eq({role: {eq: Role.INSTRUCTOR}});
         });
-        expect(user).to.be.an('object');
-        expect(user._id).to.be.an('object');
-        await service.delete(user._id, true);
-        const deleted = await service.getBy({id: user._id}, null);
-        expect(deleted).to.be.eq(null);
     });
 
-    it('should get user by id, email and username', async () => {
-        const service = new UserService(new MockDatabase());
-        const user1 = await service.create({
-            email: "1@mail.com",
-            firstName: "Nelson",
-            lastName: "Ciccottio",
-            role: Role.STUDENT,
-            password: "12345678",
-            username: "user1"
+    describe('GetBy', () => {
+        it('should raise ParameterRequired when no parameter send', async () => {
+            try {
+                const service = new UserService({} as any);
+                await service.getBy({});
+                throw new ShouldNotSucceed();
+            } catch (e) {
+                expect(e.name).to.be.eq('ParameterRequired');
+            }
         });
-        const user2 = await service.create({
-            email: "2@mail.com",
-            firstName: "Nelson",
-            lastName: "Ciccottio",
-            role: Role.STUDENT,
-            password: "12345678",
-            username: "user2"
+
+        it('should throw InvalidID for invalid id', async () => {
+            try {
+                const service = new UserService({} as any);
+                await service.getBy({id: '1'});
+                throw new ShouldNotSucceed();
+            } catch (e) {
+                expect(e.name).to.be.eq('InvalidID');
+            }
         });
-        const user3 = await service.create({
-            email: "3@mail.com",
-            firstName: "Nelson",
-            lastName: "Ciccottio",
-            role: Role.STUDENT,
-            password: "12345678",
-            username: "user3"
+
+        it('should call db findOne method for by id', async () => {
+            class Database {
+                public data: object;
+
+                public findOne(condition: object) {
+                    this.data = condition;
+                    return 1;
+                }
+            }
+
+            const db = new Database();
+            const service = new UserService(db as any);
+            const result1 = await service.getBy({id: '5b4b57f4fc13ae17300008dc'});
+
+            expect(result1).to.be.eq(1);
+            expect(db.data).to.be.deep.eq({_id: '5b4b57f4fc13ae17300008dc', deleted: false});
+
+            const result2 = await service.getBy({id: '5b4b57f4fc13ae17300008dc'}, true);
+            expect(result2).to.be.eq(1);
+            expect(db.data).to.be.deep.eq({_id: '5b4b57f4fc13ae17300008dc', deleted: true});
+
+            const result3 = await service.getBy({id: '5b4b57f4fc13ae17300008dc'}, null);
+            expect(result3).to.be.eq(1);
+            expect(db.data).to.be.deep.eq({_id: '5b4b57f4fc13ae17300008dc'});
         });
-        const byID = await service.getBy({id: user1._id});
-        expect(byID._id).to.eq(user1._id);
 
-        const byEmail = await service.getBy({email: user2.email});
-        expect(byEmail._id).to.eq(user2._id);
+        it('should call db findOne method for email', async () => {
+            class Database {
+                public data: object;
 
-        const byUsername = await service.getBy({username: user3.username});
-        expect(byUsername._id).to.eq(user3._id);
+                public findOne(condition: object) {
+                    this.data = condition;
+                    return 1;
+                }
+            }
 
-        const notExistById = await service.getBy({id: "5"});
-        expect(notExistById).to.eq(null);
+            const db = new Database();
+            const service = new UserService(db as any);
+            const result1 = await service.getBy({email: 'email@mail.com'});
 
-        const notExistByEmail = await service.getBy({email: "5@mail.com"});
-        expect(notExistByEmail).to.eq(null);
+            expect(result1).to.be.eq(1);
+            expect(db.data).to.be.deep.eq({email: 'email@mail.com', deleted: false});
 
-        const notExistByUsername = await service.getBy({username: "user5"});
-        expect(notExistByUsername).to.eq(null);
+            const result2 = await service.getBy({email: 'email@mail.com'}, true);
+            expect(result2).to.be.eq(1);
+            expect(db.data).to.be.deep.eq({email: 'email@mail.com', deleted: true});
 
-        try {
-            await service.getBy({});
-        } catch (err) {
-            expect(err.name).to.eq('ParameterRequired');
-        }
+            const result3 = await service.getBy({email: 'email@mail.com'}, null);
+            expect(result3).to.be.eq(1);
+            expect(db.data).to.be.deep.eq({email: 'email@mail.com'});
+        });
+
+        it('should call db findOne method for username', async () => {
+            class Database {
+                public data: object;
+
+                public findOne(condition: object) {
+                    this.data = condition;
+                    return 1;
+                }
+            }
+
+            const db = new Database();
+            const service = new UserService(db as any);
+            const result1 = await service.getBy({username: 'username'});
+
+            expect(result1).to.be.eq(1);
+            expect(db.data).to.be.deep.eq({username: 'username', deleted: false});
+
+            const result2 = await service.getBy({username: 'username'}, true);
+            expect(result2).to.be.eq(1);
+            expect(db.data).to.be.deep.eq({username: 'username', deleted: true});
+
+            const result3 = await service.getBy({username: 'username'}, null);
+            expect(result3).to.be.eq(1);
+            expect(db.data).to.be.deep.eq({username: 'username'});
+        });
     });
 
-    it('should check username exists', async () => {
-        const service = new UserService(new MockDatabase());
-        await service.create({
-            firstName: 'FirstName',
-            lastName: 'LastName',
-            email: 'mail@email.com',
-            role: Role.STUDENT,
-            password: '12345678',
-            username: 'user1'
-        });
-        const shouldExists = await service.isUsernameExists('user1');
-        expect(shouldExists).to.eq(true);
+    describe('IsUsernameExists', () => {
+        it('should normalize username', async () => {
+            class Database {
+                public data: object;
 
-        const shouldNotExists = await service.isUsernameExists('user2');
-        expect(shouldNotExists).to.eq(false);
+                public findOne(condition: object) {
+                    this.data = condition;
+                }
+            }
+
+            const db = new Database();
+            const service = new UserService(db as any);
+            await service.isUsernameExists('ÜzümÇökYaprağıŞairÇam');
+            expect(db.data).to.be.deep.eq({username: 'uzumcokyapragisaircam'});
+        });
+
+        it('should return true', async () => {
+            class Database {
+                public data: object;
+
+                public findOne(condition: object) {
+                    this.data = condition;
+                    return {};
+                }
+            }
+
+            const db = new Database();
+            const service = new UserService(db as any);
+            const result = await service.isUsernameExists('a');
+            expect(result).to.be.eq(true);
+        });
+
+        it('should return false', async () => {
+            class Database {
+                public data: object;
+
+                public findOne(condition: object) {
+                    this.data = condition;
+                    return null;
+                }
+            }
+
+            const db = new Database();
+            const service = new UserService(db as any);
+            const result = await service.isUsernameExists('a');
+            expect(result).to.be.eq(false);
+        });
     });
 
-    it('should check password', async () => {
-        const service = new UserService(new MockDatabase());
-        const user = await service.create({
-            firstName: 'FirstName',
-            lastName: 'LastName',
-            email: 'email@mail.com',
-            password: '12345678',
-            role: Role.ADMIN
+    describe('IsPasswordValid', () => {
+        it('should return True', async () => {
+            const service = new UserService({} as any);
+            const result = await service.isPasswordValid(
+                'kbowlandsik@vimeo.com',
+                '$2b$10$hmeS440fxNnUx5a6ejTn.uc40rxd5j90VTiPRrpXso9au3fwVV9e6'
+            );
+            expect(result).to.be.eq(true);
         });
+        it('should return False', async () => {
+            const service = new UserService({} as any);
+            const result = await service.isPasswordValid(
+                '12345678',
+                '$2b$10$hmeS440fxNnUx5a6ejTn.uc40rxd5j90VTiPRrpXso9au3fwVV9e6'
+            );
+            expect(result).to.be.eq(false);
+        });
+        it('should return False with not real hash', async () => {
+            const service = new UserService({} as any);
+            const result = await service.isPasswordValid(
+                '12345678',
+                'asdasdasdasdasdasd'
+            );
+            expect(result).to.be.eq(false);
+        });
+    });
 
-        const shouldValid = await service.isPasswordValid('12345678', user.password);
-        expect(shouldValid).to.eq(true);
-
-        const shouldNotValid = await service.isPasswordValid('12345678asd', user.password);
-        expect(shouldNotValid).to.eq(false);
+    describe('HashPassword', () => {
+        it('should hash password', async () => {
+            const service = new UserService({} as any);
+            const hash = await service.hashPassword('12345678');
+            expect(hash).to.be.a('string');
+            expect(hash).to.be.not.eq('12345678');
+            expect(hash.length).to.be.gte(50);
+        });
+        it('should hash number', async () => {
+            const service = new UserService({} as any);
+            const hash = await service.hashPassword(12345678 as any);
+            expect(hash).to.be.a('string');
+            expect(hash).to.be.not.eq('12345678');
+            expect(hash.length).to.be.gte(50);
+        });
     });
 });
