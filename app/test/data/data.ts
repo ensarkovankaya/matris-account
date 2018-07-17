@@ -1,7 +1,8 @@
 import { readFileSync } from 'fs';
+import { IDBUserModel } from './db.model';
 import { IUserModel, UserField } from './user.model';
 
-export const USERS: IUserModel[] = JSON.parse(readFileSync(__dirname + '/db.json', 'utf8'));
+export const USERS: IDBUserModel[] = JSON.parse(readFileSync(__dirname + '/db.json', 'utf8'));
 
 /**
  * Shuffles array in place. ES6 version
@@ -61,7 +62,7 @@ export class UserGenerator {
         if (filtered.length === 0) {
             throw new Error('User not exists');
         }
-        return choose<IUserModel>(filtered);
+        return this.toUser(choose<IDBUserModel>(filtered));
     }
 
     /**
@@ -76,7 +77,7 @@ export class UserGenerator {
             throw new Error('Max limit is 100');
         }
         if (limit === 100) {
-            return USERS.slice();
+            return USERS.slice().map(d => this.toUser(d));
         }
         const users: IUserModel[] = [];
         while (users.length < limit) {
@@ -108,5 +109,25 @@ export class UserGenerator {
         for (const user of USERS) {
             yield user;
         }
+    }
+
+    public toUser(data: IDBUserModel): IUserModel {
+        return {
+            _id: data._id,
+            username: data.username,
+            email: data.email,
+            firstName: data.firstName,
+            lastName: data.lastName,
+            role: data.role,
+            gender: data.gender,
+            birthday: data.birthday ? new Date(data.birthday) : null,
+            active: data.active,
+            createdAt: new Date(data.createdAt),
+            updatedAt: new Date(data.updatedAt),
+            deletedAt: data.deletedAt ? new Date(data.deletedAt) : null,
+            deleted: data.deleted,
+            lastLogin: data.lastLogin ? new Date(data.lastLogin) : null,
+            groups: data.groups
+        };
     }
 }

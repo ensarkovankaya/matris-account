@@ -1,10 +1,11 @@
 import { readFileSync } from 'fs';
+import { Logger } from 'matris-logger';
 import { Service } from 'typedi';
 import { ParameterRequired } from '../../src/graphql/resolvers/user.resolver.errors';
+import { getLogger } from '../../src/logger';
 import { ICompareModel } from '../../src/models/compare.model';
 import { ICreateUserModel, IUpdateUserModel, IUserFilterModel, IUserModel } from '../../src/models/user.model';
 import { User } from '../../src/models/user.schema';
-import { DatabaseService } from '../../src/services/database.service';
 import { IDBUserModel } from '../data/db.model';
 
 interface IFilterModel extends IUserFilterModel {
@@ -13,8 +14,11 @@ interface IFilterModel extends IUserFilterModel {
     username?: string;
 }
 
+const PATH: string = process.env.MOCK_DATA || __dirname + '/../data/db.json';
+const FILE = readFileSync(PATH, {encoding: 'utf8'});
+
 @Service()
-export class MockDatabase extends DatabaseService {
+export class MockDatabase {
 
     private static compare(data: any[], path: string, filter: ICompareModel): any[] {
         if (filter.eq !== undefined) {
@@ -39,8 +43,10 @@ export class MockDatabase extends DatabaseService {
     public called: string;
     public parameters: { [key: string]: any };
 
+    private logger: Logger;
+
     constructor() {
-        super();
+        this.logger = getLogger('MockDatabase');
         this.data = [];
     }
 
@@ -108,13 +114,11 @@ export class MockDatabase extends DatabaseService {
     /**
      * Loads mock users from db.json
      * @param {number} n: Only load n number of user
-     * @param path: Data path
      * @return {Promise<void>}
      */
-    public async load(n?: number, path: string = __dirname + '/../data/db.json') {
+    public async load(n?: number) {
         try {
-            const file = readFileSync(path, {encoding: 'utf8'});
-            const users: IDBUserModel[] = JSON.parse(file);
+            const users: IDBUserModel[] = JSON.parse(FILE);
             if (n) {
                 this.data = await Promise.all(this.shuffle(users.slice(0, n)).map(data => this.toUser(data)));
             } else {
