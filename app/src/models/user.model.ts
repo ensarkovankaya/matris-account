@@ -18,7 +18,7 @@ export interface IUserFilterModel {
     active?: boolean;
     role?: {
         eq?: Role;
-        in: Role[];
+        in?: Role[];
     };
     gender?: Gender | null;
     birthday?: ICompareModel;
