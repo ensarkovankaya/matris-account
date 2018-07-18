@@ -1,19 +1,19 @@
 import {
     IsAlphanumeric,
     IsArray,
-    IsDate,
     IsEmail,
     IsIn,
     IsLowercase,
     Length
 } from "class-validator";
 import { Field, InputType } from 'type-graphql';
-import { IsBirthday } from '../../decorators/birthday';
+import { IsBirthday } from '../../decorators/date';
 import { Gender, Role } from '../../models/user.model';
 import { User } from '../schemas/user.schema';
+import { Validatable } from '../validatable';
 
 @InputType({description: 'User update data.'})
-export class UpdateInput implements Partial<User> {
+export class UpdateInput extends Validatable implements Partial<User> {
 
     @Field({nullable: true, description: 'User unique email address.'})
     @IsEmail({}, {message: 'Invalid'})
@@ -65,4 +65,8 @@ export class UpdateInput implements Partial<User> {
 
     @Field({nullable: true, description: 'If true updates user last login date to now.'})
     public updateLastLogin?: boolean;
+
+    constructor(data: object = {}) {
+        super(data);
+    }
 }

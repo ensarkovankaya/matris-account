@@ -1,4 +1,3 @@
-import { readFileSync } from 'fs';
 import { Logger } from 'matris-logger';
 import { Service } from 'typedi';
 import { ParameterRequired } from '../../src/graphql/resolvers/user.resolver.errors';
@@ -14,8 +13,14 @@ interface IFilterModel extends IUserFilterModel {
     username?: string;
 }
 
-const PATH: string = process.env.MOCK_DATA || __dirname + '/../data/db.json';
-const FILE = readFileSync(PATH, {encoding: 'utf8'});
+/**
+ * n: Number of user should load from given data
+ * validate: validate given data
+ */
+export interface ILoadOptions {
+    n?: number;
+    validate?: boolean;
+}
 
 @Service()
 export class MockDatabase {
@@ -112,17 +117,19 @@ export class MockDatabase {
     }
 
     /**
-     * Loads mock users from db.json
-     * @param {number} n: Only load n number of user
+     *
+     * @param {IDBUserModel[]} data
+     * @param {ILoadOptions} options
      * @return {Promise<void>}
      */
-    public async load(n?: number) {
+    public async load(data: IDBUserModel[], options: ILoadOptions = {validate: true}) {
         try {
-            const users: IDBUserModel[] = JSON.parse(FILE);
-            if (n) {
-                this.data = await Promise.all(this.shuffle(users.slice(0, n)).map(data => this.toUser(data)));
+            if (options.n) {
+                this.data = await Promise.all(
+                    this.shuffle(data.slice(0, options.n)).map(d => this.toUser(d, options.validate))
+                );
             } else {
-                this.data = await Promise.all(users.map(data => this.toUser(data)));
+                this.data = await Promise.all(data.map(d => this.toUser(d, options.validate)));
             }
             this.logger.debug(`${this.data.length} mock user loaded.`);
         } catch (e) {
@@ -151,10 +158,12 @@ export class MockDatabase {
         return array;
     }
 
-    private async toUser(data: IDBUserModel): Promise<IUserModel> {
+    private async toUser(data: IDBUserModel, validate: boolean = true): Promise<IUserModel> {
         try {
             const user = new User(data);
-            await user.validate();
+            if (validate) {
+                await user.validate();
+            }
             return user;
         } catch (e) {
             this.logger.error('User validation failed', e, {data});

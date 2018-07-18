@@ -1,4 +1,5 @@
 import { expect } from 'chai';
+import { readFileSync } from "fs";
 import { GraphQLClient } from 'graphql-request';
 import * as http from 'http';
 import { after, before, beforeEach, describe, it } from 'mocha';
@@ -9,7 +10,7 @@ import { Server } from '../../src/server';
 import { DatabaseService } from '../../src/services/database.service';
 import { MockDatabase } from '../unit/mock.database';
 
-const endpoint = 'http://0.0.0.0:3000/graphql';
+let ENDPOINT: string = '';
 const headers = {
     'Content-Type': 'application/json',
     'Accept': 'application/json'
@@ -17,9 +18,13 @@ const headers = {
 
 let server: http.Server;
 
+const PATH: string = process.env.MOCK_DATA || __dirname + '/../data/db.json';
+const DATA = JSON.parse(readFileSync(PATH, {encoding: 'utf8'}));
+
 before('Start Server', async () => {
     const PORT = parseInt(process.env.PORT || '3000', 10);
     const HOST = process.env.HOST || '0.0.0.0';
+    ENDPOINT = `http://${HOST}:${PORT}`;
     const express = new Server();
     server = http.createServer(express.app);
     return await server.listen(PORT, HOST, () => console.info(`Test Server start on host ${HOST} port ${PORT}.`));
@@ -29,7 +34,11 @@ class ShouldNotSucceed extends Error {
     public name = 'ShouldNotSucceed';
 }
 
-beforeEach('Mock Database', () => Container.set(DatabaseService, new MockDatabase()));
+beforeEach('Mock Database', async () => {
+    const db = new MockDatabase();
+    await db.load(DATA);
+    Container.set(DatabaseService, db);
+});
 
 interface IUserModel {
     _id?: string;
@@ -53,7 +62,7 @@ interface IUserModel {
 describe('GraphQL', () => {
 
     it("should return 'must provide query string' error", async () => {
-        const client = new GraphQLClient(endpoint, {headers});
+        const client = new GraphQLClient(ENDPOINT, {headers});
         try {
             await client.request(``);
         } catch (err) {
@@ -64,7 +73,7 @@ describe('GraphQL', () => {
 
     describe('Create', () => {
         it("should throw error without variables", async () => {
-            const client = new GraphQLClient(endpoint, {headers});
+            const client = new GraphQLClient(ENDPOINT, {headers});
             const query = `mutation createUser($email: String!, $firstName: String!, $lastName: String!,
                             $password: String!, $role: Role!, $username: String, $gender: Gender,
                             $birthday: String, $groups: [String!]){
@@ -95,7 +104,7 @@ describe('GraphQL', () => {
         });
 
         it("should create user with min data", async () => {
-            const client = new GraphQLClient(endpoint, {headers});
+            const client = new GraphQLClient(ENDPOINT, {headers});
             const query = `mutation createUser($email: String!, $firstName: String!, $lastName: String!,
                             $password: String!, $role: Role!, $username: String, $gender: Gender,
                             $birthday: String, $active: Boolean, $groups: [String!]){
@@ -156,7 +165,7 @@ describe('GraphQL', () => {
         });
 
         it("should create user with max data", async () => {
-            const client = new GraphQLClient(endpoint, {headers});
+            const client = new GraphQLClient(ENDPOINT, {headers});
             const query = `mutation createUser($email: String!, $firstName: String!, $lastName: String!,
                             $password: String!, $role: Role!, $username: String!, $gender: Gender!,
                             $birthday: String!, $active: Boolean!, $groups: [String!]!){

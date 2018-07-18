@@ -1,19 +1,23 @@
 import { expect } from 'chai';
+import { readFileSync } from "fs";
 import { describe, it } from 'mocha';
 import 'reflect-metadata';
 import { Role } from '../../src/models/user.model';
 import { Gender } from '../data/user.model';
 import { MockDatabase } from './mock.database';
 
+const PATH: string = process.env.MOCK_DATA || __dirname + '/../data/db.json';
+const DATA = JSON.parse(readFileSync(PATH, {encoding: 'utf8'}));
+
 describe('Services -> MockDatabase', () => {
     it('should load all mock users', async () => {
         const service: MockDatabase = new MockDatabase();
-        await service.load();
+        await service.load([]);
         expect(service.data.length).to.be.gt(0);
     });
     it('should load specific amount of mock users', async () => {
         const service: MockDatabase = new MockDatabase();
-        await service.load(2);
+        await service.load(DATA, {n: 2});
         expect(service.data).to.have.lengthOf(2);
     });
     it('should create user', async () => {
@@ -55,7 +59,7 @@ describe('Services -> MockDatabase', () => {
     });
     it('should update user', async () => {
         const db = new MockDatabase();
-        await db.load(1);
+        await db.load(DATA, {n: 1});
         const user = db.data[0];
         expect(user).to.be.an('object');
         await db.update(user._id, {firstName: 'Name'});
@@ -65,7 +69,7 @@ describe('Services -> MockDatabase', () => {
     });
     it('should delete user', async () => {
         const db = new MockDatabase();
-        await db.load(1);
+        await db.load(DATA, {n: 1});
         const user = db.data[0];
         expect(user).to.be.an('object');
         await db.delete(user._id);
@@ -73,20 +77,20 @@ describe('Services -> MockDatabase', () => {
     });
     it('should return all users', async () => {
         const db = new MockDatabase();
-        await db.load(5);
+        await db.load(DATA, {n: 5});
         const users = await db.all({});
         expect(users).to.have.lengthOf(5);
     });
     it('should findOne return user', async () => {
         const db = new MockDatabase();
-        await db.load(2);
+        await db.load(DATA, {n: 2});
         const user = db.data[0];
         const find = await db.findOne({_id: user._id});
         expect(find.email).to.be.eq(user.email);
     });
     it('should findOne return null', async () => {
         const db = new MockDatabase();
-        await db.load(2);
+        await db.load(DATA, {n: 2});
         const find = await db.findOne({_id: 'a'.repeat(24)});
         expect(find).to.be.eq(null);
     });

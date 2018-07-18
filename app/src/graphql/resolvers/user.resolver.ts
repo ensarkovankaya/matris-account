@@ -1,6 +1,7 @@
 import { Arg, Args, Mutation, Query, Resolver } from 'type-graphql';
 import { Service } from 'typedi';
 import { getLogger, Logger } from '../../logger';
+import { ICreateUserModel } from '../../models/user.model';
 import { UserService } from '../../services/user.service';
 import { normalizeUsername } from '../../utils';
 import { PasswordArgs } from '../args/password.args';
@@ -55,6 +56,22 @@ export class UserResolver {
     @Mutation(returnType => User, {description: 'Create user.'})
     public async create(@Arg('data') data: CreateInput) {
         this.logger.debug('Create', {data});
+        // Check email exists
+        const isEmailExists = await this.us.getBy({email: data.email});
+        this.logger.debug('Create', {isEmailExists});
+        if (isEmailExists) {
+            throw new EmailAlreadyExists(data.email);
+        }
+        const createData: ICreateUserModel = {
+            email: data.email,
+            firstName: data.firstName,
+            lastName: data.lastName,
+            password: data.password,
+            role: data.role,
+            gender: data.gender,
+            active: data.active,
+            groups: data.groups
+        };
         if (data.username) {
             // Check username exists
             const isUsernameExists = await this.us.isUsernameExists(data.username);
@@ -62,23 +79,18 @@ export class UserResolver {
             if (isUsernameExists) {
                 throw new UserNameExists(data.username);
             }
+            createData.username = normalizeUsername(data.username);
         } else {
-            data.username = normalizeUsername(data.firstName + data.lastName).slice(0, 20);
+            createData.username = normalizeUsername(data.firstName + data.lastName).slice(0, 20);
             this.logger.debug('Create', {generatedUsername: data.username});
         }
 
         // Transform birthday from string to Date object
-        if (typeof data.birthday === 'string' || data.birthday instanceof Date) {
-            data.birthday = new Date(data.birthday);
-        }
-        // Check email exists
-        const isEmailExists = await this.us.getBy({email: data.email});
-        this.logger.debug('Create', {isEmailExists});
-        if (isEmailExists) {
-            throw new EmailAlreadyExists(data.email);
+        if (data.birthday !== undefined) {
+            createData.birthday = new Date(data.birthday);
         }
         try {
-            return await this.us.create(data);
+            return await this.us.create(createData);
         } catch (err) {
             this.logger.error('Create', err);
             throw err;
