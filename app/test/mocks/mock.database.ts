@@ -141,12 +141,16 @@ export class MockDatabase {
      * Returns random user from data
      * @return {IUserModel}
      */
-    public getOne(): IUserModel {
+    public getOne(filters: IUserFilterModel = {}): IUserModel {
         if (this.data.length === 0) {
             throw new Error('Data is empty');
         }
+        const users = this.filter(this.data, filters);
+        if (users.length === 0) {
+            throw new Error('No user found with given filters');
+        }
         const index = Math.floor(Math.random() * this.data.length);
-        return this.data[index];
+        return users[index];
     }
 
     private shuffle(array: any[]): any[] {
@@ -172,50 +176,54 @@ export class MockDatabase {
 
     private filter(data: IUserModel[], filters: IFilterModel): IUserModel[] {
         this.logger.debug('Filter', {filters});
-        if (filters._id) {
-            data = data.filter(d => d._id.toString() === filters._id.toString());
-        }
-        if (filters.username) {
-            data = data.filter(d => d.username === filters.username);
-        }
-        if (filters.email) {
-            data = data.filter(d => d.email === filters.email);
-        }
-        if (filters.active !== undefined) {
-            data = data.filter(u => u.active === filters.active);
-        }
-        if (filters.role) {
-            if (filters.role.eq) {
-                data = data.filter(user => user.role === filters.role.eq);
-            } else if (filters.role.in && filters.role.in.length > 0) {
-                data = data.filter(u => filters.role.in.indexOf(u.role) > 0);
+        try {
+            if (filters._id) {
+                data = data.filter(d => d._id.toString() === filters._id.toString());
             }
+            if (filters.username) {
+                data = data.filter(d => d.username === filters.username);
+            }
+            if (filters.email) {
+                data = data.filter(d => d.email === filters.email);
+            }
+            if (filters.active !== undefined) {
+                data = data.filter(u => u.active === filters.active);
+            }
+            if (filters.role) {
+                if (filters.role.eq) {
+                    data = data.filter(user => user.role === filters.role.eq);
+                } else if (filters.role.in && filters.role.in.length > 0) {
+                    data = data.filter(u => filters.role.in.indexOf(u.role) > 0);
+                }
+            }
+            if (filters.gender) {
+                data = data.filter(u => u.gender === filters.gender);
+            }
+            if (filters.birthday) {
+                data = MockDatabase.compare(data, 'birthday', filters.birthday);
+            }
+            if (filters.deleted !== undefined) {
+                data = data.filter(u => u.deleted === filters.deleted);
+            }
+            if (filters.deletedAt) {
+                data = MockDatabase.compare(data, 'deletedAt', filters.deletedAt);
+            }
+            if (filters.createdAt) {
+                data = MockDatabase.compare(data, 'createdAt', filters.createdAt);
+            }
+            if (filters.updatedAt) {
+                data = MockDatabase.compare(data, 'updatedAt', filters.updatedAt);
+            }
+            if (filters.lastLogin) {
+                data = MockDatabase.compare(data, 'lastLogin', filters.lastLogin);
+            }
+            if (filters.groups && filters.groups.length > 0) {
+                data = data.filter(u => u.groups.some(id => filters.groups.indexOf(id) > 0));
+            }
+            return data;
+        } catch (e) {
+            this.logger.error('User filtering failed', e, {filters});
+            throw e;
         }
-        if (filters.gender) {
-            data = data.filter(u => u.gender === filters.gender);
-        }
-        if (filters.birthday) {
-            data = MockDatabase.compare(data, 'birthday', filters.birthday);
-        }
-        if (filters.deleted !== undefined) {
-            data = data.filter(u => u.deleted === filters.deleted);
-        }
-        if (filters.deletedAt) {
-            data = MockDatabase.compare(data, 'deletedAt', filters.deletedAt);
-        }
-        if (filters.createdAt) {
-            data = MockDatabase.compare(data, 'createdAt', filters.createdAt);
-        }
-        if (filters.updatedAt) {
-            data = MockDatabase.compare(data, 'updatedAt', filters.updatedAt);
-        }
-        if (filters.lastLogin) {
-            data = MockDatabase.compare(data, 'lastLogin', filters.lastLogin);
-        }
-        if (filters.groups && filters.groups.length > 0) {
-            data = data.filter(u => u.groups.some(id => filters.groups.indexOf(id) > 0));
-        }
-        this.logger.debug('Filter', {returnData: data});
-        return data;
     }
 }
