@@ -99,7 +99,6 @@ export class MockDatabase {
         this.called = 'delete';
         this.parameters = {id};
         this.data = this.data.filter(user => user._id !== id);
-        this.logger.debug('Delete', {data: this.data});
     }
 
     public async all(filters: IUserFilterModel) {
@@ -172,7 +171,7 @@ export class MockDatabase {
     }
 
     private filter(data: IUserModel[], filters: IFilterModel): IUserModel[] {
-        this.logger.debug('Filter', {data, filters});
+        this.logger.debug('Filter', {filters});
         if (filters._id) {
             data = data.filter(d => d._id.toString() === filters._id.toString());
         }
