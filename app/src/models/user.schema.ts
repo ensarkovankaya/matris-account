@@ -1,5 +1,4 @@
 import { model, Schema } from "mongoose";
-import { isArray, isString } from 'util';
 import { isAlphanumeric, isEmail } from 'validator';
 import { Gender, IUserModel, Role } from './user.model';
 
