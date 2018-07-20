@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsIn, Length } from "class-validator";
+import { IsArray, IsBoolean, Length } from "class-validator";
 import { ArgsType, Field } from 'type-graphql';
 import { IsCompareDateInput } from '../../decorators/is.compare.input';
 import { IsGenderQuery } from '../../decorators/is.gender.query';
