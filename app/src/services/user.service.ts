@@ -298,7 +298,14 @@ export class UserService {
     public generateUserName(initial: string = 'user', maxLength: number = 32): string {
         try {
             this.logger.debug('GenerateUserName', {initial});
-            const username = this.normalizeUserName(initial) + String(Math.floor(Math.random() * 10000)); // user1362
+
+            let random = '';
+            // Generate 4 random digit
+            for (let i = 0; i < 4; i++) {
+                random += String(Math.floor(Math.random() * 10));
+            }
+
+            const username = this.normalizeUserName(initial) + random; // user1362
             if (username.length > maxLength) {
                 return this.normalizeUserName(username.substring(0, maxLength));
             }
