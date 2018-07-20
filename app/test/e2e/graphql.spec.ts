@@ -24,7 +24,8 @@ const DATA = JSON.parse(readFileSync(PATH, {encoding: 'utf8'}));
 before('Start Server', async () => {
     const PORT = parseInt(process.env.PORT || '3000', 10);
     const HOST = process.env.HOST || '0.0.0.0';
-    ENDPOINT = `http://${HOST}:${PORT}`;
+    const URL = process.env.URL || '/graphql';
+    ENDPOINT = `http://${HOST}:${PORT}${URL}`;
     const express = new Server();
     server = http.createServer(express.app);
     return await server.listen(PORT, HOST, () => console.info(`Test Server start on host ${HOST} port ${PORT}.`));
@@ -66,6 +67,7 @@ describe('GraphQL', () => {
         try {
             await client.request(``);
         } catch (err) {
+            console.error('err', err);
             expect(err.response.status).to.eq(400);
             expect(err.response.errors).to.have.deep.members([{message: 'Must provide query string.'}]);
         }
