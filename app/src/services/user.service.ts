@@ -295,7 +295,7 @@ export class UserService {
      * @param {number} maxLength: Maximum length of username can be
      * @return {string}
      */
-    public generateUserName(initial: string = 'user', maxLength: number = 32): string {
+    public generateUserName(initial: string = 'user', maxLength: number = 20): string {
         try {
             this.logger.debug('GenerateUserName', {initial});
 
