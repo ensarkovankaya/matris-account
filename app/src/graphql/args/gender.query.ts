@@ -7,13 +7,13 @@ import { Validatable } from '../validatable';
 @InputType({description: 'Gender Query'})
 export class GenderQuery extends Validatable implements IGenderQueryModel {
     @Field(type => Gender, {nullable: true, description: 'User gender equals to given value.'})
-    @IsIn([Gender.MALE, Gender.FEMALE, null], {message: 'Invalid'})
-    public eq?: Gender | null;
+    @IsIn([Gender.MALE, Gender.FEMALE, Gender.UNKNOWN], {message: 'Invalid'})
+    public eq?: Gender;
 
     @Field(type => [Gender], {nullable: true, description: 'User gener is one of given values.'})
     @IsArray()
-    @IsIn([Gender.MALE, Gender.FEMALE, null], {message: 'Invalid', each: true})
-    public in: Array<Gender | null>;
+    @IsIn([Gender.MALE, Gender.FEMALE, Gender.UNKNOWN], {message: 'Invalid', each: true})
+    public in: Gender[];
 
     constructor(data = {}) {
         super(data);
