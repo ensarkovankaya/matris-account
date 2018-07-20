@@ -1,5 +1,7 @@
 import { validateOrReject } from 'class-validator';
+import { ArgsType } from 'type-graphql';
 
+@ArgsType()
 export class Validatable {
 
     constructor(data: object = {}) {
