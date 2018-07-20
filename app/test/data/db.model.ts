@@ -1,4 +1,3 @@
-import { Gender, Role } from './user.model';
 
 export interface IDBUserModel {
     _id: string;
@@ -6,8 +5,8 @@ export interface IDBUserModel {
     email: string;
     firstName: string;
     lastName: string;
-    role: Role;
-    gender: Gender;
+    role: string;
+    gender: string;
     birthday: string | null;
     active: boolean;
     createdAt: string;
