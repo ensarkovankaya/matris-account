@@ -17,7 +17,8 @@ describe('Services -> User', () => {
                     role: Role.MANAGER,
                     email: 'email@mail.com',
                     firstName: 'FirstName',
-                    lastName: 'LastName'
+                    lastName: 'LastName',
+                    username: 'username'
                 } as any);
                 throw new ShouldNotSucceed();
             } catch (e) {
@@ -31,7 +32,8 @@ describe('Services -> User', () => {
                     password: '12345678',
                     email: 'email@mail.com',
                     firstName: 'FirstName',
-                    lastName: 'LastName'
+                    lastName: 'LastName',
+                    username: 'username'
                 } as any);
                 throw new ShouldNotSucceed();
             } catch (e) {
@@ -45,7 +47,8 @@ describe('Services -> User', () => {
                     role: Role.MANAGER,
                     password: '12345678',
                     firstName: 'FirstName',
-                    lastName: 'LastName'
+                    lastName: 'LastName',
+                    username: 'username'
                 } as any);
                 throw new ShouldNotSucceed();
             } catch (e) {
@@ -59,7 +62,8 @@ describe('Services -> User', () => {
                     role: Role.MANAGER,
                     password: '12345678',
                     email: 'email@mail.com',
-                    lastName: 'LastName'
+                    lastName: 'LastName',
+                    username: 'username'
                 } as any);
                 throw new ShouldNotSucceed();
             } catch (e) {
@@ -74,10 +78,27 @@ describe('Services -> User', () => {
                     password: '12345678',
                     email: 'email@mail.com',
                     firstName: 'FirstName',
+                    username: 'username'
                 } as any);
                 throw new ShouldNotSucceed();
             } catch (e) {
                 expect(e.name).to.be.eq('LastNameRequired');
+            }
+        });
+
+        it('should raise UserNameRequired', async () => {
+            try {
+                const service = new UserService({} as any);
+                await service.create({
+                    role: Role.MANAGER,
+                    password: '12345678',
+                    email: 'email@mail.com',
+                    firstName: 'FirstName',
+                    lastName: 'LastName'
+                } as any);
+                throw new ShouldNotSucceed();
+            } catch (e) {
+                expect(e.name).to.be.eq('UserNameRequired');
             }
         });
 
@@ -99,6 +120,7 @@ describe('Services -> User', () => {
                 lastName: 'LastName',
                 password: '12345678',
                 role: Role.STUDENT,
+                username: 'username',
                 extra: 'key'
             } as any);
 
@@ -107,7 +129,7 @@ describe('Services -> User', () => {
 
             expect(db.data).to.have.keys(['username', 'password', 'email', 'firstName', 'lastName', 'role', 'active']);
 
-            expect(db.data.username).to.be.a('string');
+            expect(db.data.username).to.be.eq('username');
             expect(db.data.role).to.be.eq('STUDENT');
 
             expect(db.data.password).to.be.a('string');
@@ -137,6 +159,7 @@ describe('Services -> User', () => {
                 firstName: 'FirstName',
                 lastName: 'LastName',
                 password: '12345678',
+                username: 'username',
                 role: Role.STUDENT,
                 gender: Gender.MALE,
                 birthday: '06/21/1956',
@@ -150,7 +173,7 @@ describe('Services -> User', () => {
             expect(db.data).to.have.keys(['username', 'email', 'password', 'firstName',
                 'lastName', 'role', 'active', 'birthday', 'gender', 'groups']);
 
-            expect(db.data.username).to.be.a('string');
+            expect(db.data.username).to.be.eq('username');
             expect(db.data.role).to.be.eq('STUDENT');
 
             expect(db.data.password).to.be.a('string');
@@ -240,7 +263,7 @@ describe('Services -> User', () => {
                 email: 'new@mail.com',
                 firstName: 'FirstName',
                 lastName: 'LastName',
-                gender: null,
+                gender: Gender.UNKNOWN,
                 groups: ['group-id'],
                 role: Role.INSTRUCTOR,
                 username: 'username',
@@ -264,7 +287,7 @@ describe('Services -> User', () => {
             expect(db.data.email).to.be.eq('new@mail.com');
             expect(db.data.firstName).to.be.eq('FirstName');
             expect(db.data.lastName).to.be.eq('LastName');
-            expect(db.data.gender).to.be.eq(null);
+            expect(db.data.gender).to.be.eq('UNKNOWN');
 
             expect(db.data.groups).to.be.an('array');
             expect(db.data.groups).to.have.lengthOf(1);
@@ -528,6 +551,113 @@ describe('Services -> User', () => {
             expect(hash).to.be.a('string');
             expect(hash).to.be.not.eq('12345678');
             expect(hash.length).to.be.gte(50);
+        });
+    });
+
+    describe('NormalizeUserName', () => {
+        it('should return same value for normalized input', () => {
+            const service = new UserService({} as any);
+            const output = service.normalizeUserName('abcdefgh');
+            expect(output).to.be.eq('abcdefgh');
+        });
+        it('should remove empty spaces', () => {
+            const service = new UserService({} as any);
+            expect(service.normalizeUserName('ab cd  fg ')).to.be.eq('abcdfg');
+            expect(service.normalizeUserName(' ab   cd  fg ')).to.be.eq('abcdfg');
+        });
+        it('should make letter lowercase', () => {
+            const service = new UserService({} as any);
+            expect(service.normalizeUserName('ABCDEFG')).to.be.eq('abcdefg');
+            expect(service.normalizeUserName('ABCDEFGh')).to.be.eq('abcdefgh');
+        });
+        it('should replace all Ğ with g', () => {
+            const service = new UserService({} as any);
+            const output = service.normalizeUserName('aaĞaaĞaĞaaĞ');
+            expect(output).to.be.eq('aagaagagaag');
+        });
+        it('should replace all ğ with g', () => {
+            const service = new UserService({} as any);
+            const output = service.normalizeUserName('aağaağağaağ');
+            expect(output).to.be.eq('aagaagagaag');
+        });
+        it('should replace all ü with u', () => {
+            const service = new UserService({} as any);
+            const output = service.normalizeUserName('aaüaaüaüaaü');
+            expect(output).to.be.eq('aauaauauaau');
+        });
+        it('should replace all Ü with u', () => {
+            const service = new UserService({} as any);
+            const output = service.normalizeUserName('aaÜaaÜaÜaaÜ');
+            expect(output).to.be.eq('aauaauauaau');
+        });
+        it('should replace all ç with c', () => {
+            const service = new UserService({} as any);
+            const output = service.normalizeUserName('aaçaçaaça');
+            expect(output).to.be.eq('aacacaaca');
+        });
+        it('should replace all Ç with c', () => {
+            const service = new UserService({} as any);
+            const output = service.normalizeUserName('aaÇaÇaaÇa');
+            expect(output).to.be.eq('aacacaaca');
+        });
+        it('should replace all ş with s', () => {
+            const service = new UserService({} as any);
+            const output = service.normalizeUserName('aaşaşaaşa');
+            expect(output).to.be.eq('aasasaasa');
+        });
+        it('should replace all Ş with s', () => {
+            const service = new UserService({} as any);
+            const output = service.normalizeUserName('aaŞaŞaaŞa');
+            expect(output).to.be.eq('aasasaasa');
+        });
+        it('should replace all ı with i', () => {
+            const service = new UserService({} as any);
+            const output = service.normalizeUserName('aaıaıaaıa');
+            expect(output).to.be.eq('aaiaiaaia');
+        });
+        it('should replace all I with i', () => {
+            const service = new UserService({} as any);
+            const output = service.normalizeUserName('aaIaIaaIa');
+            expect(output).to.be.eq('aaiaiaaia');
+        });
+        it('should replace all ö with o', () => {
+            const service = new UserService({} as any);
+            const output = service.normalizeUserName('aaöaöaaöa');
+            expect(output).to.be.eq('aaoaoaaoa');
+        });
+        it('should replace all Ö with o', () => {
+            const service = new UserService({} as any);
+            const output = service.normalizeUserName('aaÖaÖaaÖa');
+            expect(output).to.be.eq('aaoaoaaoa');
+        });
+    });
+
+    describe('GenerateUsername', () => {
+        it('username should start with user if not initial given', () => {
+            const service = new UserService({} as any);
+            const output = service.generateUserName();
+            expect(output.startsWith('user')).to.be.eq(true);
+            expect(output).to.have.lengthOf(8);
+        });
+
+        it('username should start with given initial', () => {
+            const service = new UserService({} as any);
+            const output = service.generateUserName('username');
+            expect(output.startsWith('username')).to.be.eq(true);
+            expect(output).to.have.lengthOf(12);
+        });
+
+        it('should add random numbers to given initial', () => {
+            const service = new UserService({} as any);
+            const output = service.generateUserName('username');
+            const numbers = parseInt(output.split('username')[1], 10);
+            expect(numbers).to.be.a('number');
+        });
+
+        it('should cut username if initial bigger than maxLength', () => {
+            const service = new UserService({} as any);
+            const output = service.generateUserName('username', 10);
+            expect(output).to.have.lengthOf(10);
         });
     });
 });

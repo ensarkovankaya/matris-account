@@ -15,12 +15,33 @@ export class UserNotFound extends Error {
     }
 }
 
+export class UserNotActive extends Error {
+    public name = 'UserNotActive';
+
+    constructor(by?: { id?: string, username?: string, email?: string }) {
+        super();
+        let message = 'User not active.';
+        if (by.id) {
+            message = `User with id '${by.id}' is not active.`;
+        } else if (by.email) {
+            message = `User with email '${by.email}' is not active.`;
+        } else if (by.username) {
+            message = `User with username '${by.username}' is not active.`;
+        }
+        this.message = message;
+    }
+}
+
 export class EmailAlreadyExists extends Error {
     public name = 'EmailAlreadyExists';
 
     constructor(email?: string) {
         super(email ? `Mail '${email}' already exists.` : undefined);
     }
+}
+
+export class UserNameNotNormalized extends Error {
+    public name = 'UserNameNotNormalized';
 }
 
 export class UserNameExists extends Error {

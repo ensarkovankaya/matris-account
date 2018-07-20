@@ -1,4 +1,5 @@
 import { model, Schema } from "mongoose";
+import { isArray, isString } from 'util';
 import { isAlphanumeric, isEmail } from 'validator';
 import { Gender, IUserModel, Role } from './user.model';
 
@@ -23,7 +24,7 @@ const UserSchema: Schema = new Schema({
         minlength: 1,
         maxlength: 32,
         trim: true,
-        match: new RegExp('^([A-Za-z ]+)$')
+        match: new RegExp('^[A-Za-z ]+$')
     },
     lastName: {
         type: String,
@@ -31,13 +32,13 @@ const UserSchema: Schema = new Schema({
         trim: true,
         minlength: 1,
         maxlength: 32,
-        match: new RegExp('^([A-Za-z ]+)$')
+        match: new RegExp('^[A-Za-z ]+$')
     },
     password: {
         type: String,
         required: true,
-        minlength: 50,
-        maxlength: 80
+        minlength: 60,
+        maxlength: 60
     },
     username: {
         type: String,
@@ -67,17 +68,12 @@ const UserSchema: Schema = new Schema({
     },
     birthday: {
         type: Date,
-        default: null,
-        validate: {
-            validator: (val: any) => val === null || (val instanceof Date && val.toString() !== 'Invalid Date'),
-            msg: 'Invalid value',
-            type: 'InvalidDate'
-        }
+        default: null
     },
     gender: {
         type: String,
-        enum: [Gender.MALE, Gender.FEMALE, null],
-        default: null
+        enum: [Gender.MALE, Gender.FEMALE, Gender.UNKNOWN],
+        default: Gender.UNKNOWN
     },
     active: {
         type: Boolean,
@@ -106,7 +102,11 @@ const UserSchema: Schema = new Schema({
     groups: {
         type: [String],
         default: [],
-        validate: (value: string[]) => new Set(value).size === value.length  // checks only contains unique values
+        validate: {
+            validator: (val: any) => typeof val !== 'string' && Array.isArray(val) && new Set(val).size === val.length,
+            msg: 'Groups must be string array.',
+            type: 'NotArray'
+        }
     }
 });
 

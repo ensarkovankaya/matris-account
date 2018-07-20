@@ -1,16 +1,21 @@
 import { Arg, Args, Mutation, Query, Resolver } from 'type-graphql';
 import { Service } from 'typedi';
 import { getLogger, Logger } from '../../logger';
-import { ICreateUserModel } from '../../models/user.model';
+import { ICreateUserModel, IUpdateUserModel, Role } from '../../models/user.model';
 import { UserService } from '../../services/user.service';
-import { normalizeUsername } from '../../utils';
 import { PasswordArgs } from '../args/password.args';
 import { UserArgs } from '../args/user.args';
 import { UserFilterArgs } from '../args/user.filter.args';
 import { CreateInput } from '../inputs/create.input';
 import { UpdateInput } from '../inputs/update.input';
 import { User } from '../schemas/user.schema';
-import { EmailAlreadyExists, ParameterRequired, UserNameExists, UserNotFound } from './user.resolver.errors';
+import {
+    EmailAlreadyExists,
+    ParameterRequired,
+    UserNameExists,
+    UserNameNotNormalized, UserNotActive,
+    UserNotFound
+} from './user.resolver.errors';
 
 @Service('UserResolver')
 @Resolver(of => User)
@@ -35,7 +40,13 @@ export class UserResolver {
             throw new ParameterRequired('id, email or username');
         }
         try {
-            return await this.us.getBy(by);
+            if (by.id) {
+                return await this.us.getBy({id: by.id});
+            } else if (by.email) {
+                return await this.us.getBy({email: by.email});
+            } else {
+                return await this.us.getBy({username: by.username});
+            }
         } catch (err) {
             this.logger.error('Get', err);
             throw err;
@@ -47,8 +58,11 @@ export class UserResolver {
         this.logger.debug('Get', {email, password});
         const user = await this.us.getBy({email});
         this.logger.debug('Get', {user});
-        if (!user || !user.active) {
+        if (!user) {
             throw new UserNotFound({email});
+        }
+        if (!user.active) {
+            throw new UserNotActive({email});
         }
         return await this.us.isPasswordValid(password, user.password);
     }
@@ -73,20 +87,23 @@ export class UserResolver {
             groups: data.groups
         };
         if (data.username) {
+            if (this.us.normalizeUserName(data.username) !== data.username) {
+                throw new UserNameNotNormalized();
+            }
             // Check username exists
             const isUsernameExists = await this.us.isUsernameExists(data.username);
             this.logger.debug('Create', {isUsernameExists});
             if (isUsernameExists) {
                 throw new UserNameExists(data.username);
             }
-            createData.username = normalizeUsername(data.username);
+            createData.username = data.username;
         } else {
-            createData.username = normalizeUsername(data.firstName + data.lastName).slice(0, 20);
+            createData.username = this.us.generateUserName(data.firstName + data.lastName);
             this.logger.debug('Create', {generatedUsername: data.username});
         }
 
         // Transform birthday from string to Date object
-        if (data.birthday !== undefined) {
+        if (data.birthday) {
             createData.birthday = new Date(data.birthday);
         }
         try {
@@ -106,10 +123,9 @@ export class UserResolver {
         if (!user) {
             throw new UserNotFound({id});
         }
-        // Transform birthday from string to Date object
-        if (data.birthday) {
-            data.birthday = new Date(data.birthday);
-        }
+        // Create update object
+        const updateData: IUpdateUserModel = {};
+
         // If user email changed check is email already exists
         if (data.email && data.email !== user.email) {
             const isEmailExists = await this.us.getBy({email: data.email});
@@ -117,17 +133,52 @@ export class UserResolver {
             if (isEmailExists) {
                 throw new EmailAlreadyExists();
             }
+            updateData.email = data.email;
         }
         // If user username changed check is username already exists
         if (data.username && data.username !== user.username) {
+            if (this.us.normalizeUserName(data.username) !== data.username) {
+                throw new UserNameNotNormalized();
+            }
             const isUsernameExists = await this.us.getBy({username: data.username}, null);
             this.logger.debug('Update', {isUsernameExists});
             if (isUsernameExists) {
                 throw new UserNameExists(data.username);
             }
+            updateData.username = data.username;
+        }
+        // Transform birthday from string to Date object
+        if (data.birthday) {
+            updateData.birthday = new Date(data.birthday);
+        }
+
+        // Add other fields to update object
+        if (data.firstName && data.firstName !== user.firstName) {
+            updateData.firstName = data.firstName;
+        }
+        if (data.lastName && data.lastName !== user.lastName) {
+            updateData.lastName = data.lastName;
+        }
+        if (data.password) {
+            updateData.password = data.password;
+        }
+        if (data.role && data.role !== user.role) {
+            updateData.role = data.role;
+        }
+        if (data.gender && data.gender !== user.gender) {
+            updateData.gender = data.gender;
+        }
+        if (typeof data.active === 'boolean' && data.active !== user.active) {
+            updateData.active = data.active;
+        }
+        if (data.groups) {
+            updateData.groups = data.groups;
+        }
+        if (data.updateLastLogin) {
+            updateData.updateLastLogin = true;
         }
         try {
-            return await this.us.update(id, data);
+            return await this.us.update(id, updateData);
         } catch (err) {
             this.logger.error('Update', err);
             throw err;

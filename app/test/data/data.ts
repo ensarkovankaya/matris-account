@@ -31,7 +31,7 @@ const choose = <T>(choices: T[]) => {
 
 export interface IUserFilter {
     role?: string;
-    gender?: string | null;
+    gender?: string;
 }
 
 export interface IMultipleFilter extends IUserFilter {
@@ -56,7 +56,7 @@ export class UserGenerator {
         if (filter.role) {
             filtered = filtered.filter(u => u.role === filter.role);
         }
-        if (filter.gender || filter.gender === null) {
+        if (filter.gender) {
             filtered = filtered.filter(u => u.gender === filter.gender);
         }
         if (filtered.length === 0) {

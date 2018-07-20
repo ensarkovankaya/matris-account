@@ -11,30 +11,26 @@ describe('UserGenerator', () => {
         expect(user.username).to.be.a('string');
         expect(user.email).to.be.a('string');
         expect(user.firstName).to.be.a('string');
-        expect(user.gender).to.be.oneOf(['MALE', 'FEMALE', null]);
+        expect(user.gender).to.be.oneOf(['MALE', 'FEMALE', 'UNKNOWN']);
         expect(user.role).to.be.oneOf(['ADMIN', 'MANAGER', 'INSTRUCTOR', 'PARENT', 'STUDENT']);
         expect(user.groups).to.be.an('array');
         expect(user.deleted).to.be.a('boolean');
         expect(user.active).to.be.a('boolean');
-        expect(user.updatedAt).to.be.a('string');
-        expect(new Date(user.updatedAt).toString()).to.be.not.eq('Invalid Date');
-        expect(user.createdAt).to.be.a('string');
+        expect(user.updatedAt).to.be.a('date');
+        expect(user.createdAt).to.be.a('date');
         expect(new Date(user.createdAt).toString()).to.be.not.eq('Invalid Date');
         if (user.birthday) {
-            expect(user.birthday).to.be.a('string');
-            expect(new Date(user.birthday).toString()).to.be.not.eq('Invalid Date');
+            expect(user.birthday).to.be.a('date');
         } else {
             expect(user.birthday).to.be.eq(null);
         }
         if (user.lastLogin) {
-            expect(user.lastLogin).to.be.a('string');
-            expect(new Date(user.lastLogin).toString()).to.be.not.eq('Invalid Date');
+            expect(user.lastLogin).to.be.a('date');
         } else {
             expect(user.lastLogin).to.be.eq(null);
         }
         if (user.deletedAt) {
-            expect(user.deletedAt).to.be.a('string');
-            expect(new Date(user.deletedAt).toString()).to.be.not.eq('Invalid Date');
+            expect(user.deletedAt).to.be.a('date');
             expect(user.deleted).to.be.eq(true);
         } else {
             expect(user.deletedAt).to.be.eq(null);
@@ -83,7 +79,7 @@ describe('UserGenerator', () => {
             expect(user.username).to.be.a('string');
             expect(user.email).to.be.a('string');
             expect(user.firstName).to.be.a('string');
-            expect(user.gender).to.be.oneOf(['MALE', 'FEMALE', null]);
+            expect(user.gender).to.be.oneOf(['MALE', 'FEMALE', 'UNKNOWN']);
             expect(user.role).to.be.oneOf(['ADMIN', 'MANAGER', 'INSTRUCTOR', 'PARENT', 'STUDENT']);
             expect(user.groups).to.be.an('array');
             expect(user.deleted).to.be.a('boolean');
@@ -112,5 +108,5 @@ describe('UserGenerator', () => {
                 expect(user.deletedAt).to.be.eq(null);
             }
         }
-    });
+    }).timeout(5000);
 });

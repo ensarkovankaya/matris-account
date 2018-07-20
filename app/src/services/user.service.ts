@@ -3,7 +3,6 @@ import { Types } from 'mongoose';
 import { Service } from 'typedi';
 import { getLogger, Logger } from '../logger';
 import { ICreateUserModel, IUpdateUserModel, IUserFilterModel, IUserModel } from '../models/user.model';
-import { generateRandomUsername, normalizeUsername } from '../utils';
 import { DatabaseService } from './database.service';
 
 class PasswordRequired extends Error {
@@ -37,6 +36,11 @@ class ParameterRequired extends Error {
     constructor(paramName: string) {
         super(`Parameter '${paramName}' required.`);
     }
+}
+
+class UserNameRequired extends Error {
+    public name = 'UserNameRequired';
+    public message = 'User must have valid username.';
 }
 
 class InvalidID extends Error {
@@ -73,23 +77,25 @@ export class UserService {
         if (!data.lastName) {
             throw new LastNameRequired();
         }
+        if (!data.username) {
+            throw new UserNameRequired();
+        }
         try {
             // Hash the password
             const password = await this.hashPassword(data.password);
             // Generate random username if not exists
-            const username = normalizeUsername(data.username || generateRandomUsername(7)).slice(0, 20);
 
             let create: object = {
-                username,
                 password,
                 firstName: data.firstName,
                 lastName: data.lastName,
+                username: data.username,
                 role: data.role,
                 email: data.email,
                 active: data.active !== false
             };
 
-            if (data.gender !== undefined) {
+            if (data.gender) {
                 create = {...create, gender: data.gender};
             }
 
@@ -137,7 +143,7 @@ export class UserService {
                 update = {...update, lastName: data.lastName};
             }
 
-            if (data.gender !== undefined) {
+            if (data.gender) {
                 update = {...update, gender: data.gender};
             }
 
@@ -186,7 +192,7 @@ export class UserService {
         }
     }
 
-    public async all(filters: IUserFilterModel = {}): Promise<IUserModel[]> {
+    public async all(filters: IUserFilterModel): Promise<IUserModel[]> {
         this.logger.debug('All', {filters});
         try {
             return await this.db.all(filters);
@@ -225,7 +231,7 @@ export class UserService {
     public async isUsernameExists(username: string): Promise<boolean> {
         this.logger.debug('IsUsernameExists', {username});
         try {
-            return await this.db.findOne({username: normalizeUsername(username)}) !== null;
+            return await this.db.findOne({username: this.normalizeUserName(username)}) !== null;
         } catch (err) {
             this.logger.error('IsUsernameExists', err);
             throw err;
@@ -248,6 +254,58 @@ export class UserService {
         } catch (err) {
             this.logger.error('HashPassword', err);
             throw err;
+        }
+    }
+
+    public normalizeUserName(username: string) {
+        try {
+            this.logger.debug('NormalizeUsername', {unNormalized: username});
+            // Lowercase
+            username = username.normalize().toLowerCase();
+
+            // Replace Turkish characters
+            username = username
+                .replace(new RegExp('ğ', 'g'), 'g')
+                .replace(new RegExp('Ğ', 'g'), 'g')
+                .replace(new RegExp('ü', 'g'), 'u')
+                .replace(new RegExp('Ü', 'g'), 'u')
+                .replace(new RegExp('ç', 'g'), 'c')
+                .replace(new RegExp('Ç', 'g'), 'c')
+                .replace(new RegExp('ş', 'g'), 's')
+                .replace(new RegExp('Ş', 'g'), 's')
+                .replace(new RegExp('ı', 'g'), 'i')
+                .replace(new RegExp('I', 'g'), 'i')
+                .replace(new RegExp('ö', 'g'), 'o')
+                .replace(new RegExp('Ö', 'g'), 'o');
+
+            // Remove non alphanumeric characters
+            username = username.replace(/[^a-zA-Z0-9]/g, '');
+
+            this.logger.debug('NormalizeUsername', {normalized: username});
+            return username;
+        } catch (e) {
+            this.logger.error('NormalizeUsername', e);
+            throw e;
+        }
+    }
+
+    /**
+     * Generates username.
+     * @param {string} initial: Initial username if given it will add random 4 digit number
+     * @param {number} maxLength: Maximum length of username can be
+     * @return {string}
+     */
+    public generateUserName(initial: string = 'user', maxLength: number = 32): string {
+        try {
+            this.logger.debug('GenerateUserName', {initial});
+            const username = this.normalizeUserName(initial) + String(Math.floor(Math.random() * 10000)); // user1362
+            if (username.length > maxLength) {
+                return this.normalizeUserName(username.substring(0, maxLength));
+            }
+            return this.normalizeUserName(username);
+        } catch (e) {
+            this.logger.error('GenerateUserName', e);
+            throw e;
         }
     }
 }

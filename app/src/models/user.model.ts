@@ -1,5 +1,7 @@
 import { Document } from 'mongoose';
-import { ICompareModel } from './compare.model';
+import { ICompareDateModel, INullableCompareDateModel } from './compare.model';
+import { IGenderQueryModel } from './gender.query.model';
+import { IRoleQueryModel } from './role.query.model';
 
 export enum Role {
     ADMIN = 'ADMIN',
@@ -11,22 +13,20 @@ export enum Role {
 
 export enum Gender {
     MALE = 'MALE',
-    FEMALE = 'FEMALE'
+    FEMALE = 'FEMALE',
+    UNKNOWN = 'UNKNOWN'
 }
 
 export interface IUserFilterModel {
     active?: boolean;
-    role?: {
-        eq?: Role;
-        in?: Role[];
-    };
-    gender?: Gender | null;
-    birthday?: ICompareModel;
+    role?: IRoleQueryModel;
+    gender?: IGenderQueryModel;
+    birthday?: ICompareDateModel;
     deleted?: boolean;
-    deletedAt?: ICompareModel;
-    createdAt?: ICompareModel;
-    updatedAt?: ICompareModel;
-    lastLogin?: ICompareModel;
+    deletedAt?: ICompareDateModel;
+    createdAt?: ICompareDateModel;
+    updatedAt?: ICompareDateModel;
+    lastLogin?: INullableCompareDateModel;
     groups?: string[];
     _id?: string;
 }
@@ -38,7 +38,7 @@ export interface ICreateUserModel {
     password: string;
     role: Role;
     username?: string;
-    gender?: Gender | null;
+    gender?: Gender;
     birthday?: Date | null;
     active?: boolean;
     groups?: string[];
@@ -51,7 +51,7 @@ export interface IUpdateUserModel {
     password?: string;
     role?: Role;
     username?: string;
-    gender?: Gender | null;
+    gender?: Gender;
     birthday?: Date | null;
     active?: boolean;
     groups?: string[];
@@ -65,7 +65,7 @@ export interface IUserModel extends Document {
     firstName: string;
     lastName: string;
     role: Role;
-    gender: Gender | null;
+    gender: Gender;
     birthday: Date | null;
     active: boolean;
     createdAt: Date;

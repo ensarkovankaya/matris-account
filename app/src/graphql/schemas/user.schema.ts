@@ -37,7 +37,7 @@ export class User {
     public lastLogin: Date;
 
     @Field({nullable: true, description: 'User gender'})
-    public gender: Gender | null;
+    public gender: Gender;
 
     @Field({description: 'Is user active?'})
     public active: boolean;

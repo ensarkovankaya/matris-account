@@ -13,7 +13,7 @@ describe('Services -> MockDatabase', () => {
     it('should load all mock users', async () => {
         const service: MockDatabase = new MockDatabase();
         await service.load([]);
-        expect(service.data.length).to.be.gt(0);
+        expect(service.data.length).to.be.eq(0);
     });
     it('should load specific amount of mock users', async () => {
         const service: MockDatabase = new MockDatabase();

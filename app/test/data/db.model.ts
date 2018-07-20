@@ -7,7 +7,7 @@ export interface IDBUserModel {
     firstName: string;
     lastName: string;
     role: Role;
-    gender: Gender | null;
+    gender: Gender;
     birthday: string | null;
     active: boolean;
     createdAt: string;

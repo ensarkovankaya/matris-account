@@ -4,7 +4,9 @@
   "description": "Account API",
   "main": "build/index.js",
   "scripts": {
-    "test": "mocha -b -r ts-node/register test/**/*.spec.ts test/**/**/*.spec.ts test/**/**/**/*.spec.ts",
+    "test": "mocha -b -r ts-node/register test/unit/**/*.spec.ts test/unit/**/**/*.spec.ts test/unit/**/**/**/*.spec.ts",
+    "test:data": "mocha -b -r ts-node/register test/data/**/*.spec.ts",
+    "e2e": "mocha -b -r ts-node/register test/e2e/**/*.spec.ts",
     "check": "tslint -p tslint.json",
     "build": "npm run check && tsc",
     "build:clean": "rm -rf ./build/* && npm run build",

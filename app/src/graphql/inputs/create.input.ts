@@ -6,11 +6,11 @@ import {
     IsIn,
     IsLowercase,
     Length,
-    Matches,
+    Matches
 } from "class-validator";
 import { Field, InputType } from 'type-graphql';
 import { IsDateLike, IsInDateRange } from '../../decorators/date';
-import { Gender, ICreateUserModel, Role } from '../../models/user.model';
+import { Gender, Role } from '../../models/user.model';
 import { Validatable } from '../validatable';
 
 @InputType({description: 'User creation data.'})
@@ -34,8 +34,9 @@ export class CreateInput extends Validatable {
     @IsIn([Role.ADMIN, Role.MANAGER, Role.INSTRUCTOR, Role.PARENT, Role.STUDENT], {message: 'Invalid'})
     public role: Role;
 
-    @Field({description: 'User password.  Must be between 8 and 32 characters.'})
+    @Field({description: 'User password. Must be between 8 and 32 characters.'})
     @Length(8, 32, {message: 'InvalidLength'})
+    @Matches(new RegExp('.*\\S.*', 'g'))
     public password: string;
 
     @Field({
@@ -52,8 +53,8 @@ export class CreateInput extends Validatable {
     public active?: boolean;
 
     @Field(type => Gender, {nullable: true, description: 'User Gender. MALE or FEMALE'})
-    @IsIn([Gender.MALE, Gender.FEMALE, null])
-    public gender?: Gender | null;
+    @IsIn([Gender.MALE, Gender.FEMALE, Gender.UNKNOWN])
+    public gender?: Gender;
 
     @Field(type => String, {nullable: true, description: 'User birthday. Can be null if not defined.'})
     @IsDateLike(true)

@@ -6,6 +6,7 @@ User gender.
 
 - MALE
 - FEMALE
+- UNKNOWN
 
 ## [Role](#role)
 

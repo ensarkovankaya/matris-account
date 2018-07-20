@@ -1,28 +1,29 @@
 import { DocumentQuery } from 'mongoose';
 import { Service } from 'typedi';
 import { getLogger, Logger } from '../logger';
-import { ICompareModel } from '../models/compare.model';
+import { ICompareDateModel, ICompareNumberModel } from '../models/compare.model';
 import { IDatabaseModel } from '../models/database.model';
 import { IUserFilterModel, IUserModel } from '../models/user.model';
 import { User } from '../models/user.schema';
 
-export const compareFilter = (query: DocumentQuery<any[], any>, path: string, filter: ICompareModel):
-    DocumentQuery<any[], any> => {
-    if (filter.eq !== undefined) {
-        return query.where(path, filter.eq);
-    }
-    if (filter.gt !== undefined) {
-        query = query.where(path).gt(filter.gt as number);
-    } else if (filter.gte !== undefined) {
-        query = query.where(path).gte(filter.gte as number);
-    }
-    if (filter.lt !== undefined) {
-        query = query.where(path).lt(filter.lt as number);
-    } else if (filter.lte !== undefined) {
-        query = query.where(path).lte(filter.lte as number);
-    }
-    return query;
-};
+export const compareFilter =
+    (query: DocumentQuery<any[], any>, path: string, filter: ICompareDateModel | ICompareNumberModel):
+        DocumentQuery<any[], any> => {
+        if (filter.eq !== undefined) {
+            return query.where(path, filter.eq);
+        }
+        if (filter.gt !== undefined) {
+            query = query.where(path).gt(filter.gt as number);
+        } else if (filter.gte !== undefined) {
+            query = query.where(path).gte(filter.gte as number);
+        }
+        if (filter.lt !== undefined) {
+            query = query.where(path).lt(filter.lt as number);
+        } else if (filter.lte !== undefined) {
+            query = query.where(path).lte(filter.lte as number);
+        }
+        return query;
+    };
 
 @Service('DatabaseService')
 export class DatabaseService implements IDatabaseModel<IUserModel> {
@@ -89,8 +90,12 @@ export class DatabaseService implements IDatabaseModel<IUserModel> {
             if (typeof conditions.active === 'boolean') {
                 query = query.where('active', conditions.active);
             }
-            if (conditions.gender !== undefined) {
-                query = query.where('gender', conditions.gender);
+            if (conditions.gender) {
+                if (conditions.gender.eq) {
+                    query = query.where('gender', conditions.gender.eq);
+                } else if (conditions.gender.in) {
+                    query = query.where('gender').in(conditions.gender.in);
+                }
             }
             if (conditions.birthday !== undefined) {
                 query = compareFilter(query, 'birthday', conditions.birthday);

@@ -2,224 +2,872 @@ import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import 'reflect-metadata';
 import { UserResolver } from '../../../../src/graphql/resolvers/user.resolver';
+import { ParameterRequired, UserNotActive } from '../../../../src/graphql/resolvers/user.resolver.errors';
 import { Gender, Role } from '../../../../src/models/user.model';
-import { UserService } from '../../../../src/services/user.service';
-import { MockDatabase } from '../../mock.database';
 
 class ShouldNotSucceed extends Error {
     public name = 'ShouldNotSucceed';
 }
 
+class MethodCalled extends Error {
+    public name = 'MethodCalled';
+
+    constructor(public methodName: string, public data?: any) {
+        super();
+    }
+}
+
 describe('Resolvers -> User', () => {
-    it('should create user with minimum arguments', async () => {
-        const resolver = new UserResolver(new UserService(new MockDatabase()));
-        const user = await resolver.create({
-            firstName: 'FirstName',
-            lastName: 'LastName',
-            email: 'email@mail.com',
-            role: Role.ADMIN,
-            password: '12345678',
+    describe('Create', () => {
+        it('should call getBy method from UserService', async () => {
+            class Service {
+                public getBy(by: object) {
+                    throw new MethodCalled('getBy', by);
+                }
+            }
+
+            const service = new Service();
+            try {
+                const resolver = new UserResolver(service as any);
+
+                await resolver.create({email: 'mail@mail.com'} as any);
+                throw new ShouldNotSucceed();
+            } catch (e) {
+                expect(e.name).to.be.eq('MethodCalled');
+                expect(e.methodName).to.be.eq('getBy');
+                expect(e.data).to.be.deep.eq({email: 'mail@mail.com'});
+            }
         });
-        expect(user).to.be.a('object');
-        expect(user._id).to.be.an('object');
-        expect(user.firstName).to.be.eq('FirstName');
-        expect(user.lastName).to.be.eq('LastName');
-        expect(user.email).to.be.eq('email@mail.com');
-        expect(user.role).to.be.eq('ADMIN');
-        expect(user.username).to.be.a('string');
-        expect(user.username).to.be.eq('firstnamelastname');
-        expect(user.password).to.be.a('string');
-        expect(user.password).to.not.eq('12345678');
-        expect(user.password).to.have.lengthOf.at.within(50, 80);
-        expect(user.birthday).to.be.eq(null);
-        expect(user.updatedAt).to.be.a('date');
-        expect(user.createdAt).to.be.a('date');
-        expect(user.createdAt.getTime()).to.be.lessThan(Date.now());
-        expect(user.deleted).to.be.eq(false);
-        expect(user.deletedAt).to.be.eq(null);
-        expect(user.active).to.be.eq(true);
-        expect(user.gender).to.be.eq(null);
-        expect(user.groups).to.be.an('array');
-        expect(user.groups.length).to.be.eq(0);
+
+        it('should raise EmailAlreadyExists', async () => {
+            class Service {
+
+                public getBy(by: object) {
+                    return true;
+                }
+            }
+
+            const service = new Service();
+            try {
+                const resolver = new UserResolver(service as any);
+
+                await resolver.create({email: 'mail@mail.com'} as any);
+                throw new ShouldNotSucceed();
+            } catch (e) {
+                expect(e.name).to.be.eq('EmailAlreadyExists');
+            }
+        });
+
+        it('should call normalizeUserName from UserService', async () => {
+            class Service {
+
+                public getBy(by: object) {
+                    return false;
+                }
+
+                public normalizeUserName(data: any) {
+                    throw new MethodCalled('normalizeUserName', data);
+                }
+            }
+
+            const service = new Service();
+            try {
+                const resolver = new UserResolver(service as any);
+
+                await resolver.create({email: 'mail@mail.com', username: 'username'} as any);
+                throw new ShouldNotSucceed();
+            } catch (e) {
+                expect(e.name).to.be.eq('MethodCalled');
+                expect(e.methodName).to.be.eq('normalizeUserName');
+                expect(e.data).to.be.eq('username');
+            }
+        });
+
+        it('should raise UserNameNotNormalized', async () => {
+            class Service {
+
+                public getBy(by: object) {
+                    return false;
+                }
+
+                public normalizeUserName(data: any) {
+                    return 'somethingelse';
+                }
+            }
+
+            const service = new Service();
+            try {
+                const resolver = new UserResolver(service as any);
+
+                await resolver.create({email: 'mail@mail.com', username: 'username'} as any);
+                throw new ShouldNotSucceed();
+            } catch (e) {
+                expect(e.name).to.be.eq('UserNameNotNormalized');
+            }
+        });
+
+        it('should call normalizeUserName from UserService if username given', async () => {
+            class Service {
+
+                public getBy(by: object) {
+                    return false;
+                }
+
+                public normalizeUserName(data: any) {
+                    return data;
+                }
+
+                public isUsernameExists(data: any) {
+                    throw new MethodCalled('isUsernameExists', data);
+                }
+            }
+
+            const service = new Service();
+            try {
+                const resolver = new UserResolver(service as any);
+
+                await resolver.create({email: 'mail@mail.com', username: 'username'} as any);
+                throw new ShouldNotSucceed();
+            } catch (e) {
+                expect(e.name).to.be.eq('MethodCalled');
+                expect(e.methodName).to.be.eq('isUsernameExists');
+                expect(e.data).to.be.eq('username');
+            }
+        });
+
+        it('should raise UserNameExists', async () => {
+            class Service {
+
+                public getBy(by: object) {
+                    return false;
+                }
+
+                public normalizeUserName(data: any) {
+                    return data;
+                }
+
+                public isUsernameExists(data: any) {
+                    return true;
+                }
+            }
+
+            const service = new Service();
+            try {
+                const resolver = new UserResolver(service as any);
+
+                await resolver.create({email: 'mail@mail.com', username: 'username'} as any);
+                throw new ShouldNotSucceed();
+            } catch (e) {
+                expect(e.name).to.be.eq('UserNameExists');
+            }
+        });
+
+        it('should call generateUserName from UserService if username not given', async () => {
+            class Service {
+
+                public getBy(by: object) {
+                    return false;
+                }
+
+                public generateUserName(data: any) {
+                    throw new MethodCalled('generateUserName', data);
+                }
+            }
+
+            const service = new Service();
+            try {
+                const resolver = new UserResolver(service as any);
+
+                await resolver.create({email: 'mail@mail.com', firstName: 'firstName', lastName: 'lastName'} as any);
+                throw new ShouldNotSucceed();
+            } catch (e) {
+                expect(e.name).to.be.eq('MethodCalled');
+                expect(e.methodName).to.be.eq('generateUserName');
+                expect(e.data).to.be.eq('firstNamelastName');
+            }
+        });
+
+        it('should call create from UserService', async () => {
+            class Service {
+
+                public getBy(by: object) {
+                    return false;
+                }
+
+                public isUsernameExists(data: any) {
+                    return false;
+                }
+
+                public generateUserName(data: any) {
+                    return 'username';
+                }
+
+                public normalizeUserName(data: any) {
+                    return data;
+                }
+
+                public create(data: any) {
+                    throw new MethodCalled('create', data);
+                }
+            }
+
+            const service = new Service();
+
+            // Should generate username
+            try {
+                const resolver = new UserResolver(service as any);
+
+                await resolver.create({
+                    email: 'mail@mail.com',
+                    firstName: 'firstName',
+                    lastName: 'lastName',
+                    password: '12345678',
+                    role: Role.ADMIN,
+                    gender: Gender.FEMALE,
+                    active: true,
+                    groups: [],
+                    extra: 'key'
+                } as any);
+                throw new ShouldNotSucceed();
+            } catch (e) {
+                expect(e.name).to.be.eq('MethodCalled');
+                expect(e.methodName).to.be.eq('create');
+                expect(e.data).to.have.keys(
+                    ['email', 'firstName', 'lastName', 'password', 'role', 'gender', 'active', 'groups', 'username']
+                );
+                expect(e.data).to.be.deep.eq({
+                    email: 'mail@mail.com',
+                    firstName: 'firstName',
+                    lastName: 'lastName',
+                    password: '12345678',
+                    role: Role.ADMIN,
+                    gender: Gender.FEMALE,
+                    active: true,
+                    groups: [],
+                    username: 'username'
+                });
+            }
+        });
+
+        it('should call create from UserService with adding custom username', async () => {
+            class Service {
+
+                public getBy(by: object) {
+                    return false;
+                }
+
+                public isUsernameExists(data: any) {
+                    return false;
+                }
+
+                public normalizeUserName(data: any) {
+                    return data;
+                }
+
+                public generateUserName(data: any) {
+                    return 'username';
+                }
+
+                public create(data: any) {
+                    throw new MethodCalled('create', data);
+                }
+            }
+
+            const service = new Service();
+
+            // Should generate username
+            try {
+                const resolver = new UserResolver(service as any);
+
+                await resolver.create({
+                    email: 'mail@mail.com',
+                    firstName: 'firstName',
+                    lastName: 'lastName',
+                    password: '12345678',
+                    role: Role.ADMIN,
+                    gender: Gender.FEMALE,
+                    active: true,
+                    groups: [],
+                    username: 'customusername',
+                    extra: 'key'
+                } as any);
+                throw new ShouldNotSucceed();
+            } catch (e) {
+                expect(e.name).to.be.eq('MethodCalled');
+                expect(e.methodName).to.be.eq('create');
+                expect(e.data).to.have.keys(
+                    ['email', 'firstName', 'lastName', 'password', 'role', 'gender', 'active', 'groups', 'username']
+                );
+                expect(e.data).to.be.deep.eq({
+                    email: 'mail@mail.com',
+                    firstName: 'firstName',
+                    lastName: 'lastName',
+                    password: '12345678',
+                    role: Role.ADMIN,
+                    gender: Gender.FEMALE,
+                    active: true,
+                    groups: [],
+                    username: 'customusername'
+                });
+            }
+        });
+
+        it('should call create from UserService with adding birthday', async () => {
+            class Service {
+
+                public getBy(by: object) {
+                    return false;
+                }
+
+                public isUsernameExists(data: any) {
+                    return false;
+                }
+
+                public normalizeUserName(data: any) {
+                    return data;
+                }
+
+                public generateUserName(data: any) {
+                    return 'username';
+                }
+
+                public create(data: any) {
+                    throw new MethodCalled('create', data);
+                }
+            }
+
+            const service = new Service();
+
+            // Should add birthday to create data
+            const birthday = new Date(1993, 1, 1);
+            try {
+                const resolver = new UserResolver(service as any);
+                await resolver.create({
+                    email: 'mail@mail.com',
+                    firstName: 'firstName',
+                    lastName: 'lastName',
+                    password: '12345678',
+                    role: Role.ADMIN,
+                    gender: Gender.FEMALE,
+                    active: true,
+                    groups: [],
+                    birthday,
+                    extra: 'key'
+                } as any);
+                throw new ShouldNotSucceed();
+            } catch (e) {
+                expect(e.name).to.be.eq('MethodCalled');
+                expect(e.methodName).to.be.eq('create');
+                expect(e.data).to.have.keys(['email', 'firstName', 'lastName', 'password', 'role',
+                    'gender', 'active', 'groups', 'username', 'birthday']);
+                expect(e.data).to.be.deep.eq({
+                    email: 'mail@mail.com',
+                    firstName: 'firstName',
+                    lastName: 'lastName',
+                    password: '12345678',
+                    role: Role.ADMIN,
+                    gender: Gender.FEMALE,
+                    active: true,
+                    groups: [],
+                    username: 'username',
+                    birthday
+                });
+            }
+        });
+
+        it('should cast birthday to date', async () => {
+            class Service {
+
+                public getBy(by: object) {
+                    return false;
+                }
+
+                public isUsernameExists(data: any) {
+                    return false;
+                }
+
+                public normalizeUserName(data: any) {
+                    return data;
+                }
+
+                public generateUserName(data: any) {
+                    return 'username';
+                }
+
+                public create(data: any) {
+                    throw new MethodCalled('create', data);
+                }
+            }
+
+            const service = new Service();
+
+            // Should add birthday to create data
+            try {
+                const resolver = new UserResolver(service as any);
+                await resolver.create({
+                    email: 'mail@mail.com',
+                    firstName: 'firstName',
+                    lastName: 'lastName',
+                    password: '12345678',
+                    role: Role.ADMIN,
+                    gender: Gender.FEMALE,
+                    active: true,
+                    groups: [],
+                    birthday: '10/01/1993',
+                    extra: 'key'
+                } as any);
+                throw new ShouldNotSucceed();
+            } catch (e) {
+                expect(e.name).to.be.eq('MethodCalled');
+                expect(e.methodName).to.be.eq('create');
+                expect(e.data.birthday).to.be.a('date');
+            }
+        });
     });
 
-    it('should create user with all arguments', async () => {
-        const resolver = new UserResolver(new UserService(new MockDatabase()));
-        const user = await resolver.create({
-            firstName: 'FirstName',
-            lastName: 'LastName',
-            email: 'email@mail.com',
-            role: Role.ADMIN,
-            password: '12345678',
-            active: false,
-            groups: ['group-id-1', 'group-id-2', 'group-id-3'],
-            birthday: new Date(1987, 4, 19),
-            gender: Gender.MALE,
-            username: 'customusername'
+    describe('Update', () => {
+        it('should call getBy method from UserService', async () => {
+            class Service {
+                public getBy(by: object) {
+                    throw new MethodCalled('getBy', by);
+                }
+            }
+
+            const service = new Service();
+            try {
+                const resolver = new UserResolver(service as any);
+
+                await resolver.update('123', {} as any);
+                throw new ShouldNotSucceed();
+            } catch (e) {
+                expect(e.name).to.be.eq('MethodCalled');
+                expect(e.methodName).to.be.eq('getBy');
+                expect(e.data).to.be.deep.eq({id: '123'});
+            }
         });
-        expect(user).to.be.a('object');
-        expect(user._id).to.be.an('object');
-        expect(user.firstName).to.be.eq('FirstName');
-        expect(user.lastName).to.be.eq('LastName');
-        expect(user.email).to.be.eq('email@mail.com');
-        expect(user.username).to.be.eq('customusername');
-        expect(user.role).to.be.eq('ADMIN');
-        expect(user.gender).to.be.eq('MALE');
-        expect(user.birthday).to.be.a('date');
-        expect(user.password).to.be.a('string');
-        expect(user.password).to.have.lengthOf.at.within(50, 80);
-        expect(user.updatedAt).to.be.a('date');
-        expect(user.createdAt).to.be.a('date');
-        expect(user.deleted).to.be.eq(false);
-        expect(user.deletedAt).to.be.eq(null);
-        expect(user.active).to.be.eq(false);
-        expect(user.groups.length).to.be.eq(3);
+
+        it('should raise UserNotFound', async () => {
+            class Service {
+                public getBy(by: object) {
+                    return null;
+                }
+            }
+
+            const service = new Service();
+            try {
+                const resolver = new UserResolver(service as any);
+
+                await resolver.update('123', {} as any);
+                throw new ShouldNotSucceed();
+            } catch (e) {
+                expect(e.name).to.be.eq('UserNotFound');
+            }
+        });
+
+        it('should raise EmailAlreadyExists', async () => {
+            class Service {
+                public getBy(by: object) {
+                    return {};
+                }
+            }
+
+            const service = new Service();
+            try {
+                const resolver = new UserResolver(service as any);
+
+                await resolver.update('123', {email: 'email@mail.com'} as any);
+                throw new ShouldNotSucceed();
+            } catch (e) {
+                expect(e.name).to.be.eq('EmailAlreadyExists');
+            }
+        });
+
+        it('should call normalizeUserName method from UserService', async () => {
+            class Service {
+                public getBy(by: object) {
+                    return {username: 'anotherusername'};
+                }
+
+                public normalizeUserName(data: any) {
+                    throw new MethodCalled('normalizeUserName', data);
+                }
+            }
+
+            const service = new Service();
+            try {
+                const resolver = new UserResolver(service as any);
+
+                await resolver.update('123', {username: 'user2'} as any);
+                throw new ShouldNotSucceed();
+            } catch (e) {
+                expect(e.name).to.be.eq('MethodCalled');
+                expect(e.methodName).to.be.eq('normalizeUserName');
+                expect(e.data).to.be.eq('user2');
+            }
+        });
+
+        it('should raise UserNameNotNormalized', async () => {
+            class Service {
+                public getBy(by: object) {
+                    return {username: 'username'};
+                }
+
+                public normalizeUserName(data) {
+                    return 'user123asd';
+                }
+            }
+
+            const service = new Service();
+            try {
+                const resolver = new UserResolver(service as any);
+
+                await resolver.update('123', {username: 'user123 asd'} as any);
+                throw new ShouldNotSucceed();
+            } catch (e) {
+                expect(e.name).to.be.eq('UserNameNotNormalized');
+            }
+        });
+
+        it('should raise UserNameExists', async () => {
+            class Service {
+                public called = 0;
+
+                public getBy(by: object) {
+                    if (this.called === 0) {
+                        this.called++;
+                        return {username: 'username'};
+                    }
+                    return {};
+                }
+
+                public normalizeUserName(data) {
+                    return 'user123';
+                }
+            }
+
+            const service = new Service();
+            try {
+                const resolver = new UserResolver(service as any);
+
+                await resolver.update('123', {username: 'user123'} as any);
+                throw new ShouldNotSucceed();
+            } catch (e) {
+                expect(e.name).to.be.eq('UserNameExists');
+            }
+        });
+
+        it('should call update method from UserService', async () => {
+            class Service {
+                public getBy(by: object) {
+                    return {};
+                }
+
+                public update(id: string, data: any) {
+                    throw new MethodCalled('update', {id, data});
+                }
+            }
+
+            const service = new Service();
+            try {
+                const resolver = new UserResolver(service as any);
+
+                await resolver.update('123', {
+                    firstName: 'FirstName',
+                    lastName: 'LastName',
+                    password: 'password',
+                    role: Role.ADMIN,
+                    gender: Gender.FEMALE,
+                    active: true,
+                    groups: [],
+                    updateLastLogin: true,
+                    extra: 'key'
+                } as any);
+                throw new ShouldNotSucceed();
+            } catch (e) {
+                expect(e.name).to.be.eq('MethodCalled');
+                expect(e.methodName).to.be.eq('update');
+                expect(e.data.id).to.be.eq('123');
+                expect(e.data.data).to.be.an('object');
+                expect(e.data.data).to.have.keys(
+                    ['firstName', 'lastName', 'password', 'role', 'gender', 'active', 'groups', 'updateLastLogin']
+                );
+                expect(e.data.data).to.be.deep.eq({
+                    firstName: 'FirstName',
+                    lastName: 'LastName',
+                    password: 'password',
+                    role: Role.ADMIN,
+                    gender: Gender.FEMALE,
+                    active: true,
+                    groups: [],
+                    updateLastLogin: true
+                });
+            }
+        });
+
+        it('should transform birthday to Date object', async () => {
+            class Service {
+                public getBy(by: object) {
+                    return {};
+                }
+
+                public update(id: string, data: any) {
+                    throw new MethodCalled('update', {id, data});
+                }
+            }
+
+            const service = new Service();
+            try {
+                const resolver = new UserResolver(service as any);
+
+                await resolver.update('123', {birthday: '01/01/1993'} as any);
+                throw new ShouldNotSucceed();
+            } catch (e) {
+                expect(e.name).to.be.eq('MethodCalled');
+                expect(e.data).to.be.an('object');
+                expect(e.data.data).to.be.an('object');
+                expect(e.data.data.birthday).to.be.a('date');
+            }
+        });
     });
 
-    it('should update user', async () => {
-        const resolver = new UserResolver(new UserService(new MockDatabase()));
-        const user = await resolver.create({
-            birthday: new Date(1989, 1, 26),
-            gender: Gender.MALE,
-            active: false,
-            groups: ['group-1', 'group-2'],
-            email: "nciccottio2r@pen.io",
-            firstName: "Nelson",
-            lastName: "Ciccottio",
-            role: Role.STUDENT,
-            password: "12345678",
-            username: "nelsonciccottio"
+    describe('Delete', () => {
+        it('should call getBy method from UserService', async () => {
+            class Service {
+                public getBy(by: object) {
+                    throw new MethodCalled('getBy', by);
+                }
+            }
+
+            const service = new Service();
+            try {
+                const resolver = new UserResolver(service as any);
+
+                await resolver.delete('123');
+                throw new ShouldNotSucceed();
+            } catch (e) {
+                expect(e.name).to.be.eq('MethodCalled');
+                expect(e.methodName).to.be.eq('getBy');
+                expect(e.data).to.be.deep.eq({id: '123'});
+            }
         });
-        const updated = await resolver.update(user._id, {
-            firstName: 'John',
-            lastName: 'Nick',
-            birthday: new Date(1987, 2, 4),
-            groups: ['group-3'],
-            active: true,
-            gender: Gender.FEMALE,
-            email: 'email@example.com',
-            role: Role.INSTRUCTOR,
-            password: 'newpassword',
-            username: 'user23',
-            updateLastLogin: true
+
+        it('should raise UserNotFound', async () => {
+            class Service {
+                public getBy(by: object) {
+                    return null;
+                }
+            }
+
+            const service = new Service();
+            try {
+                const resolver = new UserResolver(service as any);
+
+                await resolver.delete('123');
+                throw new ShouldNotSucceed();
+            } catch (e) {
+                expect(e.name).to.be.eq('UserNotFound');
+            }
         });
-        expect(updated).to.be.a('object');
-        expect(updated.firstName).to.be.eq('John');
-        expect(updated.lastName).to.be.eq('Nick');
-        expect(updated.email).to.be.eq('email@example.com');
-        expect(updated.username).to.be.eq('user23');
-        expect(updated.role).to.be.eq('INSTRUCTOR');
-        expect(updated.gender).to.be.eq('FEMALE');
-        expect(updated.birthday).to.be.a('date');
-        expect(updated.lastLogin).to.be.a('date');
-        expect(updated.birthday.getTime()).to.be.eq(new Date(1987, 2, 4).getTime());
-        expect(updated.password).to.be.not.eq(user.password);
-        expect(updated.password).to.be.not.eq('newpassword');
-        expect(updated.password).to.have.lengthOf.at.within(50, 80);
-        expect(updated.updatedAt).to.be.a('date');
-        expect(updated.updatedAt).to.be.not.eq(user.updatedAt);
-        expect(updated.active).to.be.eq(true);
-        expect(updated.groups.length).to.be.eq(1);
+
+        it('should call delete method from UserService', async () => {
+            class Service {
+                public getBy(by: object) {
+                    return {};
+                }
+
+                public delete(id: string) {
+                    throw new MethodCalled('delete', id);
+                }
+            }
+
+            const service = new Service();
+            try {
+                const resolver = new UserResolver(service as any);
+
+                await resolver.delete('123');
+                throw new ShouldNotSucceed();
+            } catch (e) {
+                expect(e.name).to.be.eq('MethodCalled');
+                expect(e.methodName).to.be.eq('delete');
+                expect(e.data).to.be.eq('123');
+            }
+        });
     });
 
-    it('should soft delete user', async () => {
-        const db = new MockDatabase();
-        const resolver = new UserResolver(new UserService(db));
-        const user = await resolver.create({
-            birthday: new Date(1989, 1, 26),
-            gender: Gender.MALE,
-            active: false,
-            groups: ['group-1', 'group-2'],
-            email: "nciccottio2r@pen.io",
-            firstName: "Nelson",
-            lastName: "Ciccottio",
-            role: Role.STUDENT,
-            password: "12345678",
-            username: "nelsonciccottio"
+    describe('Password', () => {
+        it('should call getBy method from UserService', async () => {
+            class Service {
+                public getBy(by: object) {
+                    throw new MethodCalled('getBy', by);
+                }
+            }
+
+            const service = new Service();
+            try {
+                const resolver = new UserResolver(service as any);
+
+                await resolver.password({email: 'mail@mail.com', password: '12345678'} as any);
+                throw new ShouldNotSucceed();
+            } catch (e) {
+                expect(e.name).to.be.eq('MethodCalled');
+                expect(e.methodName).to.be.eq('getBy');
+                expect(e.data).to.be.deep.eq({email: 'mail@mail.com'});
+            }
         });
-        await resolver.delete(user._id);
-        expect(db.data.length).to.eq(1);
+
+        it('should raise UserNotFound', async () => {
+            class Service {
+                public getBy(by: object) {
+                    return null;
+                }
+            }
+
+            const service = new Service();
+            try {
+                const resolver = new UserResolver(service as any);
+
+                await resolver.password({email: 'mail@mail.com', password: '12345678'} as any);
+                throw new ShouldNotSucceed();
+            } catch (e) {
+                expect(e.name).to.be.eq('UserNotFound');
+            }
+        });
+
+        it('should raise UserNotActive', async () => {
+            class Service {
+                public getBy(by: object) {
+                    return {active: false};
+                }
+            }
+
+            const service = new Service();
+            try {
+                const resolver = new UserResolver(service as any);
+
+                await resolver.password({email: 'mail@mail.com', password: '12345678'} as any);
+                throw new ShouldNotSucceed();
+            } catch (e) {
+                expect(e.name).to.be.eq('UserNotActive');
+            }
+        });
+
+        it('should call isPasswordValid from UserService', async () => {
+            class Service {
+                public getBy(by: object) {
+                    return {active: true, password: 'asd'};
+                }
+
+                public isPasswordValid(password: string, hash: string) {
+                    throw new MethodCalled('isPasswordValid', {password, hash});
+                }
+            }
+
+            const service = new Service();
+            try {
+                const resolver = new UserResolver(service as any);
+
+                await resolver.password({email: 'mail@mail.com', password: '12345678'} as any);
+                throw new ShouldNotSucceed();
+            } catch (e) {
+                expect(e.name).to.be.eq('MethodCalled');
+                expect(e.methodName).to.be.eq('isPasswordValid');
+                expect(e.data).to.be.deep.eq({password: '12345678', hash: 'asd'});
+            }
+        });
     });
 
-    it('should validate password', async () => {
-        const resolver = new UserResolver(new UserService(new MockDatabase()));
-        await resolver.create({
-            firstName: 'FirstName',
-            lastName: 'LastName',
-            email: 'email@mail.com',
-            role: Role.ADMIN,
-            password: '12345678'
+    describe('Get', () => {
+        it('should raise ParameterRequired', async () => {
+            try {
+                const resolver = new UserResolver({} as any);
+
+                await resolver.get({} as any);
+                throw new ShouldNotSucceed();
+            } catch (e) {
+                expect(e.name).to.be.eq('ParameterRequired');
+            }
         });
 
-        const shouldValid = await resolver.password({email: 'email@mail.com', password: '12345678'});
-        expect(shouldValid).to.eq(true);
+        it('should call getBy from UserService with id', async () => {
+            try {
+                class Service {
+                    public getBy(by: object) {
+                        throw new MethodCalled('getBy', by);
+                    }
+                }
 
-        const shouldNotValid = await resolver.password({email: 'email@mail.com', password: '123456789'});
-        expect(shouldNotValid).to.eq(false);
+                const service = new Service();
+                const resolver = new UserResolver(service as any);
 
-        try {
-            await resolver.password({email: '123@mail.com', password: '123456789'});
-            throw new ShouldNotSucceed();
-        } catch (e) {
-            expect(e.name).to.eq('UserNotFound');
-        }
+                await resolver.get({id: '123'} as any);
+                throw new ShouldNotSucceed();
+            } catch (e) {
+                expect(e.name).to.be.eq('MethodCalled');
+                expect(e.methodName).to.be.eq('getBy');
+                expect(e.data).to.be.deep.eq({id: '123'});
+            }
+        });
+
+        it('should call getBy from UserService with email', async () => {
+            try {
+                class Service {
+                    public getBy(by: object) {
+                        throw new MethodCalled('getBy', by);
+                    }
+                }
+
+                const service = new Service();
+                const resolver = new UserResolver(service as any);
+
+                await resolver.get({email: 'mail@mail.com'} as any);
+                throw new ShouldNotSucceed();
+            } catch (e) {
+                expect(e.name).to.be.eq('MethodCalled');
+                expect(e.methodName).to.be.eq('getBy');
+                expect(e.data).to.be.deep.eq({email: 'mail@mail.com'});
+            }
+        });
+
+        it('should call getBy from UserService with username', async () => {
+            try {
+                class Service {
+                    public getBy(by: object) {
+                        throw new MethodCalled('getBy', by);
+                    }
+                }
+
+                const service = new Service();
+                const resolver = new UserResolver(service as any);
+
+                await resolver.get({username: 'username'} as any);
+                throw new ShouldNotSucceed();
+            } catch (e) {
+                expect(e.name).to.be.eq('MethodCalled');
+                expect(e.methodName).to.be.eq('getBy');
+                expect(e.data).to.be.deep.eq({username: 'username'});
+            }
+        });
     });
 
-    it('should get user by id, email or username', async () => {
-        const resolver = new UserResolver(new UserService(new MockDatabase()));
-        const user1 = await resolver.create({
-            birthday: new Date(1999, 1, 26),
-            gender: Gender.MALE,
-            active: false,
-            email: "1@mail.com",
-            firstName: "Nelson",
-            lastName: "Ciccottio",
-            role: Role.STUDENT,
-            password: "12345678",
-            username: "user1"
+    describe('Find', () => {
+        it('should call all method from UserService', async () => {
+            try {
+                class Service {
+                    public all(data: any) {
+                        throw new MethodCalled('all', data);
+                    }
+                }
+
+                const service = new Service();
+                const resolver = new UserResolver(service as any);
+
+                await resolver.find({} as any);
+                throw new ShouldNotSucceed();
+            } catch (e) {
+                expect(e.name).to.be.eq('MethodCalled');
+                expect(e.methodName).to.be.eq('all');
+                expect(e.data).to.be.deep.eq({});
+            }
         });
-        const user2 = await resolver.create({
-            birthday: new Date(1999, 1, 26),
-            gender: Gender.MALE,
-            active: false,
-            email: "2@mail.com",
-            firstName: "Nelson",
-            lastName: "Ciccottio",
-            role: Role.STUDENT,
-            password: "12345678",
-            username: "user2"
-        });
-        const user3 = await resolver.create({
-            birthday: new Date(1999, 1, 26),
-            gender: Gender.MALE,
-            active: false,
-            email: "3@mail.com",
-            firstName: "Nelson",
-            lastName: "Ciccottio",
-            role: Role.STUDENT,
-            password: "12345678",
-            username: "user3"
-        });
-        const userByID = await resolver.get({id: user1._id});
-        expect(userByID).to.be.a('object');
-        expect(userByID._id).to.eq(user1._id);
-
-        const userByEmail = await resolver.get({email: user2.email});
-        expect(userByEmail).to.be.a('object');
-        expect(userByEmail._id).to.eq(user2._id);
-
-        const userByUsername = await resolver.get({username: user3.username});
-        expect(userByUsername).to.be.a('object');
-        expect(userByUsername._id).to.eq(user3._id);
-
-        const shouldNull = await resolver.get({id: 'a'});
-        expect(shouldNull).to.be.eq(null);
-
-        try {
-            await resolver.get({});
-            throw new ShouldNotSucceed();
-        } catch (e) {
-            expect(e.name).to.be.eq('ParameterRequired');
-        }
     });
 });

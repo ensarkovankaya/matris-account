@@ -2,7 +2,7 @@ import { Logger } from 'matris-logger';
 import { Service } from 'typedi';
 import { ParameterRequired } from '../../src/graphql/resolvers/user.resolver.errors';
 import { getLogger } from '../../src/logger';
-import { ICompareModel } from '../../src/models/compare.model';
+import { ICompareDateModel } from '../../src/models/compare.model';
 import { ICreateUserModel, IUpdateUserModel, IUserFilterModel, IUserModel } from '../../src/models/user.model';
 import { User } from '../../src/models/user.schema';
 import { IDBUserModel } from '../data/db.model';
@@ -25,7 +25,7 @@ export interface ILoadOptions {
 @Service()
 export class MockDatabase {
 
-    private static compare(data: any[], path: string, filter: ICompareModel): any[] {
+    private static compare(data: any[], path: string, filter: ICompareDateModel | ICompareDateModel): any[] {
         if (filter.eq !== undefined) {
             return data.filter(d => d[path] === filter.eq);
         }
@@ -192,7 +192,7 @@ export class MockDatabase {
                 data = data.filter(u => filters.role.in.indexOf(u.role) > 0);
             }
         }
-        if (filters.gender !== undefined) {
+        if (filters.gender) {
             data = data.filter(u => u.gender === filters.gender);
         }
         if (filters.birthday) {

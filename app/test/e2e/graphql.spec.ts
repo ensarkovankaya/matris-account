@@ -48,7 +48,7 @@ interface IUserModel {
     firstName?: string;
     lastName?: string;
     role?: Role;
-    gender?: Gender | null;
+    gender?: Gender;
     birthday?: string | null;
     active?: boolean;
     createdAt?: string;
@@ -150,7 +150,7 @@ describe('GraphQL', () => {
             expect(response.user.password).to.be.eq(undefined);
             expect(response.user.role).to.be.eq('ADMIN');
             expect(response.user.username).to.be.a('string');
-            expect(response.user.gender).to.be.eq(null);
+            expect(response.user.gender).to.be.eq('UNKNOWN');
             expect(response.user.birthday).to.be.eq(null);
             expect(response.user.createdAt).to.be.a('string');
             expect(new Date(response.user.createdAt).toString()).to.be.not.eq('Invalid Date');

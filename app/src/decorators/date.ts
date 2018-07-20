@@ -1,5 +1,8 @@
 import { registerDecorator, ValidationArguments, ValidationOptions } from "class-validator";
-import { InvalidDate } from './todate';
+
+class InvalidDate extends Error {
+    public name = 'InvalidDate';
+}
 
 /**
  * Custom validator decorator for validating given date is in range.

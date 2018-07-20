@@ -18,7 +18,7 @@ export interface IUserModel {
     firstName: string;
     lastName: string;
     role: Role;
-    gender: Gender | null;
+    gender: Gender;
     birthday: Date | null;
     active: boolean;
     createdAt: Date;
