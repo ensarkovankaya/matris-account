@@ -345,9 +345,11 @@ describe('Services -> User', () => {
         it('should call all method from db', async () => {
             class Database {
                 public filters: object;
+                public pagination: object;
 
-                public all(filters: object) {
+                public all(filters: object, pagination: object) {
                     this.filters = filters;
+                    this.pagination = pagination;
                     return 1;
                 }
             }
@@ -355,9 +357,10 @@ describe('Services -> User', () => {
             const db = new Database();
             const service = new UserService(db as any);
 
-            const result = await service.all({role: {eq: Role.INSTRUCTOR}});
+            const result = await service.all({role: {eq: Role.INSTRUCTOR}}, {limit: 5});
             expect(result).to.be.eq(1);
             expect(db.filters).to.be.deep.eq({role: {eq: Role.INSTRUCTOR}});
+            expect(db.pagination).to.be.deep.eq({limit: 5});
         });
     });
 
