@@ -188,7 +188,7 @@ export class MockDatabase implements IDatabaseModel<IUserModel> {
         if (users.length === 0) {
             throw new Error('No user found with given filters');
         }
-        const index = Math.floor(Math.random() * this.data.length);
+        const index = Math.floor(Math.random() * users.length);
         return users[index];
     }
 
