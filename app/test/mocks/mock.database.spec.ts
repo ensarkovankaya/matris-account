@@ -3,10 +3,11 @@ import { readFileSync } from "fs";
 import { describe, it } from 'mocha';
 import 'reflect-metadata';
 import { Gender, Role } from '../../src/models/user.model';
+import { IDBUserModel } from '../data/db.model';
 import { MockDatabase } from './mock.database';
 
 const PATH: string = process.env.MOCK_DATA || __dirname + '/../data/db.json';
-const DATA = JSON.parse(readFileSync(PATH, {encoding: 'utf8'}));
+const DATA: IDBUserModel[] = JSON.parse(readFileSync(PATH, {encoding: 'utf8'}));
 
 describe('Services -> MockDatabase', () => {
     describe('load', () => {
@@ -87,11 +88,98 @@ describe('Services -> MockDatabase', () => {
     });
 
     describe('all', () => {
-        it('should return all users', async () => {
-            const db = new MockDatabase();
-            await db.load(DATA, {n: 5});
-            const users = await db.all({});
-            expect(users).to.have.lengthOf(5);
+        describe('pagination', () => {
+            describe('limit', () => {
+                it('should return correct data for 50 users with limit 25', async () => {
+                    const db = new MockDatabase();
+                    await db.load(DATA, {n: 50});
+                    const result = await db.all({}, {limit: 25});
+                    expect(result).to.have.keys(['docs', 'total', 'limit', 'page', 'pages', 'offset']);
+                    expect(result.total).to.be.eq(50);
+                    expect(result.docs).to.have.lengthOf(25);
+                    expect(result.page).to.be.eq(1);
+                    expect(result.pages).to.be.eq(2);
+                });
+                it('should return correct data for 0 users with limit 25', async () => {
+                    const db = new MockDatabase();
+                    await db.load([]);
+                    const result = await db.all({}, {limit: 25});
+                    expect(result).to.have.keys(['docs', 'total', 'limit', 'page', 'pages', 'offset']);
+                    expect(result.total).to.be.eq(0);
+                    expect(result.docs).to.have.lengthOf(0);
+                    expect(result.page).to.be.eq(1);
+                    expect(result.pages).to.be.eq(1);
+                });
+                it('should return correct data for 15 users with limit 25', async () => {
+                    const db = new MockDatabase();
+                    await db.load(DATA, {n: 15});
+                    const result = await db.all({}, {limit: 25});
+                    expect(result).to.have.keys(['docs', 'total', 'limit', 'page', 'pages', 'offset']);
+                    expect(result.total).to.be.eq(15);
+                    expect(result.docs).to.have.lengthOf(15);
+                    expect(result.page).to.be.eq(1);
+                    expect(result.pages).to.be.eq(1);
+                });
+                it('should return correct data for 80 users with limit 25', async () => {
+                    const db = new MockDatabase();
+                    await db.load(DATA, {n: 80});
+                    const result = await db.all({}, {limit: 25});
+                    expect(result).to.have.keys(['docs', 'total', 'limit', 'page', 'pages', 'offset']);
+                    expect(result.total).to.be.eq(80);
+                    expect(result.docs).to.have.lengthOf(25);
+                    expect(result.page).to.be.eq(1);
+                    expect(result.pages).to.be.eq(4);
+                });
+            });
+
+            describe('page', () => {
+                it('should return different data for every pages', async () => {
+                    const db = new MockDatabase();
+                    await db.load(DATA, {n: 75});
+                    const page1 = await db.all({}, {limit: 25, page: 1});
+                    expect(page1).to.have.keys(['docs', 'total', 'limit', 'page', 'pages', 'offset']);
+                    expect(page1.total).to.be.eq(75);
+                    expect(page1.docs).to.have.lengthOf(25);
+                    expect(page1.page).to.be.eq(1);
+                    expect(page1.pages).to.be.eq(3);
+
+                    const page2 = await db.all({}, {limit: 25, page: 2});
+                    expect(page2).to.have.keys(['docs', 'total', 'limit', 'page', 'pages', 'offset']);
+                    expect(page2.total).to.be.eq(75);
+                    expect(page2.docs).to.have.lengthOf(25);
+                    expect(page2.page).to.be.eq(2);
+                    expect(page2.pages).to.be.eq(3);
+
+                    const page3 = await db.all({}, {limit: 25, page: 3});
+                    expect(page3).to.have.keys(['docs', 'total', 'limit', 'page', 'pages', 'offset']);
+                    expect(page3.total).to.be.eq(75);
+                    expect(page3.docs).to.have.lengthOf(25);
+                    expect(page3.page).to.be.eq(3);
+                    expect(page3.pages).to.be.eq(3);
+
+                    expect(page1.docs.map(d => d._id.toString()))
+                        .to.be.not.eq(page2.docs.map(d => d._id.toString()));
+
+                    expect(page2.docs.map(d => d._id.toString()))
+                        .to.be.not.eq(page3.docs.map(d => d._id.toString()));
+
+                    expect(page1.docs.map(d => d._id.toString()))
+                        .to.be.not.eq(page3.docs.map(d => d._id.toString()));
+                });
+            });
+
+            describe('offset', () => {
+                it('should offset data', async () => {
+                    const db = new MockDatabase();
+                    await db.load(DATA, {n: 75});
+                    const page1 = await db.all({}, {limit: 25, offset: 30});
+                    expect(page1).to.have.keys(['docs', 'total', 'limit', 'page', 'pages', 'offset']);
+                    expect(page1.total).to.be.eq(45);
+                    expect(page1.docs).to.have.lengthOf(25);
+                    expect(page1.page).to.be.eq(1);
+                    expect(page1.pages).to.be.eq(2);
+                });
+            });
         });
     });
 

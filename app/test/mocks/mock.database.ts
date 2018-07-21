@@ -1,8 +1,10 @@
 import { Logger } from 'matris-logger';
+import { PaginateOptions } from 'mongoose';
 import { Service } from 'typedi';
 import { ParameterRequired } from '../../src/graphql/resolvers/user.resolver.errors';
 import { getLogger } from '../../src/logger';
 import { ICompareDateModel } from '../../src/models/compare.model';
+import { IDatabaseModel } from '../../src/models/database.model';
 import { ICreateUserModel, IUpdateUserModel, IUserFilterModel, IUserModel } from '../../src/models/user.model';
 import { User } from '../../src/models/user.schema';
 import { IDBUserModel } from '../data/db.model';
@@ -23,7 +25,7 @@ export interface ILoadOptions {
 }
 
 @Service()
-export class MockDatabase {
+export class MockDatabase implements IDatabaseModel<IUserModel> {
 
     private static compare(data: any[], path: string, filter: ICompareDateModel | ICompareDateModel): any[] {
         if (filter.eq !== undefined) {
@@ -45,20 +47,19 @@ export class MockDatabase {
     }
 
     public data: IUserModel[];
-    public called: string;
-    public parameters: { [key: string]: any };
+    public callStack: Array<{ method: string, parameters: { [key: string]: any } }>;
 
     private logger: Logger;
 
     constructor() {
         this.logger = getLogger('MockDatabase');
         this.data = [];
+        this.callStack = [];
     }
 
     public async create(data: ICreateUserModel): Promise<IUserModel> {
         this.logger.debug('Create', {data});
-        this.called = 'create';
-        this.parameters = {data};
+        this.callStack.push({method: 'create', parameters: {data}});
         try {
             const user = new User(data);
             this.logger.debug('Create', {user});
@@ -73,8 +74,8 @@ export class MockDatabase {
 
     public async update(id: string, data: IUpdateUserModel): Promise<void> {
         this.logger.debug('Update', {id, data});
-        this.called = 'update';
-        this.parameters = {id, data};
+        this.callStack.push({method: 'update', parameters: {id, data}});
+
         if (!id) {
             throw new ParameterRequired('id');
         }
@@ -96,22 +97,56 @@ export class MockDatabase {
 
     public async delete(id: string) {
         this.logger.debug('Delete', {id});
-        this.called = 'delete';
-        this.parameters = {id};
+        this.callStack.push({method: 'delete', parameters: {id}});
         this.data = this.data.filter(user => user._id !== id);
     }
 
-    public async all(filters: IUserFilterModel) {
+    public async all(filters: IUserFilterModel, pagination: PaginateOptions) {
         this.logger.debug('All', filters);
-        this.called = 'all';
-        this.parameters = {filters};
-        return this.filter(this.data.slice(), filters);
+        this.callStack.push({method: 'all', parameters: {filters, pagination}});
+        const page = pagination.page || 1;
+        const limit = pagination.limit || 0;
+        const offset = pagination.offset || 0;
+
+        // Filter
+        const filtered = this.filter(this.data.slice(), filters);
+
+        if (offset > filtered.length) {
+            throw new Error('Offset out of data size.');
+        }
+
+        // Offset
+        const offseted = filtered.slice(offset);
+
+        const total = offseted.length;
+
+        // Find pages
+        let pages: number = 0;
+        if (limit >= offseted.length) {
+            pages = 1;
+        } else {
+            let count = 0;
+            while (count < offseted.length) {
+                count += limit;
+                pages += 1;
+            }
+        }
+        const start = limit * (page - 1);
+        const end = limit ? start + limit : offseted.length;
+        const docs = offseted.slice(start, end);
+        return {
+            docs,
+            total,
+            offset,
+            limit,
+            page,
+            pages
+        };
     }
 
     public async findOne(conditions: IFilterModel) {
         this.logger.debug('FindOne', conditions);
-        this.called = 'findOne';
-        this.parameters = {conditions};
+        this.callStack.push({method: 'findOne', parameters: {conditions}});
         return this.filter(this.data.slice(), conditions)[0] || null;
     }
 
@@ -124,11 +159,15 @@ export class MockDatabase {
     public async load(data: IDBUserModel[], options: ILoadOptions = {validate: true}) {
         try {
             if (options.n) {
+                if (data.length < options.n) {
+                    throw new Error('NotEnoughData');
+                }
                 this.data = await Promise.all(
                     this.shuffle(data.slice(0, options.n)).map(d => this.toUser(d, options.validate))
                 );
             } else {
-                this.data = await Promise.all(data.map(d => this.toUser(d, options.validate)));
+                const users = await Promise.all(data.map(d => this.toUser(d, options.validate)));
+                this.data = this.shuffle(users);
             }
             this.logger.debug(`${this.data.length} mock user loaded.`);
         } catch (e) {
@@ -153,7 +192,7 @@ export class MockDatabase {
         return users[index];
     }
 
-    private shuffle(array: any[]): any[] {
+    public shuffle(array: any[]): any[] {
         for (let i = array.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [array[i], array[j]] = [array[j], array[i]];
