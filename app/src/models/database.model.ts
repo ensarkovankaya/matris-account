@@ -1,3 +1,5 @@
+import { PaginateOptions, PaginateResult } from 'mongoose';
+
 export interface IDatabaseModel<T> {
     create(data: object): Promise<T> | T;
 
@@ -5,7 +7,7 @@ export interface IDatabaseModel<T> {
 
     delete(id: string): void;
 
-    all(conditions: object): Promise<T[]> | T[];
+    all(conditions: object, pagination: PaginateOptions): Promise<PaginateResult<T>> | PaginateResult<T>;
 
     findOne(conditions: object): Promise<T> | null | T | null;
 }

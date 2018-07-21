@@ -1,4 +1,4 @@
-import { DocumentQuery } from 'mongoose';
+import { DocumentQuery, PaginateOptions, PaginateResult } from 'mongoose';
 import { Service } from 'typedi';
 import { getLogger, Logger } from '../logger';
 import { ICompareDateModel, ICompareNumberModel } from '../models/compare.model';
@@ -68,7 +68,8 @@ export class DatabaseService implements IDatabaseModel<IUserModel> {
         }
     }
 
-    public async all(conditions: IUserFilterModel = {}): Promise<IUserModel[]> {
+    public async all(conditions: IUserFilterModel = {}, pagination: PaginateOptions):
+        Promise<PaginateResult<IUserModel>> {
         this.logger.debug('All', {conditions});
         try {
             let query = User.find();
@@ -110,7 +111,7 @@ export class DatabaseService implements IDatabaseModel<IUserModel> {
                     query = query.where('role').in(conditions.role.in);
                 }
             }
-            return await query.exec();
+            return await User.paginate(query.getQuery(), pagination);
         } catch (err) {
             this.logger.error('All', err);
             throw err;

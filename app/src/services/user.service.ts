@@ -1,5 +1,5 @@
 import * as bcrypt from 'bcrypt';
-import { Types } from 'mongoose';
+import { PaginateOptions, PaginateResult, Types } from 'mongoose';
 import { Service } from 'typedi';
 import { getLogger, Logger } from '../logger';
 import { ICreateUserModel, IUpdateUserModel, IUserFilterModel, IUserModel } from '../models/user.model';
@@ -192,10 +192,10 @@ export class UserService {
         }
     }
 
-    public async all(filters: IUserFilterModel): Promise<IUserModel[]> {
+    public async all(filters: IUserFilterModel, pagination: PaginateOptions): Promise<PaginateResult<IUserModel>> {
         this.logger.debug('All', {filters});
         try {
-            return await this.db.all(filters);
+            return await this.db.all(filters, pagination);
         } catch (err) {
             this.logger.error('All', err);
             throw err;

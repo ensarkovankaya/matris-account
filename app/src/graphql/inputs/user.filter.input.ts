@@ -1,15 +1,15 @@
 import { IsArray, IsBoolean, Length } from "class-validator";
-import { ArgsType, Field } from 'type-graphql';
+import { Field, InputType } from 'type-graphql';
 import { IsCompareDateInput } from '../../decorators/is.compare.input';
 import { IsGenderQuery } from '../../decorators/is.gender.query';
 import { IsRoleQuery } from '../../decorators/is.role.query';
-import { CompareDateInput } from '../inputs/compare.date.input';
+import { CompareDateInput } from './compare.date.input';
 import { Validatable } from '../validatable';
-import { GenderQuery } from './gender.query';
-import { RoleQuery } from './role.query';
+import { GenderQuery } from '../args/gender.query';
+import { RoleQuery } from '../args/role.query';
 
-@ArgsType()
-export class UserFilterArgs extends Validatable {
+@InputType({description: 'User filter options.'})
+export class UserFilterInput extends Validatable {
     @Field({nullable: true, description: 'Is user active?'})
     @IsBoolean()
     public active?: boolean;

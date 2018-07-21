@@ -1,4 +1,5 @@
 import { model, Schema } from "mongoose";
+import * as mongoosePaginate from 'mongoose-paginate';
 import { isAlphanumeric, isEmail } from 'validator';
 import { Gender, IUserModel, Role } from './user.model';
 
@@ -108,5 +109,6 @@ const UserSchema: Schema = new Schema({
         }
     }
 });
+UserSchema.plugin(mongoosePaginate);
 
 export const User = model<IUserModel>('User', UserSchema);

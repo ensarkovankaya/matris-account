@@ -1,13 +1,15 @@
 import { Arg, Args, Mutation, Query, Resolver } from 'type-graphql';
 import { Service } from 'typedi';
 import { getLogger, Logger } from '../../logger';
-import { ICreateUserModel, IUpdateUserModel, Role } from '../../models/user.model';
+import { ICreateUserModel, IUpdateUserModel } from '../../models/user.model';
 import { UserService } from '../../services/user.service';
+import { PaginationInput } from '../inputs/pagination.input';
 import { PasswordArgs } from '../args/password.args';
 import { UserArgs } from '../args/user.args';
-import { UserFilterArgs } from '../args/user.filter.args';
+import { UserFilterInput } from '../inputs/user.filter.input';
 import { CreateInput } from '../inputs/create.input';
 import { UpdateInput } from '../inputs/update.input';
+import { ListResultSchema } from '../schemas/list.result.schema';
 import { User } from '../schemas/user.schema';
 import {
     EmailAlreadyExists,
@@ -27,10 +29,13 @@ export class UserResolver {
         this.logger = getLogger('UserResolver', ['resolver']);
     }
 
-    @Query(returnType => [User], {description: 'Find user.'})
-    public async find(@Args() args: UserFilterArgs) {
-        this.logger.debug('Find', {args});
-        return await this.us.all(args);
+    @Query(returnType => ListResultSchema, {description: 'Find user.'})
+    public async find(
+        @Arg('filters') filters: UserFilterInput,
+        @Arg('pagination', {nullable: true}) pagination: PaginationInput = new PaginationInput()
+    ) {
+        this.logger.debug('Find', {filters, pagination});
+        return await this.us.all(filters, pagination);
     }
 
     @Query(returnType => User, {nullable: true, description: 'Get user by id, email or username.'})
