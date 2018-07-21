@@ -1,4 +1,4 @@
-import { IsNumber, Max, Min } from "class-validator";
+import { IsNumber, Max, Min, IsIn } from "class-validator";
 import { PaginateOptions } from 'mongoose';
 import { Field, InputType } from 'type-graphql';
 import { Validatable } from '../validatable';
@@ -17,9 +17,10 @@ export class PaginationInput extends Validatable implements PaginateOptions {
     @Min(0)
     public offset?: number = 0;
 
-    @Field({nullable: true, description: 'Max limit of data will pull from database.'})
+    @Field({nullable: true, description: 'Max limit of data per page.'})
     @IsNumber()
-    public limit?: number = 20;
+    @IsIn([10, 25, 50, 100, 150])
+    public limit?: number = 10;
 
     constructor(data: PaginateOptions = {}) {
         super(data);
