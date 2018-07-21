@@ -85,25 +85,25 @@ describe('GraphQL -> Inputs -> UserFilterArgs', () => {
                 await input2.validate();
                 expect(input2).to.be.deep.eq({gender: {in: ['FEMALE']}});
 
-                const input3 = new UserFilterInput({gender: {in: [null]}});
+                const input3 = new UserFilterInput({gender: {in: ['UNKNOWN']}});
                 await input3.validate();
-                expect(input3).to.be.deep.eq({gender: {in: [null]}});
+                expect(input3).to.be.deep.eq({gender: {in: ['UNKNOWN']}});
 
-                const input4 = new UserFilterInput({gender: {in: [Gender.MALE, null]}});
+                const input4 = new UserFilterInput({gender: {in: [Gender.MALE, 'UNKNOWN']}});
                 await input4.validate();
-                expect(input4).to.be.deep.eq({gender: {in: ['MALE', null]}});
+                expect(input4).to.be.deep.eq({gender: {in: ['MALE', 'UNKNOWN']}});
 
-                const input5 = new UserFilterInput({gender: {in: [Gender.FEMALE, null]}});
+                const input5 = new UserFilterInput({gender: {in: [Gender.FEMALE, 'UNKNOWN']}});
                 await input5.validate();
-                expect(input5).to.be.deep.eq({gender: {in: ['FEMALE', null]}});
+                expect(input5).to.be.deep.eq({gender: {in: ['FEMALE', 'UNKNOWN']}});
 
                 const input6 = new UserFilterInput({gender: {in: [Gender.MALE, Gender.FEMALE]}});
                 await input6.validate();
                 expect(input6).to.be.deep.eq({gender: {in: ['MALE', 'FEMALE']}});
 
-                const input7 = new UserFilterInput({gender: {in: [Gender.MALE, Gender.FEMALE, null]}});
+                const input7 = new UserFilterInput({gender: {in: [Gender.MALE, Gender.FEMALE, 'UNKNOWN']}});
                 await input7.validate();
-                expect(input7).to.be.deep.eq({gender: {in: ['MALE', 'FEMALE', null]}});
+                expect(input7).to.be.deep.eq({gender: {in: ['MALE', 'FEMALE', 'UNKNOWN']}});
 
                 const input8 = new UserFilterInput({gender: {in: []}});
                 await input8.validate();
