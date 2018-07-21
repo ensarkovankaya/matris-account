@@ -1,4 +1,4 @@
-import { IsNumber, Max, Min, IsIn } from "class-validator";
+import { IsIn, IsNumber, Max, Min } from "class-validator";
 import { PaginateOptions } from 'mongoose';
 import { Field, InputType } from 'type-graphql';
 import { Validatable } from '../validatable';
