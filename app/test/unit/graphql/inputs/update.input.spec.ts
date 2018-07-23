@@ -1,7 +1,6 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import "reflect-metadata";
-import { PasswordArgs } from '../../../../src/graphql/args/password.args';
 import { UpdateInput } from '../../../../src/graphql/inputs/update.input';
 import { Gender, Role } from '../../../../src/models/user.model';
 
@@ -191,12 +190,12 @@ describe('GraphQL -> Inputs -> Update', () => {
 
     describe('Password', () => {
         it('should be valid', async () => {
-            const input1 = new PasswordArgs({password: '12345678'});
+            const input1 = new UpdateInput({password: '12345678'});
             await input1.validate();
             expect(input1).to.have.keys(['password']);
             expect(input1.password).to.be.eq('12345678');
 
-            const input2 = new PasswordArgs({password: '1237aysd.1öças-*149-*'});
+            const input2 = new UpdateInput({password: '1237aysd.1öças-*149-*'});
             await input2.validate();
             expect(input2).to.have.keys(['password']);
             expect(input2.password).to.be.eq('1237aysd.1öças-*149-*');
@@ -204,7 +203,7 @@ describe('GraphQL -> Inputs -> Update', () => {
 
         it('should raise ValidationError', async () => {
             try {
-                await new PasswordArgs({password: ''}).validate();
+                await new UpdateInput({password: ''}).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
                 expect(e).to.be.an('array');
@@ -215,7 +214,7 @@ describe('GraphQL -> Inputs -> Update', () => {
             }
 
             try {
-                await new PasswordArgs({password: 'a'.repeat(33)}).validate();
+                await new UpdateInput({password: 'a'.repeat(33)}).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
                 expect(e).to.be.an('array');
@@ -226,7 +225,7 @@ describe('GraphQL -> Inputs -> Update', () => {
             }
 
             try {
-                await new PasswordArgs({password: 'asdasd asd'}).validate();
+                await new UpdateInput({password: 'asdasd asd'}).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
                 expect(e).to.be.an('array');
