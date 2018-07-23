@@ -1,11 +1,13 @@
-import { AxiosError, AxiosPromise, AxiosRequestConfig, AxiosResponse } from 'axios';
+import { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 import * as axios from 'axios';
 import { expect } from 'chai';
 import { readFileSync } from "fs";
 import { createServer, Server as HttpServer } from 'http';
+import { Logger } from 'matris-logger';
 import { after, before, beforeEach, describe, it } from 'mocha';
 import "reflect-metadata";
 import { Container } from 'typedi';
+import { getLogger } from '../../src/logger';
 import { IUserModel } from '../../src/models/user.model';
 import { Server } from '../../src/server';
 import { DatabaseService } from '../../src/services/database.service';
@@ -56,9 +58,17 @@ beforeEach('Mock Database', async () => {
 
 class HttpClient {
 
+    private logger: Logger;
+
+    constructor() {
+        this.logger = getLogger('HttpClient', ['test']);
+    }
+
     public async request<T>(query: string, variables: { [key: string]: any }): Promise<AxiosResponse<T>> {
         try {
+            this.logger.debug('Request', {query, variables});
             return await axios.default.request<T>({
+                method: 'POST',
                 url: ENDPOINT,
                 headers: {
                     'Content-Type': 'application/json',
@@ -67,6 +77,7 @@ class HttpClient {
                 data: {query, variables}
             });
         } catch (e) {
+            this.logger.http('Request', e.request, e.response, {data: e.response.data});
             throw new HttpClientError(e);
         }
     }
@@ -361,7 +372,272 @@ describe('GraphQL', () => {
             expect(response.data.data.user).to.be.eq(null);
         });
     });
-});
+
+    describe('Password', () => {
+        it('should return true for active and not deleted user', async () => {
+            const mockUser = database.getOne({deleted: false, active: true});
+            const query = `query isPasswordValid($email: String!, $password: String!) {
+                    valid: password(data: {email: $email, password: $password})
+            }`;
+            const variables = {email: mockUser.email, password: mockUser.email};
+            const response = await client.request<{ data: { valid: boolean } }>(query, variables);
+            expect(response.status).to.be.eq(200);
+            expect(response.data).to.be.an('object');
+            expect(response.data).to.have.key('data');
+            expect(response.data.data).to.be.an('object');
+            expect(response.data.data).to.have.key('valid');
+            expect(response.data.data.valid).to.be.eq(true);
+        });
+
+        it('should raise error for not active user', async () => {
+            const mockUser = database.getOne({deleted: false, active: false});
+            const query = `query isPasswordValid($email: String!, $password: String!) {
+                    valid: password(data: {email: $email, password: $password})
+            }`;
+            const variables = {email: mockUser.email, password: mockUser.email};
+
+            try {
+                await client.request<{ data: { valid: boolean } }>(query, variables);
+                throw new ShouldNotSucceed();
+            } catch (e) {
+                expect(e.name).to.be.eq('HttpClientError');
+                expect(e.response.status).to.be.eq(500);
+                expect(e.response.data).to.be.an('object');
+                expect(e.response.data).to.have.keys(['errors', 'data']);
+                expect(e.response.data.data).to.be.eq(null);
+                expect(e.response.data.errors).to.be.an('array');
+                expect(e.response.data.errors).to.have.lengthOf(1);
+                const error = e.response.data.errors[0];
+                expect(error).to.be.an('object');
+                expect(error).to.have.keys(['message', 'locations', 'path']);
+                expect(error.message).to.have.string('is not active');
+            }
+        });
+
+        it('should raise error for deleted user', async () => {
+            const mockUser = database.getOne({deleted: true});
+            const query = `query isPasswordValid($email: String!, $password: String!) {
+                    valid: password(data: {email: $email, password: $password})
+            }`;
+            const variables = {email: mockUser.email, password: mockUser.email};
+
+            try {
+                await client.request<{ data: { valid: boolean } }>(query, variables);
+                throw new ShouldNotSucceed();
+            } catch (e) {
+                expect(e.name).to.be.eq('HttpClientError');
+                expect(e.response.status).to.be.eq(500);
+                expect(e.response.data).to.be.an('object');
+                expect(e.response.data).to.have.keys(['errors', 'data']);
+                expect(e.response.data.data).to.be.eq(null);
+                expect(e.response.data.errors).to.be.an('array');
+                expect(e.response.data.errors).to.have.lengthOf(1);
+                const error = e.response.data.errors[0];
+                expect(error).to.be.an('object');
+                expect(error).to.have.keys(['message', 'locations', 'path']);
+                expect(error.message).to.have.string('User not found');
+            }
+        });
+
+        it('should raise error for not existing user', async () => {
+            const query = `query isPasswordValid($email: String!, $password: String!) {
+                    valid: password(data: {email: $email, password: $password})
+            }`;
+            const variables = {email: 'notexists@user.com', password: '12345678'};
+
+            try {
+                await client.request<{ data: { valid: boolean } }>(query, variables);
+                throw new ShouldNotSucceed();
+            } catch (e) {
+                expect(e.name).to.be.eq('HttpClientError');
+                expect(e.response.status).to.be.eq(500);
+                expect(e.response.data).to.be.an('object');
+                expect(e.response.data).to.have.keys(['errors', 'data']);
+                expect(e.response.data.data).to.be.eq(null);
+                expect(e.response.data.errors).to.be.an('array');
+                expect(e.response.data.errors).to.have.lengthOf(1);
+                const error = e.response.data.errors[0];
+                expect(error).to.be.an('object');
+                expect(error).to.have.keys(['message', 'locations', 'path']);
+                expect(error.message).to.have.string('User not found');
+            }
+        });
+
+        it('should return false for invalid password', async () => {
+            const mockUser = database.getOne({deleted: false, active: true});
+            const query = `query isPasswordValid($email: String!, $password: String!) {
+                    valid: password(data: {email: $email, password: $password})
+            }`;
+            const variables = {email: mockUser.email, password: '12345678'};
+            const response = await client.request<{ data: { valid: boolean } }>(query, variables);
+            expect(response.status).to.be.eq(200);
+            expect(response.data).to.be.an('object');
+            expect(response.data).to.have.key('data');
+            expect(response.data.data).to.be.an('object');
+            expect(response.data.data).to.have.key('valid');
+            expect(response.data.data.valid).to.be.eq(false);
+        });
+
+        it('email variable should be required', async () => {
+            try {
+                const query = `query isPasswordValid($email: String!, $password: String!) {
+                    valid: password(data: {email: $email, password: $password})
+                }`;
+                const variables = {password: '12345678'};
+                await client.request<{ data: { valid: boolean } }>(query, variables);
+                throw new ShouldNotSucceed();
+            } catch (e) {
+                expect(e.name).to.be.eq('HttpClientError');
+                expect(e.response.status).to.be.eq(500);
+                expect(e.response.data).to.be.an('object');
+                expect(e.response.data).to.have.keys(['errors']);
+                expect(e.response.data.errors).to.be.an('array');
+                expect(e.response.data.errors).to.have.lengthOf(1);
+                const error = e.response.data.errors[0];
+                expect(error).to.be.an('object');
+                expect(error).to.have.keys(['message', 'locations']);
+                expect(error.message).to.be.eq('Variable "$email" of required type "String!" was not provided.');
+            }
+        });
+
+        it('password variable should be required', async () => {
+            try {
+                const query = `query isPasswordValid($email: String!, $password: String!) {
+                    valid: password(data: {email: $email, password: $password})
+                }`;
+                const variables = {email: 'mail@mail.com'};
+                await client.request<{ data: { valid: boolean } }>(query, variables);
+                throw new ShouldNotSucceed();
+            } catch (e) {
+                expect(e.name).to.be.eq('HttpClientError');
+                expect(e.response.status).to.be.eq(500);
+                expect(e.response.data).to.be.an('object');
+                expect(e.response.data).to.have.keys(['errors']);
+                expect(e.response.data.errors).to.be.an('array');
+                expect(e.response.data.errors).to.have.lengthOf(1);
+                const error = e.response.data.errors[0];
+                expect(error).to.be.an('object');
+                expect(error).to.have.keys(['message', 'locations']);
+                expect(error.message).to.be.eq('Variable "$password" of required type "String!" was not provided.');
+            }
+        });
+
+        it('should raise error for email if email variable is not email format', async () => {
+            try {
+                const query = `query isPasswordValid($email: String!, $password: String!) {
+                    valid: password(data: {email: $email, password: $password})
+                }`;
+                const variables = {email: 'notamailaddress', password: '12345678'};
+                await client.request<{ data: { valid: boolean } }>(query, variables);
+                throw new ShouldNotSucceed();
+            } catch (e) {
+                expect(e.name).to.be.eq('HttpClientError');
+                expect(e.response.status).to.be.eq(500);
+                expect(e.response.data).to.be.an('object');
+                expect(e.response.data).to.have.keys(['errors', 'data']);
+                expect(e.response.data.data).to.be.eq(null);
+                expect(e.response.data.errors).to.be.an('array');
+                expect(e.response.data.errors).to.have.lengthOf(1);
+                const error = e.response.data.errors[0];
+                expect(error).to.be.an('object');
+                expect(error).to.have.keys(['message', 'locations', 'path', 'validationErrors']);
+                expect(error.message).to.be.eq('Argument Validation Error');
+                expect(error.validationErrors).to.be.deep.eq([{
+                    target: {
+                        email: "notamailaddress",
+                        password: "12345678"
+                    },
+                    value: "notamailaddress",
+                    property: "email",
+                    children: [],
+                    constraints: {isEmail: "InvalidEmail"}
+                }]);
+            }
+        });
+    });
+
+    describe('Delete', () => {
+        it('should delete active user', async () => {
+            const mockUser = database.getOne({deleted: false, active: true});
+            const query = `mutation deleteUser($id: String!) {
+                    deleted: delete(id: $id)
+                }`;
+            const variables = {id: mockUser.id};
+            const response = await client.request<{ data: { deleted: boolean } }>(query, variables);
+            expect(response.status).to.be.eq(200);
+            expect(response.data).to.be.an('object');
+            expect(response.data).to.have.key('data');
+            expect(response.data.data).to.be.an('object');
+            expect(response.data.data).to.have.key('deleted');
+            expect(response.data.data.deleted).to.be.eq(true);
+        });
+
+        it('should delete inactive user', async () => {
+            const mockUser = database.getOne({deleted: false, active: false});
+            const query = `mutation deleteUser($id: String!) {
+                    deleted: delete(id: $id)
+                }`;
+            const variables = {id: mockUser.id};
+            const response = await client.request<{ data: { deleted: boolean } }>(query, variables);
+            expect(response.status).to.be.eq(200);
+            expect(response.data).to.be.an('object');
+            expect(response.data).to.have.key('data');
+            expect(response.data.data).to.be.an('object');
+            expect(response.data.data).to.have.key('deleted');
+            expect(response.data.data.deleted).to.be.eq(true);
+        });
+
+        it('should raise error for already deleted user', async () => {
+            const mockUser = database.getOne({deleted: true});
+            const query = `mutation deleteUser($id: String!) {
+                    deleted: delete(id: $id)
+                }`;
+            const variables = {id: mockUser.id};
+
+            try {
+                await client.request<{ data: { deleted: boolean } }>(query, variables);
+                throw new ShouldNotSucceed();
+            } catch (e) {
+                expect(e.name).to.be.eq('HttpClientError');
+                expect(e.response.status).to.be.eq(500);
+                expect(e.response.data).to.be.an('object');
+                expect(e.response.data).to.have.keys(['errors', 'data']);
+                expect(e.response.data.data).to.be.eq(null);
+                expect(e.response.data.errors).to.be.an('array');
+                expect(e.response.data.errors).to.have.lengthOf(1);
+                const error = e.response.data.errors[0];
+                expect(error).to.be.an('object');
+                expect(error).to.have.keys(['message', 'locations', 'path']);
+                expect(error.message).to.have.string('User not found');
+            }
+        });
+
+        it('should raise error for not exists user', async () => {
+            const query = `mutation deleteUser($id: String!) {
+                    deleted: delete(id: $id)
+                }`;
+            const variables = {id: '1'.repeat(24)};
+
+            try {
+                await client.request<{ data: { deleted: boolean } }>(query, variables);
+                throw new ShouldNotSucceed();
+            } catch (e) {
+                expect(e.name).to.be.eq('HttpClientError');
+                expect(e.response.status).to.be.eq(500);
+                expect(e.response.data).to.be.an('object');
+                expect(e.response.data).to.have.keys(['errors', 'data']);
+                expect(e.response.data.data).to.be.eq(null);
+                expect(e.response.data.errors).to.be.an('array');
+                expect(e.response.data.errors).to.have.lengthOf(1);
+                const error = e.response.data.errors[0];
+                expect(error).to.be.an('object');
+                expect(error).to.have.keys(['message', 'locations', 'path']);
+                expect(error.message).to.have.string('User not found');
+            }
+        });
+    });
+})
+;
 
 after('Stop Server', () => server.close(() => {
     console.info('Test Server closed.');

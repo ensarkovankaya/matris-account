@@ -1,8 +1,8 @@
 import { IsEmail, Length, Matches } from "class-validator";
-import { ArgsType, Field } from 'type-graphql';
+import { Field, InputType } from 'type-graphql';
 import { Validatable } from '../validatable';
 
-@ArgsType()
+@InputType()
 export class PasswordArgs extends Validatable {
     @Field({description: 'User email.'})
     @IsEmail({}, {message: 'InvalidEmail'})
