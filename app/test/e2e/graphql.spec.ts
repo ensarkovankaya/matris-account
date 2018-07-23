@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { readFileSync } from "fs";
 import * as http from 'http';
-import { AccountService } from 'matris-account-api/dist/lib';
+import { AccountService } from 'matris-account-api';
 import { after, before, beforeEach, describe, it } from 'mocha';
 import "reflect-metadata";
 import { Container } from 'typedi';
