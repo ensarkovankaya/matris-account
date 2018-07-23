@@ -3,12 +3,12 @@ import { Service } from 'typedi';
 import { getLogger, Logger } from '../../logger';
 import { ICreateUserModel, IUpdateUserModel } from '../../models/user.model';
 import { UserService } from '../../services/user.service';
-import { PaginationInput } from '../inputs/pagination.input';
-import { PasswordArgs } from '../args/password.args';
 import { UserArgs } from '../args/user.args';
-import { UserFilterInput } from '../inputs/user.filter.input';
 import { CreateInput } from '../inputs/create.input';
+import { PaginationInput } from '../inputs/pagination.input';
+import { PasswordInput } from '../inputs/password.input';
 import { UpdateInput } from '../inputs/update.input';
+import { UserFilterInput } from '../inputs/user.filter.input';
 import { ListResultSchema } from '../schemas/list.result.schema';
 import { User } from '../schemas/user.schema';
 import {
@@ -30,10 +30,10 @@ export class UserResolver {
     }
 
     @Query(returnType => ListResultSchema, {description: 'Find user.'})
-    public async find(
-        @Arg('filters') filters: UserFilterInput,
-        @Arg('pagination', {nullable: true}) pagination: PaginationInput = new PaginationInput()
-    ) {
+    public async find(@Arg('filters') filters: UserFilterInput,
+                      @Arg('pagination', {nullable: true}) pagination: PaginationInput = new PaginationInput()) {
+        await new UserFilterInput(filters).validate();
+        await new PaginationInput(pagination).validate();
         this.logger.debug('Find', {filters, pagination});
         return await this.us.all(filters, pagination);
     }
@@ -41,6 +41,7 @@ export class UserResolver {
     @Query(returnType => User, {nullable: true, description: 'Get user by id, email or username.'})
     public async get(@Args() by: UserArgs) {
         this.logger.debug('Get', {by});
+        await new UserArgs(by).validate();
         if (!by.id && !by.email && !by.username) {
             throw new ParameterRequired('id, email or username');
         }
@@ -59,22 +60,35 @@ export class UserResolver {
     }
 
     @Query(returnType => Boolean, {description: 'Validate is user password is valid.'})
-    public async password(@Args() {email, password}: PasswordArgs) {
-        this.logger.debug('Get', {email, password});
-        const user = await this.us.getBy({email});
-        this.logger.debug('Get', {user});
+    public async password(@Arg('data') data: PasswordInput) {
+        this.logger.debug('Password', {data});
+        await new PasswordInput(data).validate();
+        let user;
+        try {
+            user = await this.us.getBy({email: data.email});
+            this.logger.debug('Password', {user});
+        } catch (e) {
+            this.logger.error('Password', e);
+            throw e;
+        }
         if (!user) {
-            throw new UserNotFound({email});
+            throw new UserNotFound({email: data.email});
         }
         if (!user.active) {
-            throw new UserNotActive({email});
+            throw new UserNotActive({email: data.email});
         }
-        return await this.us.isPasswordValid(password, user.password);
+        try {
+            return await this.us.isPasswordValid(data.password, user.password);
+        } catch (e) {
+            this.logger.error('Password', e);
+            throw e;
+        }
     }
 
     @Mutation(returnType => User, {description: 'Create user.'})
     public async create(@Arg('data') data: CreateInput) {
         this.logger.debug('Create', {data});
+        await new CreateInput(data).validate();
         // Check email exists
         const isEmailExists = await this.us.getBy({email: data.email});
         this.logger.debug('Create', {isEmailExists});
@@ -122,6 +136,7 @@ export class UserResolver {
     @Mutation(returnType => User, {description: 'Update User'})
     public async update(@Arg('id') id: string, @Arg('data') data: UpdateInput) {
         this.logger.debug('Update', {id, data});
+        await new UpdateInput(data).validate();
         // Check is user exists
         const user = await this.us.getBy({id});
         this.logger.debug('Update', {user});
