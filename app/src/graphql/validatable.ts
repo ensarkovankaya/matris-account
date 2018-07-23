@@ -1,5 +1,5 @@
 import { validateOrReject } from 'class-validator';
-import { ArgsType } from 'type-graphql';
+import { ArgsType, ArgumentValidationError } from 'type-graphql';
 
 @ArgsType()
 export class Validatable {
@@ -9,11 +9,15 @@ export class Validatable {
     }
 
     public async validate(overwrites: object = {}) {
-        await validateOrReject(this, {
-            skipMissingProperties: true,
-            forbidNonWhitelisted: true,
-            forbidUnknownValues: true,
-            ...overwrites
-        });
+        try {
+            await validateOrReject(this, {
+                skipMissingProperties: true,
+                forbidNonWhitelisted: true,
+                forbidUnknownValues: true,
+                ...overwrites
+            });
+        } catch (e) {
+            throw new ArgumentValidationError(e);
+        }
     }
 }
