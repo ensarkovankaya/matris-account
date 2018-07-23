@@ -1,29 +1,30 @@
+import { AxiosError, AxiosPromise, AxiosRequestConfig, AxiosResponse } from 'axios';
+import * as axios from 'axios';
 import { expect } from 'chai';
 import { readFileSync } from "fs";
-import * as http from 'http';
-import { AccountService } from 'matris-account-api';
+import { createServer, Server as HttpServer } from 'http';
 import { after, before, beforeEach, describe, it } from 'mocha';
 import "reflect-metadata";
 import { Container } from 'typedi';
+import { IUserModel } from '../../src/models/user.model';
 import { Server } from '../../src/server';
 import { DatabaseService } from '../../src/services/database.service';
 import { MockDatabase } from '../mocks/mock.database';
 
-let ENDPOINT: string = '';
+let server: HttpServer;
 
-let server: http.Server;
+const PORT = parseInt(process.env.TEST_PORT || '1234', 10);
+const HOST = process.env.TEST_HOST || '0.0.0.0';
+const URL = process.env.TEST_URL || '/graphql';
+const ENDPOINT = `http://${HOST}:${PORT}${URL}`;
 
 const PATH: string = process.env.MOCK_DATA || __dirname + '/../data/db.json';
 const DATA = JSON.parse(readFileSync(PATH, {encoding: 'utf8'}));
 const database = new MockDatabase();
 
 before('Start Server', async () => {
-    const PORT = parseInt(process.env.PORT || '3000', 10);
-    const HOST = process.env.HOST || '0.0.0.0';
-    const URL = process.env.URL || '/graphql';
-    ENDPOINT = `http://${HOST}:${PORT}${URL}`;
     const express = new Server();
-    server = http.createServer(express.app);
+    server = createServer(express.app);
     return await server.listen(PORT, HOST, () => console.info(`Test Server start on host ${HOST} port ${PORT}.`));
 });
 
@@ -31,41 +32,333 @@ class ShouldNotSucceed extends Error {
     public name = 'ShouldNotSucceed';
 }
 
+class HttpClientError extends Error implements AxiosError {
+    public name = 'HttpClientError';
+    public config: AxiosRequestConfig;
+    public code?: string;
+    public request?: any;
+    public response?: AxiosResponse;
+
+    constructor(e: AxiosError) {
+        super();
+        this.config = e.config;
+        this.code = e.code;
+        this.request = e.request;
+        this.response = e.response;
+    }
+
+}
+
 beforeEach('Mock Database', async () => {
     await database.load(DATA);
     Container.set(DatabaseService, database);
 });
 
+class HttpClient {
+
+    public async request<T>(query: string, variables: { [key: string]: any }): Promise<AxiosResponse<T>> {
+        try {
+            return await axios.default.request<T>({
+                url: ENDPOINT,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                data: {query, variables}
+            });
+        } catch (e) {
+            throw new HttpClientError(e);
+        }
+    }
+}
+
 describe('GraphQL', () => {
+
+    const client = new HttpClient();
+
+    it('should server running and excepting request', async () => {
+        try {
+            await client.request('', {});
+            throw new ShouldNotSucceed();
+        } catch (e) {
+            expect(e.name).to.be.eq('HttpClientError');
+            expect(e.response).to.be.an('object');
+            expect(e.response.status).to.be.eq(400);
+            expect(e.response.data).to.be.deep.eq({errors: [{message: 'Must provide query string.'}]});
+        }
+    });
+
     describe('Get', () => {
+
         it('should get user by id', async () => {
-            const service = new AccountService({url: ENDPOINT});
             const mockUser = database.getOne({deleted: false});
-            const user = await service.get({id: mockUser.id});
-            expect(user).to.be.an('object');
-            expect(user.id).to.be.eq(mockUser._id.toString());
+            const query = `query getUser($id: String, $email: String, $username: String) {
+                    user: get(id: $id, email: $email, username: $username) {
+                        _id,
+                        email,
+                        firstName,
+                        lastName,
+                        username,
+                        createdAt,
+                        updatedAt,
+                        deletedAt,
+                        deleted,
+                        role,
+                        lastLogin,
+                        gender,
+                        active,
+                        birthday,
+                        groups
+                    }
+                }`;
+            const variables = {id: mockUser.id};
+            const response = await client.request<{ data: { user: IUserModel } }>(query, variables);
+            expect(response.status).to.be.eq(200);
+            expect(response.data).to.be.an('object');
+            expect(response.data).to.have.key('data');
+            expect(response.data.data).to.be.an('object');
+            expect(response.data.data).to.have.key('user');
+            expect(response.data.data.user).to.be.an('object');
+
+            // Check response user is valid
+            const user = response.data.data.user;
+
+            expect(user).to.have.keys([
+                '_id',
+                'email',
+                'firstName',
+                'lastName',
+                'username',
+                'createdAt',
+                'updatedAt',
+                'deletedAt',
+                'deleted',
+                'role',
+                'lastLogin',
+                'gender',
+                'active',
+                'birthday',
+                'groups'
+            ]);
+
+            expect(user._id).to.be.eq(mockUser.id.toString());
+            expect(user.email).to.be.eq(mockUser.email);
+            expect(user.firstName).to.be.eq(mockUser.firstName);
+            expect(user.lastName).to.be.eq(mockUser.lastName);
             expect(user.username).to.be.eq(mockUser.username);
+            expect(user.createdAt).to.be.eq(mockUser.createdAt.toJSON());
+            expect(user.updatedAt).to.be.eq(mockUser.updatedAt.toJSON());
+            if (mockUser.deletedAt) {
+                expect(user.deletedAt).to.be.eq(mockUser.deletedAt.toJSON());
+            } else {
+                expect(user.deletedAt).to.be.eq(null);
+            }
+            expect(user.deleted).to.be.eq(mockUser.deleted);
+            expect(user.role).to.be.eq(mockUser.role);
+            if (mockUser.lastLogin) {
+                expect(user.lastLogin).to.be.eq(mockUser.lastLogin.toJSON());
+            } else {
+                expect(user.lastLogin).to.be.eq(null);
+            }
+            expect(user.gender).to.be.eq(mockUser.gender);
+            expect(user.active).to.be.eq(mockUser.active);
+            if (mockUser.birthday) {
+                expect(user.birthday).to.be.eq(mockUser.birthday.toJSON());
+            } else {
+                expect(user.birthday).to.be.eq(null);
+            }
+            expect(user.groups).to.be.deep.eq(mockUser.groups);
         });
 
         it('should get user by email', async () => {
-            const service = new AccountService({url: ENDPOINT});
             const mockUser = database.getOne({deleted: false});
-            const user = await service.get({email: mockUser.email});
-            expect(user.id).to.be.eq(mockUser._id.toString());
+            const query = `query getUser($id: String, $email: String, $username: String) {
+                    user: get(id: $id, email: $email, username: $username) {
+                        _id,
+                        email,
+                        firstName,
+                        lastName,
+                        username,
+                        createdAt,
+                        updatedAt,
+                        deletedAt,
+                        deleted,
+                        role,
+                        lastLogin,
+                        gender,
+                        active,
+                        birthday,
+                        groups
+                    }
+                }`;
+            const variables = {email: mockUser.email};
+            const response = await client.request<{ data: { user: IUserModel } }>(query, variables);
+            expect(response.status).to.be.eq(200);
+            expect(response.data).to.be.an('object');
+            expect(response.data).to.have.key('data');
+            expect(response.data.data).to.be.an('object');
+            expect(response.data.data).to.have.key('user');
+            expect(response.data.data.user).to.be.an('object');
+
+            // Check response user is valid
+            const user = response.data.data.user;
+
+            expect(user).to.have.keys([
+                '_id',
+                'email',
+                'firstName',
+                'lastName',
+                'username',
+                'createdAt',
+                'updatedAt',
+                'deletedAt',
+                'deleted',
+                'role',
+                'lastLogin',
+                'gender',
+                'active',
+                'birthday',
+                'groups'
+            ]);
+
+            expect(user._id).to.be.eq(mockUser.id.toString());
+            expect(user.email).to.be.eq(mockUser.email);
+            expect(user.firstName).to.be.eq(mockUser.firstName);
+            expect(user.lastName).to.be.eq(mockUser.lastName);
+            expect(user.username).to.be.eq(mockUser.username);
+            expect(user.createdAt).to.be.eq(mockUser.createdAt.toJSON());
+            expect(user.updatedAt).to.be.eq(mockUser.updatedAt.toJSON());
+            if (mockUser.deletedAt) {
+                expect(user.deletedAt).to.be.eq(mockUser.deletedAt.toJSON());
+            } else {
+                expect(user.deletedAt).to.be.eq(null);
+            }
+            expect(user.deleted).to.be.eq(mockUser.deleted);
+            expect(user.role).to.be.eq(mockUser.role);
+            if (mockUser.lastLogin) {
+                expect(user.lastLogin).to.be.eq(mockUser.lastLogin.toJSON());
+            } else {
+                expect(user.lastLogin).to.be.eq(null);
+            }
+            expect(user.gender).to.be.eq(mockUser.gender);
+            expect(user.active).to.be.eq(mockUser.active);
+            if (mockUser.birthday) {
+                expect(user.birthday).to.be.eq(mockUser.birthday.toJSON());
+            } else {
+                expect(user.birthday).to.be.eq(null);
+            }
+            expect(user.groups).to.be.deep.eq(mockUser.groups);
         });
 
         it('should get user by username', async () => {
-            const service = new AccountService({url: ENDPOINT});
             const mockUser = database.getOne({deleted: false});
-            const user = await service.get({username: mockUser.username});
-            expect(user.id).to.be.eq(mockUser._id.toString());
+            const query = `query getUser($id: String, $email: String, $username: String) {
+                    user: get(id: $id, email: $email, username: $username) {
+                        _id,
+                        email,
+                        firstName,
+                        lastName,
+                        username,
+                        createdAt,
+                        updatedAt,
+                        deletedAt,
+                        deleted,
+                        role,
+                        lastLogin,
+                        gender,
+                        active,
+                        birthday,
+                        groups
+                    }
+                }`;
+            const variables = {username: mockUser.username};
+            const response = await client.request<{ data: { user: IUserModel } }>(query, variables);
+            expect(response.status).to.be.eq(200);
+            expect(response.data).to.be.an('object');
+            expect(response.data).to.have.key('data');
+            expect(response.data.data).to.be.an('object');
+            expect(response.data.data).to.have.key('user');
+            expect(response.data.data.user).to.be.an('object');
+
+            // Check response user is valid
+            const user = response.data.data.user;
+
+            expect(user).to.have.keys([
+                '_id',
+                'email',
+                'firstName',
+                'lastName',
+                'username',
+                'createdAt',
+                'updatedAt',
+                'deletedAt',
+                'deleted',
+                'role',
+                'lastLogin',
+                'gender',
+                'active',
+                'birthday',
+                'groups'
+            ]);
+
+            expect(user._id).to.be.eq(mockUser.id.toString());
+            expect(user.email).to.be.eq(mockUser.email);
+            expect(user.firstName).to.be.eq(mockUser.firstName);
+            expect(user.lastName).to.be.eq(mockUser.lastName);
+            expect(user.username).to.be.eq(mockUser.username);
+            expect(user.createdAt).to.be.eq(mockUser.createdAt.toJSON());
+            expect(user.updatedAt).to.be.eq(mockUser.updatedAt.toJSON());
+            if (mockUser.deletedAt) {
+                expect(user.deletedAt).to.be.eq(mockUser.deletedAt.toJSON());
+            } else {
+                expect(user.deletedAt).to.be.eq(null);
+            }
+            expect(user.deleted).to.be.eq(mockUser.deleted);
+            expect(user.role).to.be.eq(mockUser.role);
+            if (mockUser.lastLogin) {
+                expect(user.lastLogin).to.be.eq(mockUser.lastLogin.toJSON());
+            } else {
+                expect(user.lastLogin).to.be.eq(null);
+            }
+            expect(user.gender).to.be.eq(mockUser.gender);
+            expect(user.active).to.be.eq(mockUser.active);
+            if (mockUser.birthday) {
+                expect(user.birthday).to.be.eq(mockUser.birthday.toJSON());
+            } else {
+                expect(user.birthday).to.be.eq(null);
+            }
+            expect(user.groups).to.be.deep.eq(mockUser.groups);
         });
 
         it('should return null for deleted user', async () => {
-            const service = new AccountService({url: ENDPOINT});
             const mockUser = database.getOne({deleted: true});
-            const user = await service.get({id: mockUser._id.toString()});
-            expect(user).to.be.eq(null);
+            const query = `query getUser($id: String, $email: String, $username: String) {
+                    user: get(id: $id, email: $email, username: $username) {
+                        _id,
+                        email,
+                        firstName,
+                        lastName,
+                        username,
+                        createdAt,
+                        updatedAt,
+                        deletedAt,
+                        deleted,
+                        role,
+                        lastLogin,
+                        gender,
+                        active,
+                        birthday,
+                        groups
+                    }
+                }`;
+            const variables = {id: mockUser.id};
+            const response = await client.request<{ data: { user: IUserModel } }>(query, variables);
+            expect(response.status).to.be.eq(200);
+            expect(response.data).to.be.an('object');
+            expect(response.data).to.have.key('data');
+            expect(response.data.data).to.be.an('object');
+            expect(response.data.data).to.have.key('user');
+            expect(response.data.data.user).to.be.eq(null);
         });
     });
 });
