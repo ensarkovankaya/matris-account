@@ -48,7 +48,7 @@ export class UserNameExists extends Error {
     public name = 'UserNameExists';
 
     constructor(username?: string) {
-        super(username ? `Username '${username}' already exists.` : undefined);
+        super(username ? `Username '${username}' already exists.` : 'Username already exists.');
     }
 }
 
