@@ -642,7 +642,7 @@ describe('Resolvers -> User', () => {
             try {
                 const resolver = new UserResolver(service as any);
 
-                await resolver.delete('123');
+                await resolver.delete({id: '123'} as any);
                 throw new ShouldNotSucceed();
             } catch (e) {
                 expect(e.name).to.be.eq('MethodCalled');
@@ -662,7 +662,7 @@ describe('Resolvers -> User', () => {
             try {
                 const resolver = new UserResolver(service as any);
 
-                await resolver.delete('123');
+                await resolver.delete({id: '123'} as any);
                 throw new ShouldNotSucceed();
             } catch (e) {
                 expect(e.name).to.be.eq('UserNotFound');
@@ -684,7 +684,7 @@ describe('Resolvers -> User', () => {
             try {
                 const resolver = new UserResolver(service as any);
 
-                await resolver.delete('123');
+                await resolver.delete({id: '123'} as any);
                 throw new ShouldNotSucceed();
             } catch (e) {
                 expect(e.name).to.be.eq('MethodCalled');
