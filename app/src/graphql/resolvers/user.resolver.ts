@@ -115,7 +115,7 @@ export class UserResolver {
             const isUsernameExists = await this.us.isUsernameExists(data.username);
             this.logger.debug('Create', {isUsernameExists});
             if (isUsernameExists) {
-                throw new UserNameExists(data.username);
+                throw new UserNameExists();
             }
             createData.username = data.username;
         } else {
