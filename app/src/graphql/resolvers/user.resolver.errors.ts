@@ -36,7 +36,7 @@ export class EmailAlreadyExists extends Error {
     public name = 'EmailAlreadyExists';
 
     constructor(email?: string) {
-        super(email ? `Mail '${email}' already exists.` : undefined);
+        super(email ? `Mail '${email}' already exists.` : 'Mail already exists.');
     }
 }
 
