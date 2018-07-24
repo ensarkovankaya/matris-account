@@ -137,6 +137,7 @@ export class UserResolver {
     @Mutation(returnType => User, {description: 'Update User'})
     public async update(@Arg('id') id: string, @Arg('data') data: UpdateInput) {
         this.logger.debug('Update', {id, data});
+        await new IDInput({id}).validate();
         await new UpdateInput(data).validate();
         // Check is user exists
         const user = await this.us.getBy({id});
