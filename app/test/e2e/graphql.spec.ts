@@ -1,5 +1,5 @@
-import { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 import * as axios from 'axios';
+import { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { expect } from 'chai';
 import { readFileSync } from "fs";
 import { createServer, Server as HttpServer } from 'http';
@@ -8,7 +8,7 @@ import { after, before, beforeEach, describe, it } from 'mocha';
 import "reflect-metadata";
 import { Container } from 'typedi';
 import { getLogger } from '../../src/logger';
-import { IUserModel } from '../../src/models/user.model';
+import { Gender, IUserModel, Role } from '../../src/models/user.model';
 import { Server } from '../../src/server';
 import { DatabaseService } from '../../src/services/database.service';
 import { MockDatabase } from '../mocks/mock.database';
@@ -560,7 +560,7 @@ describe('GraphQL', () => {
         it('should delete active user', async () => {
             const mockUser = database.getOne({deleted: false, active: true});
             const query = `mutation deleteUser($id: String!) {
-                    deleted: delete(id: $id)
+                    deleted: delete(data: {id: $id})
                 }`;
             const variables = {id: mockUser.id};
             const response = await client.request<{ data: { deleted: boolean } }>(query, variables);
@@ -575,7 +575,7 @@ describe('GraphQL', () => {
         it('should delete inactive user', async () => {
             const mockUser = database.getOne({deleted: false, active: false});
             const query = `mutation deleteUser($id: String!) {
-                    deleted: delete(id: $id)
+                    deleted: delete(data: {id: $id})
                 }`;
             const variables = {id: mockUser.id};
             const response = await client.request<{ data: { deleted: boolean } }>(query, variables);
@@ -590,7 +590,7 @@ describe('GraphQL', () => {
         it('should raise error for already deleted user', async () => {
             const mockUser = database.getOne({deleted: true});
             const query = `mutation deleteUser($id: String!) {
-                    deleted: delete(id: $id)
+                    deleted: delete(data: {id: $id})
                 }`;
             const variables = {id: mockUser.id};
 
@@ -614,7 +614,7 @@ describe('GraphQL', () => {
 
         it('should raise error for not exists user', async () => {
             const query = `mutation deleteUser($id: String!) {
-                    deleted: delete(id: $id)
+                    deleted: delete(data: {id: $id})
                 }`;
             const variables = {id: '1'.repeat(24)};
 
@@ -636,8 +636,318 @@ describe('GraphQL', () => {
             }
         });
     });
-})
-;
+
+    describe('Create', () => {
+        it('should raise variable error if no variable given', async () => {
+            const query = `mutation createUser($data: CreateInput!) {
+                    user: create(data: $data) {
+                        _id,
+                        email,
+                        firstName,
+                        lastName,
+                        username,
+                        createdAt,
+                        updatedAt,
+                        deletedAt,
+                        deleted,
+                        role,
+                        lastLogin,
+                        gender,
+                        active,
+                        birthday,
+                        groups
+                    }
+                }`;
+            const variables = {};
+            try {
+                await client.request<{ data: { user: IUserModel } }>(query, variables);
+                throw new ShouldNotSucceed();
+            } catch (e) {
+                expect(e.name).to.be.eq('HttpClientError');
+                expect(e.response.status).to.be.eq(500);
+                expect(e.response.data).to.be.an('object');
+                expect(e.response.data).to.have.keys(['errors']);
+                expect(e.response.data.errors).to.be.an('array');
+                expect(e.response.data.errors).to.have.lengthOf(1);
+                const error = e.response.data.errors[0];
+                expect(error).to.have.keys(['message', 'locations']);
+                expect(error.message).to.be.eq('Variable "$data" of required type "CreateInput!" was not provided.');
+            }
+        });
+
+        it('should return validationErrors for email', async () => {
+            const query = `mutation createUser($data: CreateInput!) {
+                    user: create(data: $data) {
+                        _id,
+                        email,
+                        firstName,
+                        lastName,
+                        username,
+                        createdAt,
+                        updatedAt,
+                        deletedAt,
+                        deleted,
+                        role,
+                        lastLogin,
+                        gender,
+                        active,
+                        birthday,
+                        groups
+                    }
+                }`;
+            const variables = {
+                data: {
+                    email: 'notamail',
+                    firstName: 'First Name',
+                    lastName: 'Last Name',
+                    role: Role.ADMIN,
+                    password: '12345678'
+                }
+            };
+            try {
+                await client.request<{ data: { user: IUserModel } }>(query, variables);
+                throw new ShouldNotSucceed();
+            } catch (e) {
+                expect(e.name).to.be.eq('HttpClientError');
+                expect(e.response.status).to.be.eq(500);
+                expect(e.response.data).to.be.an('object');
+                expect(e.response.data).to.have.keys(['errors', 'data']);
+                expect(e.response.data.errors).to.be.an('array');
+                expect(e.response.data.errors).to.have.lengthOf(1);
+                const error = e.response.data.errors[0];
+                expect(error).to.have.keys(['message', 'locations', 'path', 'validationErrors']);
+                expect(error.message).to.be.eq('Argument Validation Error');
+                const vErrors = error.validationErrors;
+                expect(vErrors).to.be.an('array');
+                expect(vErrors).to.have.lengthOf(1);
+                const vError = vErrors[0];
+                expect(vError).to.have.keys(['target', 'value', 'property', 'children', 'constraints']);
+                expect(vError.constraints).to.be.deep.eq({isEmail: "Invalid"});
+            }
+        });
+
+        it('should create user with minimal data', async () => {
+            const query = `mutation createUser($data: CreateInput!) {
+                    user: create(data: $data) {
+                        _id,
+                        email,
+                        firstName,
+                        lastName,
+                        username,
+                        createdAt,
+                        updatedAt,
+                        deletedAt,
+                        deleted,
+                        role,
+                        lastLogin,
+                        gender,
+                        active,
+                        birthday,
+                        groups
+                    }
+                }`;
+            const variables = {
+                data: {
+                    email: 'mail@mail.com',
+                    firstName: 'First Name',
+                    lastName: 'Last Name',
+                    role: Role.ADMIN,
+                    password: '12345678'
+                }
+            };
+            const response = await client.request<{ data: { user: IUserModel } }>(query, variables);
+            expect(response.status).to.be.eq(200);
+            expect(response.data).to.have.key('data');
+            expect(response.data.data).to.have.key('user');
+            const user = response.data.data.user;
+            expect(user).to.have.keys([
+                '_id', 'email', 'firstName', 'lastName', 'username', 'createdAt', 'updatedAt', 'deletedAt', 'deleted',
+                'gender', 'active', 'birthday', 'groups', 'role', 'lastLogin'
+            ]);
+            expect(user._id).to.be.a('string');
+            expect(user._id).to.have.lengthOf(24);
+            expect(user.email).to.be.eq('mail@mail.com');
+            expect(user.firstName).to.be.eq('First Name');
+            expect(user.lastName).to.be.eq('Last Name');
+            expect(user.role).to.be.eq('ADMIN');
+            expect(user.username).to.be.a('string');
+            expect(user.username.startsWith('firstnamelastname')).to.be.eq(true);
+            expect(user.createdAt).to.be.a('string');
+            expect(new Date(user.createdAt)).to.be.a('date');
+            expect(user.updatedAt).to.be.a('string');
+            expect(new Date(user.updatedAt)).to.be.a('date');
+            expect(user.deletedAt).to.be.eq(null);
+            expect(user.deleted).to.be.eq(false);
+            expect(user.gender).to.be.eq('UNKNOWN');
+            expect(user.active).to.be.eq(true);
+            expect(user.birthday).to.be.eq(null);
+            expect(user.lastLogin).to.be.eq(null);
+            expect(user.groups).to.be.an('array');
+            expect(user.groups).to.have.lengthOf(0);
+        });
+
+        it('should create user with all data', async () => {
+            const query = `mutation createUser($data: CreateInput!) {
+                    user: create(data: $data) {
+                        _id,
+                        email,
+                        firstName,
+                        lastName,
+                        username,
+                        createdAt,
+                        updatedAt,
+                        deletedAt,
+                        deleted,
+                        role,
+                        lastLogin,
+                        gender,
+                        active,
+                        birthday,
+                        groups
+                    }
+                }`;
+            const variables = {
+                data: {
+                    email: 'mail@mail.com',
+                    firstName: 'First Name',
+                    lastName: 'Last Name',
+                    role: Role.ADMIN,
+                    password: '12345678',
+                    username: 'username',
+                    gender: Gender.MALE,
+                    active: false,
+                    birthday: new Date(1993, 19, 5),
+                    groups: ['1'.repeat(24), '2'.repeat(24)]
+                }
+            };
+            const response = await client.request<{ data: { user: IUserModel } }>(query, variables);
+            expect(response.status).to.be.eq(200);
+            expect(response.data).to.have.key('data');
+            expect(response.data.data).to.have.key('user');
+            const user = response.data.data.user;
+            expect(user).to.have.keys([
+                '_id', 'email', 'firstName', 'lastName', 'username', 'createdAt', 'updatedAt', 'deletedAt', 'deleted',
+                'gender', 'active', 'birthday', 'groups', 'role', 'lastLogin'
+            ]);
+            expect(user._id).to.be.a('string');
+            expect(user._id).to.have.lengthOf(24);
+            expect(user.email).to.be.eq('mail@mail.com');
+            expect(user.firstName).to.be.eq('First Name');
+            expect(user.lastName).to.be.eq('Last Name');
+            expect(user.role).to.be.eq('ADMIN');
+            expect(user.username).to.be.eq('username');
+            expect(user.createdAt).to.be.a('string');
+            expect(new Date(user.createdAt)).to.be.a('date');
+            expect(user.updatedAt).to.be.a('string');
+            expect(new Date(user.updatedAt)).to.be.a('date');
+            expect(user.deletedAt).to.be.eq(null);
+            expect(user.deleted).to.be.eq(false);
+            expect(user.gender).to.be.eq('MALE');
+            expect(user.active).to.be.eq(false);
+            expect(user.birthday).to.be.a('string');
+            expect(new Date(user.birthday)).to.be.a('date');
+            expect(user.lastLogin).to.be.eq(null);
+            expect(user.groups).to.be.an('array');
+            expect(user.groups).to.have.lengthOf(2);
+            expect(user.groups).to.be.deep.eq(['1'.repeat(24), '2'.repeat(24)]);
+        });
+
+        it('should return user exists with email error', async () => {
+            const alreadyExistsUser = database.getOne({deleted: false});
+            const query = `mutation createUser($data: CreateInput!) {
+                    user: create(data: $data) {
+                        _id,
+                        email,
+                        firstName,
+                        lastName,
+                        username,
+                        createdAt,
+                        updatedAt,
+                        deletedAt,
+                        deleted,
+                        role,
+                        lastLogin,
+                        gender,
+                        active,
+                        birthday,
+                        groups
+                    }
+                }`;
+            const variables = {
+                data: {
+                    email: alreadyExistsUser.email,
+                    firstName: 'First Name',
+                    lastName: 'Last Name',
+                    role: Role.ADMIN,
+                    password: '12345678'
+                }
+            };
+
+            try {
+                await client.request<{ data: null, errors: any[] }>(query, variables);
+                throw new ShouldNotSucceed();
+            } catch (e) {
+                expect(e.name).to.be.eq('HttpClientError');
+                expect(e.response.status).to.be.eq(500);
+                expect(e.response.data).to.have.keys(['data', 'errors']);
+                expect(e.response.data.data).to.be.eq(null);
+                expect(e.response.data.errors).to.be.an('array');
+                expect(e.response.data.errors).to.have.lengthOf(1);
+                const error = e.response.data.errors[0];
+                expect(error).to.have.keys(['message', 'locations', 'path']);
+                expect(error.message).to.be.eq('Mail already exists.');
+            }
+        });
+
+        it('should return username exists error', async () => {
+            const alreadyExistsUser = database.getOne({deleted: false});
+            const query = `mutation createUser($data: CreateInput!) {
+                    user: create(data: $data) {
+                        _id,
+                        email,
+                        firstName,
+                        lastName,
+                        username,
+                        createdAt,
+                        updatedAt,
+                        deletedAt,
+                        deleted,
+                        role,
+                        lastLogin,
+                        gender,
+                        active,
+                        birthday,
+                        groups
+                    }
+                }`;
+            const variables = {
+                data: {
+                    email: 'mail@mail.com',
+                    firstName: 'First Name',
+                    lastName: 'Last Name',
+                    role: Role.ADMIN,
+                    password: '12345678',
+                    username: alreadyExistsUser.username
+                }
+            };
+
+            try {
+                await client.request<{ data: null, errors: any[] }>(query, variables);
+                throw new ShouldNotSucceed();
+            } catch (e) {
+                expect(e.name).to.be.eq('HttpClientError');
+                expect(e.response.status).to.be.eq(500);
+                expect(e.response.data).to.have.keys(['data', 'errors']);
+                expect(e.response.data.data).to.be.eq(null);
+                expect(e.response.data.errors).to.be.an('array');
+                expect(e.response.data.errors).to.have.lengthOf(1);
+                const error = e.response.data.errors[0];
+                expect(error).to.have.keys(['message', 'locations', 'path']);
+                expect(error.message).to.be.eq('Username already exists.');
+            }
+        });
+    });
+});
 
 after('Stop Server', () => server.close(() => {
     console.info('Test Server closed.');
