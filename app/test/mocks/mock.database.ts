@@ -236,7 +236,11 @@ export class MockDatabase implements IDatabaseModel<IUserModel> {
                 }
             }
             if (filters.gender) {
-                data = data.filter(u => u.gender === filters.gender);
+                if (filters.gender.eq) {
+                    data = data.filter(u => u.gender === filters.gender.eq);
+                } else if (filters.gender.in) {
+                    data = data.filter(u => filters.gender.in.indexOf(u.gender) > 0);
+                }
             }
             if (filters.birthday) {
                 data = MockDatabase.compare(data, 'birthday', filters.birthday);
