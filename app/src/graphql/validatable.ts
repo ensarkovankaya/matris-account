@@ -1,5 +1,14 @@
 import { validateOrReject } from 'class-validator';
-import { ArgsType, ArgumentValidationError } from 'type-graphql';
+import { ValidationError } from "class-validator";
+import { ArgsType, ArgumentValidationError as AVE } from 'type-graphql';
+
+export class ArgumentValidationError extends AVE {
+    public name = 'ArgumentValidationError';
+
+    constructor(validationErrors: ValidationError[]) {
+        super(validationErrors);
+    }
+}
 
 @ArgsType()
 export class Validatable {
