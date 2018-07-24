@@ -16,7 +16,8 @@ import {
     EmailAlreadyExists,
     ParameterRequired,
     UserNameExists,
-    UserNameNotNormalized, UserNotActive,
+    UserNameNotNormalized,
+    UserNotActive,
     UserNotFound
 } from './user.resolver.errors';
 
@@ -94,7 +95,7 @@ export class UserResolver {
         const isEmailExists = await this.us.getBy({email: data.email});
         this.logger.debug('Create', {isEmailExists});
         if (isEmailExists) {
-            throw new EmailAlreadyExists(data.email);
+            throw new EmailAlreadyExists();
         }
         const createData: ICreateUserModel = {
             email: data.email,
