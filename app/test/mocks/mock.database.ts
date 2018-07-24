@@ -80,7 +80,7 @@ export class MockDatabase implements IDatabaseModel<IUserModel> {
             throw new ParameterRequired('id');
         }
         this.data = await Promise.all(this.data.map(async user => {
-            if (user._id === id) {
+            if (user._id.toString() === id.toString()) {
                 try {
                     const updated = new User({...user.toObject(), ...data});
                     await updated.validate();
@@ -217,7 +217,7 @@ export class MockDatabase implements IDatabaseModel<IUserModel> {
         this.logger.debug('Filter', {filters});
         try {
             if (filters._id) {
-                data = data.filter(d => d._id.toString() === filters._id.toString());
+                return data.filter(d => d._id.toString() === filters._id.toString());
             }
             if (filters.username) {
                 data = data.filter(d => d.username === filters.username);
