@@ -5,7 +5,7 @@ import { ICreateUserModel, IUpdateUserModel } from '../../models/user.model';
 import { UserService } from '../../services/user.service';
 import { UserArgs } from '../args/user.args';
 import { CreateInput } from '../inputs/create.input';
-import { DeleteInput } from '../inputs/delete.input';
+import { IDInput } from '../inputs/id.Input';
 import { PaginationInput } from '../inputs/pagination.input';
 import { PasswordInput } from '../inputs/password.input';
 import { UpdateInput } from '../inputs/update.input';
@@ -207,9 +207,9 @@ export class UserResolver {
     }
 
     @Mutation(returnType => Boolean, {description: 'Delete user'})
-    public async delete(@Arg('data') data: DeleteInput) {
+    public async delete(@Arg('data') data: IDInput) {
         this.logger.debug('Delete', {data});
-        await new DeleteInput(data).validate();
+        await new IDInput(data).validate();
         // Check is user exists
         const user = await this.us.getBy({id: data.id});
         this.logger.debug('Delete', {user});

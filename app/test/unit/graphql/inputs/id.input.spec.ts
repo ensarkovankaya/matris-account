@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import "reflect-metadata";
-import { DeleteInput } from '../../../../src/graphql/inputs/delete.input';
+import { IDInput } from '../../../../src/graphql/inputs/id.Input';
 
 class ShouldNotSucceed extends Error {
     public name = 'ShouldNotSucceed';
@@ -9,7 +9,7 @@ class ShouldNotSucceed extends Error {
 
 describe('DeleteInput', () => {
     it('should validate', async () => {
-        const input = new DeleteInput({id: '5b4b57f1fc13ae1730000646'});
+        const input = new IDInput({id: '5b4b57f1fc13ae1730000646'});
         await input.validate();
         expect(input).to.have.key('id');
         expect(input.id).to.be.eq('5b4b57f1fc13ae1730000646');
@@ -17,7 +17,7 @@ describe('DeleteInput', () => {
 
     it('should raise ArgumentValidationError', async () => {
         try {
-            await new DeleteInput({id: 'notaid'}).validate();
+            await new IDInput({id: 'notaid'}).validate();
             throw new ShouldNotSucceed();
         } catch (e) {
             expect(e.name).to.be.eq('ArgumentValidationError');

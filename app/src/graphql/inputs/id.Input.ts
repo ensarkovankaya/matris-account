@@ -3,7 +3,7 @@ import { Field, InputType } from 'type-graphql';
 import { Validatable } from '../validatable';
 
 @InputType()
-export class DeleteInput extends Validatable {
+export class IDInput extends Validatable {
 
     @Field({description: 'User id.'})
     @IsMongoId()
