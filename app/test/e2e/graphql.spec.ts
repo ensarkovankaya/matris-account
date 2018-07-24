@@ -947,6 +947,80 @@ describe('GraphQL', () => {
             }
         });
     });
+
+    describe('Update', () => {
+        it.only('should update user', async () => {
+            const mockUser = database.getOne({
+                deleted: false,
+                role: {eq: Role.PARENT},
+                gender: {eq: Gender.MALE},
+                active: true
+            });
+            const query = `mutation updateUser($id: String!, $data: UpdateInput!) {
+                    user: update(id: $id, data: $data) {
+                        _id,
+                        email,
+                        firstName,
+                        lastName,
+                        username,
+                        createdAt,
+                        updatedAt,
+                        deletedAt,
+                        deleted,
+                        role,
+                        lastLogin,
+                        gender,
+                        active,
+                        birthday,
+                        groups
+                    }
+                }`;
+            const variables = {
+                id: mockUser.id,
+                data: {
+                    email: 'mail@mail.com',
+                    firstName: 'First Name',
+                    lastName: 'Last Name',
+                    username: 'username',
+                    role: Role.INSTRUCTOR,
+                    gender: Gender.FEMALE,
+                    active: false
+                }
+            };
+            const response = await client.request<{ data: { user: IUserModel } }>(query, variables);
+            expect(response.status).to.be.eq(200);
+            expect(response.data).to.have.key('data');
+            expect(response.data.data).to.have.key('user');
+            const user = response.data.data.user;
+            expect(user).to.have.keys([
+                '_id', 'email', 'firstName', 'lastName', 'username', 'createdAt', 'updatedAt', 'deletedAt', 'deleted',
+                'gender', 'active', 'birthday', 'groups', 'role', 'lastLogin'
+            ]);
+            expect(user._id).to.be.eq(mockUser.id);
+            expect(user.email).to.be.eq('mail@mail.com');
+            expect(user.firstName).to.be.eq('First Name');
+            expect(user.lastName).to.be.eq('Last Name');
+            expect(user.role).to.be.eq('INSTRUCTOR');
+            expect(user.username).to.be.eq('username');
+            expect(user.createdAt).to.be.eq(mockUser.createdAt.toJSON());
+            expect(user.updatedAt).to.be.not.eq(mockUser.updatedAt.toJSON());
+            expect(user.deletedAt).to.be.eq(null);
+            expect(user.deleted).to.be.eq(false);
+            expect(user.gender).to.be.eq('FEMALE');
+            expect(user.active).to.be.eq(false);
+            if (mockUser.birthday) {
+                expect(user.birthday).to.be.eq(mockUser.birthday.toJSON());
+            } else {
+                expect(user.birthday).to.be.eq(null);
+            }
+            if (mockUser.lastLogin) {
+                expect(user.lastLogin).to.be.eq(mockUser.lastLogin.toJSON());
+            } else {
+                expect(user.lastLogin).to.be.eq(null);
+            }
+            expect(user.groups).to.be.deep.eq(mockUser.groups);
+        });
+    });
 });
 
 after('Stop Server', () => server.close(() => {
