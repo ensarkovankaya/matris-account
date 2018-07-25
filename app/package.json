@@ -11,7 +11,8 @@
     "build": "npm run check && tsc",
     "build:clean": "rm -rf ./build/* && npm run build",
     "start": "node ./build/index.js",
-    "watch": "nodemon"
+    "start:test": "nodemon -e ts -w src/ -i test/ --exec 'ts-node test/server/index.ts'",
+    "watch": "nodemon -e ts -w src/ -i test/ --exec 'ts-node src/index.ts'"
   },
   "author": "Ensar Kovankaya <ensar@kovankaya.com> (https://kovankaya.com)",
   "dependencies": {
