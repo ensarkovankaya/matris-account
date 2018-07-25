@@ -8,4 +8,8 @@ export class IDInput extends Validatable {
     @Field({description: 'User id.'})
     @IsMongoId()
     public id: string;
+
+    constructor(data: { id: string }) {
+        super(data);
+    }
 }

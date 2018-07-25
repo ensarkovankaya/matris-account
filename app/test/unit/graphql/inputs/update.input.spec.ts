@@ -27,11 +27,8 @@ describe('GraphQL -> Inputs -> Update', () => {
                 await new UpdateInput({email: 'notaemail'}).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
-                expect(e).to.be.an('array');
-                expect(e).to.have.lengthOf(1);
-                const err = e[0];
-                expect(err.property).to.be.eq('email');
-                expect(err.constraints).to.have.key('isEmail');
+                expect(e.name).to.be.eq('ArgumentValidationError');
+                expect(e.hasError('email', 'isEmail')).to.be.eq(true);
             }
         });
     });
@@ -49,44 +46,33 @@ describe('GraphQL -> Inputs -> Update', () => {
                 await new UpdateInput({firstName: 'F'}).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
-                expect(e).to.be.an('array');
-                expect(e).to.have.lengthOf(1);
-                const err = e[0];
-                expect(err.property).to.be.eq('firstName');
-                expect(err.constraints).to.have.keys(['length', 'matches']);
+                expect(e.name).to.be.eq('ArgumentValidationError');
+                expect(e.hasError('firstName', 'length')).to.be.eq(true);
+                expect(e.hasError('firstName', 'matches')).to.be.eq(true);
             }
 
             try {
                 await new UpdateInput({firstName: 'F'.repeat(33)}).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
-                expect(e).to.be.an('array');
-                expect(e).to.have.lengthOf(1);
-                const err = e[0];
-                expect(err.property).to.be.eq('firstName');
-                expect(err.constraints).to.have.keys(['length']);
+                expect(e.name).to.be.eq('ArgumentValidationError');
+                expect(e.hasError('firstName', 'length')).to.be.eq(true);
             }
 
             try {
                 await new UpdateInput({firstName: 'First123'}).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
-                expect(e).to.be.an('array');
-                expect(e).to.have.lengthOf(1);
-                const err = e[0];
-                expect(err.property).to.be.eq('firstName');
-                expect(err.constraints).to.have.keys(['matches']);
+                expect(e.name).to.be.eq('ArgumentValidationError');
+                expect(e.hasError('firstName', 'matches')).to.be.eq(true);
             }
 
             try {
                 await new UpdateInput({firstName: 'name-*_'}).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
-                expect(e).to.be.an('array');
-                expect(e).to.have.lengthOf(1);
-                const err = e[0];
-                expect(err.property).to.be.eq('firstName');
-                expect(err.constraints).to.have.keys(['matches']);
+                expect(e.name).to.be.eq('ArgumentValidationError');
+                expect(e.hasError('firstName', 'matches')).to.be.eq(true);
             }
         });
     });
@@ -104,44 +90,33 @@ describe('GraphQL -> Inputs -> Update', () => {
                 await new UpdateInput({lastName: 'F'}).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
-                expect(e).to.be.an('array');
-                expect(e).to.have.lengthOf(1);
-                const err = e[0];
-                expect(err.property).to.be.eq('lastName');
-                expect(err.constraints).to.have.keys(['length', 'matches']);
+                expect(e.name).to.be.eq('ArgumentValidationError');
+                expect(e.hasError('lastName', 'length')).to.be.eq(true);
+                expect(e.hasError('lastName', 'matches')).to.be.eq(true);
             }
 
             try {
                 await new UpdateInput({lastName: 'F'.repeat(33)}).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
-                expect(e).to.be.an('array');
-                expect(e).to.have.lengthOf(1);
-                const err = e[0];
-                expect(err.property).to.be.eq('lastName');
-                expect(err.constraints).to.have.keys(['length']);
+                expect(e.name).to.be.eq('ArgumentValidationError');
+                expect(e.hasError('lastName', 'length')).to.be.eq(true);
             }
 
             try {
                 await new UpdateInput({lastName: 'Last123'}).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
-                expect(e).to.be.an('array');
-                expect(e).to.have.lengthOf(1);
-                const err = e[0];
-                expect(err.property).to.be.eq('lastName');
-                expect(err.constraints).to.have.keys(['matches']);
+                expect(e.name).to.be.eq('ArgumentValidationError');
+                expect(e.hasError('lastName', 'matches')).to.be.eq(true);
             }
 
             try {
                 await new UpdateInput({lastName: 'name-*_'}).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
-                expect(e).to.be.an('array');
-                expect(e).to.have.lengthOf(1);
-                const err = e[0];
-                expect(err.property).to.be.eq('lastName');
-                expect(err.constraints).to.have.keys(['matches']);
+                expect(e.name).to.be.eq('ArgumentValidationError');
+                expect(e.hasError('lastName', 'matches')).to.be.eq(true);
             }
         });
     });
@@ -179,11 +154,8 @@ describe('GraphQL -> Inputs -> Update', () => {
                 await new UpdateInput({role: 'NotARole'}).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
-                expect(e).to.be.an('array');
-                expect(e).to.have.lengthOf(1);
-                const err = e[0];
-                expect(err.property).to.be.eq('role');
-                expect(err.constraints).to.have.key('isIn');
+                expect(e.name).to.be.eq('ArgumentValidationError');
+                expect(e.hasError('role', 'isIn')).to.be.eq(true);
             }
         });
     });
@@ -206,33 +178,25 @@ describe('GraphQL -> Inputs -> Update', () => {
                 await new UpdateInput({password: ''}).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
-                expect(e).to.be.an('array');
-                expect(e).to.have.lengthOf(1);
-                const err = e[0];
-                expect(err.property).to.be.eq('password');
-                expect(err.constraints).to.have.keys(['length', 'matches']);
+                expect(e.name).to.be.eq('ArgumentValidationError');
+                expect(e.hasError('password', 'length')).to.be.eq(true);
+                expect(e.hasError('password', 'matches')).to.be.eq(true);
             }
 
             try {
                 await new UpdateInput({password: 'a'.repeat(33)}).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
-                expect(e).to.be.an('array');
-                expect(e).to.have.lengthOf(1);
-                const err = e[0];
-                expect(err.property).to.be.eq('password');
-                expect(err.constraints).to.have.keys(['length']);
+                expect(e.name).to.be.eq('ArgumentValidationError');
+                expect(e.hasError('password', 'length')).to.be.eq(true);
             }
 
             try {
                 await new UpdateInput({password: 'asdasd asd'}).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
-                expect(e).to.be.an('array');
-                expect(e).to.have.lengthOf(1);
-                const err = e[0];
-                expect(err.property).to.be.eq('password');
-                expect(err.constraints).to.have.keys(['matches']);
+                expect(e.name).to.be.eq('ArgumentValidationError');
+                expect(e.hasError('password', 'matches')).to.be.eq(true);
             }
         });
     });
@@ -250,44 +214,32 @@ describe('GraphQL -> Inputs -> Update', () => {
                 await new UpdateInput({username: 'asd'}).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
-                expect(e).to.be.an('array');
-                expect(e).to.have.lengthOf(1);
-                const err = e[0];
-                expect(err.property).to.be.eq('username');
-                expect(err.constraints).to.have.key('length');
+                expect(e.name).to.be.eq('ArgumentValidationError');
+                expect(e.hasError('username', 'length')).to.be.eq(true);
             }
 
             try {
                 await new UpdateInput({username: 'a'.repeat(33)}).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
-                expect(e).to.be.an('array');
-                expect(e).to.have.lengthOf(1);
-                const err = e[0];
-                expect(err.property).to.be.eq('username');
-                expect(err.constraints).to.have.key('length');
+                expect(e.name).to.be.eq('ArgumentValidationError');
+                expect(e.hasError('username', 'length')).to.be.eq(true);
             }
 
             try {
                 await new UpdateInput({username: 'userName'}).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
-                expect(e).to.be.an('array');
-                expect(e).to.have.lengthOf(1);
-                const err = e[0];
-                expect(err.property).to.be.eq('username');
-                expect(err.constraints).to.have.key('isLowercase');
+                expect(e.name).to.be.eq('ArgumentValidationError');
+                expect(e.hasError('username', 'isLowercase')).to.be.eq(true);
             }
 
             try {
                 await new UpdateInput({username: 'username-123'}).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
-                expect(e).to.be.an('array');
-                expect(e).to.have.lengthOf(1);
-                const err = e[0];
-                expect(err.property).to.be.eq('username');
-                expect(err.constraints).to.have.key('isAlphanumeric');
+                expect(e.name).to.be.eq('ArgumentValidationError');
+                expect(e.hasError('username', 'isAlphanumeric')).to.be.eq(true);
             }
         });
     });
@@ -310,11 +262,8 @@ describe('GraphQL -> Inputs -> Update', () => {
                 await new UpdateInput({active: 'asd'}).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
-                expect(e).to.be.an('array');
-                expect(e).to.have.lengthOf(1);
-                const err = e[0];
-                expect(err.property).to.be.eq('active');
-                expect(err.constraints).to.have.key('isBoolean');
+                expect(e.name).to.be.eq('ArgumentValidationError');
+                expect(e.hasError('active', 'isBoolean')).to.be.eq(true);
             }
         });
     });
@@ -331,10 +280,10 @@ describe('GraphQL -> Inputs -> Update', () => {
             expect(input2).to.have.keys(['gender']);
             expect(input2.gender).to.be.eq('FEMALE');
 
-            const input3 = new UpdateInput({gender: null});
+            const input3 = new UpdateInput({gender: 'UNKNOWN'});
             await input3.validate();
             expect(input3).to.have.keys(['gender']);
-            expect(input3.gender).to.be.eq(null);
+            expect(input3.gender).to.be.eq('UNKNOWN');
         });
 
         it('should raise ValidationError', async () => {
@@ -342,11 +291,8 @@ describe('GraphQL -> Inputs -> Update', () => {
                 await new UpdateInput({gender: 'asd'}).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
-                expect(e).to.be.an('array');
-                expect(e).to.have.lengthOf(1);
-                const err = e[0];
-                expect(err.property).to.be.eq('gender');
-                expect(err.constraints).to.have.key('isIn');
+                expect(e.name).to.be.eq('ArgumentValidationError');
+                expect(e.hasError('gender', 'isIn')).to.be.eq(true);
             }
         });
     });
@@ -374,22 +320,16 @@ describe('GraphQL -> Inputs -> Update', () => {
                 await new UpdateInput({birthday: new Date(2001, 1, 1)}).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
-                expect(e).to.be.an('array');
-                expect(e).to.have.lengthOf(1);
-                const err = e[0];
-                expect(err.property).to.be.eq('birthday');
-                expect(err.constraints).to.have.key('isInDateRange');
+                expect(e.name).to.be.eq('ArgumentValidationError');
+                expect(e.hasError('birthday', 'isInDateRange')).to.be.eq(true);
             }
 
             try {
                 await new UpdateInput({birthday: new Date(1945, 1, 1)}).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
-                expect(e).to.be.an('array');
-                expect(e).to.have.lengthOf(1);
-                const err = e[0];
-                expect(err.property).to.be.eq('birthday');
-                expect(err.constraints).to.have.key('isInDateRange');
+                expect(e.name).to.be.eq('ArgumentValidationError');
+                expect(e.hasError('birthday', 'isInDateRange')).to.be.eq(true);
             }
         });
     });
@@ -412,22 +352,16 @@ describe('GraphQL -> Inputs -> Update', () => {
                 await new UpdateInput({groups: 'asd'}).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
-                expect(e).to.be.an('array');
-                expect(e).to.have.lengthOf(1);
-                const err = e[0];
-                expect(err.property).to.be.eq('groups');
-                expect(err.constraints).to.have.key('isArray');
+                expect(e.name).to.be.eq('ArgumentValidationError');
+                expect(e.hasError('groups', 'isArray')).to.be.eq(true);
             }
 
             try {
                 await new UpdateInput({groups: ['id']}).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
-                expect(e).to.be.an('array');
-                expect(e).to.have.lengthOf(1);
-                const err = e[0];
-                expect(err.property).to.be.eq('groups');
-                expect(err.constraints).to.have.key('length');
+                expect(e.name).to.be.eq('ArgumentValidationError');
+                expect(e.hasError('groups', 'length')).to.be.eq(true);
             }
         });
     });
@@ -448,11 +382,8 @@ describe('GraphQL -> Inputs -> Update', () => {
                 await new UpdateInput({updateLastLogin: 'asd'}).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
-                expect(e).to.be.an('array');
-                expect(e).to.have.lengthOf(1);
-                const err = e[0];
-                expect(err.property).to.be.eq('updateLastLogin');
-                expect(err.constraints).to.have.key('isBoolean');
+                expect(e.name).to.be.eq('ArgumentValidationError');
+                expect(e.hasError('updateLastLogin', 'isBoolean')).to.be.eq(true);
             }
         });
     });

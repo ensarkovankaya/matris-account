@@ -30,7 +30,13 @@ describe('Resolvers -> User', () => {
             try {
                 const resolver = new UserResolver(service as any);
 
-                await resolver.create({email: 'mail@mail.com'} as any);
+                await resolver.create({
+                    email: 'mail@mail.com',
+                    firstName: 'First Name',
+                    lastName: 'Last Name',
+                    role: Role.ADMIN,
+                    password: '12345678'
+                } as any);
                 throw new ShouldNotSucceed();
             } catch (e) {
                 expect(e.name).to.be.eq('MethodCalled');
@@ -51,9 +57,16 @@ describe('Resolvers -> User', () => {
             try {
                 const resolver = new UserResolver(service as any);
 
-                await resolver.create({email: 'mail@mail.com'} as any);
+                await resolver.create({
+                    email: 'mail@mail.com',
+                    firstName: 'First Name',
+                    lastName: 'Last Name',
+                    role: Role.ADMIN,
+                    password: '12345678'
+                } as any);
                 throw new ShouldNotSucceed();
             } catch (e) {
+                console.log(e);
                 expect(e.name).to.be.eq('EmailAlreadyExists');
             }
         });
@@ -74,7 +87,14 @@ describe('Resolvers -> User', () => {
             try {
                 const resolver = new UserResolver(service as any);
 
-                await resolver.create({email: 'mail@mail.com', username: 'username'} as any);
+                await resolver.create({
+                    email: 'mail@mail.com',
+                    firstName: 'First Name',
+                    lastName: 'Last Name',
+                    role: Role.ADMIN,
+                    password: '12345678',
+                    username: 'username'
+                } as any);
                 throw new ShouldNotSucceed();
             } catch (e) {
                 expect(e.name).to.be.eq('MethodCalled');
@@ -99,7 +119,14 @@ describe('Resolvers -> User', () => {
             try {
                 const resolver = new UserResolver(service as any);
 
-                await resolver.create({email: 'mail@mail.com', username: 'username'} as any);
+                await resolver.create({
+                    email: 'mail@mail.com',
+                    firstName: 'First Name',
+                    lastName: 'Last Name',
+                    role: Role.ADMIN,
+                    password: '12345678',
+                    username: 'username'
+                } as any);
                 throw new ShouldNotSucceed();
             } catch (e) {
                 expect(e.name).to.be.eq('UserNameNotNormalized');
@@ -126,7 +153,14 @@ describe('Resolvers -> User', () => {
             try {
                 const resolver = new UserResolver(service as any);
 
-                await resolver.create({email: 'mail@mail.com', username: 'username'} as any);
+                await resolver.create({
+                    email: 'mail@mail.com',
+                    firstName: 'First Name',
+                    lastName: 'Last Name',
+                    role: Role.ADMIN,
+                    password: '12345678',
+                    username: 'username'
+                } as any);
                 throw new ShouldNotSucceed();
             } catch (e) {
                 expect(e.name).to.be.eq('MethodCalled');
@@ -155,7 +189,14 @@ describe('Resolvers -> User', () => {
             try {
                 const resolver = new UserResolver(service as any);
 
-                await resolver.create({email: 'mail@mail.com', username: 'username'} as any);
+                await resolver.create({
+                    email: 'mail@mail.com',
+                    firstName: 'First Name',
+                    lastName: 'Last Name',
+                    role: Role.ADMIN,
+                    password: '12345678',
+                    username: 'username'
+                } as any);
                 throw new ShouldNotSucceed();
             } catch (e) {
                 expect(e.name).to.be.eq('UserNameExists');
@@ -178,12 +219,18 @@ describe('Resolvers -> User', () => {
             try {
                 const resolver = new UserResolver(service as any);
 
-                await resolver.create({email: 'mail@mail.com', firstName: 'firstName', lastName: 'lastName'} as any);
+                await resolver.create({
+                    email: 'mail@mail.com',
+                    firstName: 'First Name',
+                    lastName: 'Last Name',
+                    role: Role.ADMIN,
+                    password: '12345678'
+                } as any);
                 throw new ShouldNotSucceed();
             } catch (e) {
                 expect(e.name).to.be.eq('MethodCalled');
                 expect(e.methodName).to.be.eq('generateUserName');
-                expect(e.data).to.be.eq('firstNamelastName');
+                expect(e.data).to.be.eq('First NameLast Name');
             }
         });
 
@@ -437,12 +484,12 @@ describe('Resolvers -> User', () => {
             try {
                 const resolver = new UserResolver(service as any);
 
-                await resolver.update('123', {} as any);
+                await resolver.update('1'.repeat(24), {} as any);
                 throw new ShouldNotSucceed();
             } catch (e) {
                 expect(e.name).to.be.eq('MethodCalled');
                 expect(e.methodName).to.be.eq('getBy');
-                expect(e.data).to.be.deep.eq({id: '123'});
+                expect(e.data).to.be.deep.eq({id: '1'.repeat(24)});
             }
         });
 
@@ -457,7 +504,7 @@ describe('Resolvers -> User', () => {
             try {
                 const resolver = new UserResolver(service as any);
 
-                await resolver.update('123', {} as any);
+                await resolver.update('1'.repeat(24), {} as any);
                 throw new ShouldNotSucceed();
             } catch (e) {
                 expect(e.name).to.be.eq('UserNotFound');
@@ -475,7 +522,7 @@ describe('Resolvers -> User', () => {
             try {
                 const resolver = new UserResolver(service as any);
 
-                await resolver.update('123', {email: 'email@mail.com'} as any);
+                await resolver.update('1'.repeat(24), {email: 'email@mail.com'} as any);
                 throw new ShouldNotSucceed();
             } catch (e) {
                 expect(e.name).to.be.eq('EmailAlreadyExists');
@@ -497,34 +544,12 @@ describe('Resolvers -> User', () => {
             try {
                 const resolver = new UserResolver(service as any);
 
-                await resolver.update('123', {username: 'user2'} as any);
+                await resolver.update('1'.repeat(24), {username: 'user2'} as any);
                 throw new ShouldNotSucceed();
             } catch (e) {
                 expect(e.name).to.be.eq('MethodCalled');
                 expect(e.methodName).to.be.eq('normalizeUserName');
                 expect(e.data).to.be.eq('user2');
-            }
-        });
-
-        it('should raise UserNameNotNormalized', async () => {
-            class Service {
-                public getBy(by: object) {
-                    return {username: 'username'};
-                }
-
-                public normalizeUserName(data) {
-                    return 'user123asd';
-                }
-            }
-
-            const service = new Service();
-            try {
-                const resolver = new UserResolver(service as any);
-
-                await resolver.update('123', {username: 'user123 asd'} as any);
-                throw new ShouldNotSucceed();
-            } catch (e) {
-                expect(e.name).to.be.eq('UserNameNotNormalized');
             }
         });
 
@@ -549,7 +574,7 @@ describe('Resolvers -> User', () => {
             try {
                 const resolver = new UserResolver(service as any);
 
-                await resolver.update('123', {username: 'user123'} as any);
+                await resolver.update('1'.repeat(24), {username: 'user123'} as any);
                 throw new ShouldNotSucceed();
             } catch (e) {
                 expect(e.name).to.be.eq('UserNameExists');
@@ -571,7 +596,7 @@ describe('Resolvers -> User', () => {
             try {
                 const resolver = new UserResolver(service as any);
 
-                await resolver.update('123', {
+                await resolver.update('1'.repeat(24), {
                     firstName: 'FirstName',
                     lastName: 'LastName',
                     password: 'password',
@@ -586,7 +611,7 @@ describe('Resolvers -> User', () => {
             } catch (e) {
                 expect(e.name).to.be.eq('MethodCalled');
                 expect(e.methodName).to.be.eq('update');
-                expect(e.data.id).to.be.eq('123');
+                expect(e.data.id).to.be.eq('1'.repeat(24));
                 expect(e.data.data).to.be.an('object');
                 expect(e.data.data).to.have.keys(
                     ['firstName', 'lastName', 'password', 'role', 'gender', 'active', 'groups', 'updateLastLogin']
@@ -619,7 +644,7 @@ describe('Resolvers -> User', () => {
             try {
                 const resolver = new UserResolver(service as any);
 
-                await resolver.update('123', {birthday: '01/01/1993'} as any);
+                await resolver.update('1'.repeat(24), {birthday: '01/01/1993'} as any);
                 throw new ShouldNotSucceed();
             } catch (e) {
                 expect(e.name).to.be.eq('MethodCalled');
@@ -642,12 +667,12 @@ describe('Resolvers -> User', () => {
             try {
                 const resolver = new UserResolver(service as any);
 
-                await resolver.delete({id: '123'} as any);
+                await resolver.delete({id: '1'.repeat(24)} as any);
                 throw new ShouldNotSucceed();
             } catch (e) {
                 expect(e.name).to.be.eq('MethodCalled');
                 expect(e.methodName).to.be.eq('getBy');
-                expect(e.data).to.be.deep.eq({id: '123'});
+                expect(e.data).to.be.deep.eq({id: '1'.repeat(24)});
             }
         });
 
@@ -662,7 +687,7 @@ describe('Resolvers -> User', () => {
             try {
                 const resolver = new UserResolver(service as any);
 
-                await resolver.delete({id: '123'} as any);
+                await resolver.delete({id: '1'.repeat(24)} as any);
                 throw new ShouldNotSucceed();
             } catch (e) {
                 expect(e.name).to.be.eq('UserNotFound');
@@ -684,12 +709,12 @@ describe('Resolvers -> User', () => {
             try {
                 const resolver = new UserResolver(service as any);
 
-                await resolver.delete({id: '123'} as any);
+                await resolver.delete({id: '1'.repeat(24)} as any);
                 throw new ShouldNotSucceed();
             } catch (e) {
                 expect(e.name).to.be.eq('MethodCalled');
                 expect(e.methodName).to.be.eq('delete');
-                expect(e.data).to.be.eq('123');
+                expect(e.data).to.be.eq('1'.repeat(24));
             }
         });
     });
@@ -799,12 +824,12 @@ describe('Resolvers -> User', () => {
                 const service = new Service();
                 const resolver = new UserResolver(service as any);
 
-                await resolver.get({id: '123'} as any);
+                await resolver.get({id: '1'.repeat(24)} as any);
                 throw new ShouldNotSucceed();
             } catch (e) {
                 expect(e.name).to.be.eq('MethodCalled');
                 expect(e.methodName).to.be.eq('getBy');
-                expect(e.data).to.be.deep.eq({id: '123'});
+                expect(e.data).to.be.deep.eq({id: '1'.repeat(24)});
             }
         });
 

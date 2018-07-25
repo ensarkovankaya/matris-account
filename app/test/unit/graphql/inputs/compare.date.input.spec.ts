@@ -15,10 +15,16 @@ describe('GraphQL -> Inputs -> CompareDateInput', () => {
     });
 
     describe('EQ', () => {
-        it('should be valid for eq', async () => {
+        it('should be valid for eq is Date', async () => {
             const input = new CompareDateInput({eq: new Date()});
             await input.validate();
             expect(input.eq).to.be.a('date');
+        });
+
+        it('should be valid for eq is null', async () => {
+            const input = new CompareDateInput({eq: null});
+            await input.validate();
+            expect(input.eq).to.be.eq(null);
         });
 
         it('should raise ValidationError for eq is Invalid Date', async () => {
@@ -26,11 +32,8 @@ describe('GraphQL -> Inputs -> CompareDateInput', () => {
                 await new CompareDateInput({eq: new Date('asd')}).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
-                expect(e).to.be.an('array');
-                expect(e).to.have.lengthOf(1);
-                const err = e[0];
-                expect(err.property).to.be.eq('eq');
-                expect(err.constraints).to.have.key('isDate');
+                expect(e.name).to.be.eq('ArgumentValidationError');
+                expect(e.hasError('eq', 'isDate')).to.be.eq(true);
             }
         });
 
@@ -39,11 +42,8 @@ describe('GraphQL -> Inputs -> CompareDateInput', () => {
                 await new CompareDateInput({eq: 'asd'}).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
-                expect(e).to.be.an('array');
-                expect(e).to.have.lengthOf(1);
-                const err = e[0];
-                expect(err.property).to.be.eq('eq');
-                expect(err.constraints).to.have.key('isDate');
+                expect(e.name).to.be.eq('ArgumentValidationError');
+                expect(e.hasError('eq', 'isDate')).to.be.eq(true);
             }
         });
     });
@@ -60,11 +60,8 @@ describe('GraphQL -> Inputs -> CompareDateInput', () => {
                 await new CompareDateInput({gt: new Date('asd')}).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
-                expect(e).to.be.an('array');
-                expect(e).to.have.lengthOf(1);
-                const err = e[0];
-                expect(err.property).to.be.eq('gt');
-                expect(err.constraints).to.have.key('isDate');
+                expect(e.name).to.be.eq('ArgumentValidationError');
+                expect(e.hasError('gt', 'isDate')).to.be.eq(true);
             }
         });
 
@@ -73,11 +70,18 @@ describe('GraphQL -> Inputs -> CompareDateInput', () => {
                 await new CompareDateInput({gt: 'asd'}).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
-                expect(e).to.be.an('array');
-                expect(e).to.have.lengthOf(1);
-                const err = e[0];
-                expect(err.property).to.be.eq('gt');
-                expect(err.constraints).to.have.key('isDate');
+                expect(e.name).to.be.eq('ArgumentValidationError');
+                expect(e.hasError('gt', 'isDate')).to.be.eq(true);
+            }
+        });
+
+        it('should raise ValidationError for gt is null', async () => {
+            try {
+                await new CompareDateInput({gt: null}).validate();
+                throw new ShouldNotSucceed();
+            } catch (e) {
+                expect(e.name).to.be.eq('ArgumentValidationError');
+                expect(e.hasError('gt', 'isDate')).to.be.eq(true);
             }
         });
     });
@@ -94,11 +98,8 @@ describe('GraphQL -> Inputs -> CompareDateInput', () => {
                 await new CompareDateInput({gte: new Date('asd')}).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
-                expect(e).to.be.an('array');
-                expect(e).to.have.lengthOf(1);
-                const err = e[0];
-                expect(err.property).to.be.eq('gte');
-                expect(err.constraints).to.have.key('isDate');
+                expect(e.name).to.be.eq('ArgumentValidationError');
+                expect(e.hasError('gte', 'isDate')).to.be.eq(true);
             }
         });
 
@@ -107,11 +108,18 @@ describe('GraphQL -> Inputs -> CompareDateInput', () => {
                 await new CompareDateInput({gte: 'asd'}).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
-                expect(e).to.be.an('array');
-                expect(e).to.have.lengthOf(1);
-                const err = e[0];
-                expect(err.property).to.be.eq('gte');
-                expect(err.constraints).to.have.key('isDate');
+                expect(e.name).to.be.eq('ArgumentValidationError');
+                expect(e.hasError('gte', 'isDate')).to.be.eq(true);
+            }
+        });
+
+        it('should raise ValidationError for gte is null', async () => {
+            try {
+                await new CompareDateInput({gte: null}).validate();
+                throw new ShouldNotSucceed();
+            } catch (e) {
+                expect(e.name).to.be.eq('ArgumentValidationError');
+                expect(e.hasError('gte', 'isDate')).to.be.eq(true);
             }
         });
     });
@@ -128,11 +136,8 @@ describe('GraphQL -> Inputs -> CompareDateInput', () => {
                 await new CompareDateInput({lt: new Date('asd')}).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
-                expect(e).to.be.an('array');
-                expect(e).to.have.lengthOf(1);
-                const err = e[0];
-                expect(err.property).to.be.eq('lt');
-                expect(err.constraints).to.have.key('isDate');
+                expect(e.name).to.be.eq('ArgumentValidationError');
+                expect(e.hasError('lt', 'isDate')).to.be.eq(true);
             }
         });
 
@@ -141,11 +146,18 @@ describe('GraphQL -> Inputs -> CompareDateInput', () => {
                 await new CompareDateInput({lt: 'asd'}).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
-                expect(e).to.be.an('array');
-                expect(e).to.have.lengthOf(1);
-                const err = e[0];
-                expect(err.property).to.be.eq('lt');
-                expect(err.constraints).to.have.key('isDate');
+                expect(e.name).to.be.eq('ArgumentValidationError');
+                expect(e.hasError('lt', 'isDate')).to.be.eq(true);
+            }
+        });
+
+        it('should raise ValidationError for lt is null', async () => {
+            try {
+                await new CompareDateInput({lt: null}).validate();
+                throw new ShouldNotSucceed();
+            } catch (e) {
+                expect(e.name).to.be.eq('ArgumentValidationError');
+                expect(e.hasError('lt', 'isDate')).to.be.eq(true);
             }
         });
     });
@@ -162,11 +174,8 @@ describe('GraphQL -> Inputs -> CompareDateInput', () => {
                 await new CompareDateInput({lte: new Date('asd')}).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
-                expect(e).to.be.an('array');
-                expect(e).to.have.lengthOf(1);
-                const err = e[0];
-                expect(err.property).to.be.eq('lte');
-                expect(err.constraints).to.have.key('isDate');
+                expect(e.name).to.be.eq('ArgumentValidationError');
+                expect(e.hasError('lte', 'isDate')).to.be.eq(true);
             }
         });
 
@@ -175,11 +184,18 @@ describe('GraphQL -> Inputs -> CompareDateInput', () => {
                 await new CompareDateInput({lte: 'asd'}).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
-                expect(e).to.be.an('array');
-                expect(e).to.have.lengthOf(1);
-                const err = e[0];
-                expect(err.property).to.be.eq('lte');
-                expect(err.constraints).to.have.key('isDate');
+                expect(e.name).to.be.eq('ArgumentValidationError');
+                expect(e.hasError('lte', 'isDate')).to.be.eq(true);
+            }
+        });
+
+        it('should raise ValidationError for lte is null', async () => {
+            try {
+                await new CompareDateInput({lte: null}).validate();
+                throw new ShouldNotSucceed();
+            } catch (e) {
+                expect(e.name).to.be.eq('ArgumentValidationError');
+                expect(e.hasError('lte', 'isDate')).to.be.eq(true);
             }
         });
     });

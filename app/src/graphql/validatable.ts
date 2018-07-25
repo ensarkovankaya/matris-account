@@ -1,4 +1,5 @@
 import { validateOrReject, ValidationError } from 'class-validator';
+import { ValidatorOptions } from 'class-validator/validation/ValidatorOptions';
 import { ArgsType, ArgumentValidationError as AVE } from 'type-graphql';
 
 export class ArgumentValidationError extends AVE {
@@ -9,8 +10,8 @@ export class ArgumentValidationError extends AVE {
     constructor(errors: ValidationError[]) {
         super(errors);
         this.errors = {};
-        errors.forEach(err => this.errors[err.property] = err.constraints);
         this.fields = Object.keys(this.errors);
+        errors.forEach(err => this.errors[err.property] = err.constraints);
     }
 
     /**
@@ -33,7 +34,7 @@ export class Validatable {
         Object.keys(data).forEach(key => this[key] = data[key]);
     }
 
-    public async validate(overwrites: object = {}) {
+    public async validate(overwrites: ValidatorOptions = {}) {
         try {
             await validateOrReject(this, {
                 skipMissingProperties: false,
@@ -42,7 +43,10 @@ export class Validatable {
                 ...overwrites
             });
         } catch (e) {
-            throw new ArgumentValidationError(e);
+            if (Array.isArray(e)) {
+                throw new ArgumentValidationError(e);
+            }
+            throw e;
         }
     }
 }

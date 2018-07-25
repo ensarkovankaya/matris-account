@@ -8,7 +8,7 @@ class ShouldNotSucceed extends Error {
     public name = 'ShouldNotSucceed';
 }
 
-describe('GraphQL -> Inputs -> UserFilterArgs', () => {
+describe('GraphQL -> Inputs -> UserFilterInput', () => {
     it('should be valid for empty object', async () => {
         const input = new UserFilterInput();
         await input.validate();
@@ -31,11 +31,8 @@ describe('GraphQL -> Inputs -> UserFilterArgs', () => {
                 await new UserFilterInput({active: ''}).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
-                expect(e).to.be.an('array');
-                expect(e).to.have.lengthOf(1);
-                const err = e[0];
-                expect(err.property).to.be.eq('active');
-                expect(err.constraints).to.have.key('isBoolean');
+                expect(e.name).to.be.eq('ArgumentValidationError');
+                expect(e.hasError('active', 'isBoolean')).to.be.eq(true);
             }
         });
     });
@@ -57,20 +54,25 @@ describe('GraphQL -> Inputs -> UserFilterArgs', () => {
                 await input2.validate();
                 expect(input2).to.be.deep.eq({gender: {eq: 'FEMALE'}});
 
-                const input3 = new UserFilterInput({gender: {eq: null}});
+                const input3 = new UserFilterInput({gender: {eq: 'UNKNOWN'}});
                 await input3.validate();
-                expect(input3).to.be.deep.eq({gender: {eq: null}});
+                expect(input3).to.be.deep.eq({gender: {eq: 'UNKNOWN'}});
             });
             it('should raise ValidationError', async () => {
                 try {
                     await new UserFilterInput({gender: {eq: 'asd'}}).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
-                    expect(e).to.be.an('array');
-                    expect(e).to.have.lengthOf(1);
-                    const err = e[0];
-                    expect(err.property).to.be.eq('gender');
-                    expect(err.constraints).to.have.key('isGenderQuery');
+                    expect(e.name).to.be.eq('ArgumentValidationError');
+                    expect(e.hasError('gender', 'isGenderQuery')).to.be.eq(true);
+                }
+
+                try {
+                    await new UserFilterInput({gender: {eq: null}}).validate();
+                    throw new ShouldNotSucceed();
+                } catch (e) {
+                    expect(e.name).to.be.eq('ArgumentValidationError');
+                    expect(e.hasError('gender', 'isGenderQuery')).to.be.eq(true);
                 }
             });
         });
@@ -115,33 +117,24 @@ describe('GraphQL -> Inputs -> UserFilterArgs', () => {
                     await new UserFilterInput({gender: {eq: 'asd'}}).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
-                    expect(e).to.be.an('array');
-                    expect(e).to.have.lengthOf(1);
-                    const err = e[0];
-                    expect(err.property).to.be.eq('gender');
-                    expect(err.constraints).to.have.key('isGenderQuery');
+                    expect(e.name).to.be.eq('ArgumentValidationError');
+                    expect(e.hasError('gender', 'isGenderQuery')).to.be.eq(true);
                 }
 
                 try {
                     await new UserFilterInput({gender: {in: 'asd'}}).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
-                    expect(e).to.be.an('array');
-                    expect(e).to.have.lengthOf(1);
-                    const err = e[0];
-                    expect(err.property).to.be.eq('gender');
-                    expect(err.constraints).to.have.key('isGenderQuery');
+                    expect(e.name).to.be.eq('ArgumentValidationError');
+                    expect(e.hasError('gender', 'isGenderQuery')).to.be.eq(true);
                 }
 
                 try {
                     await new UserFilterInput({gender: {in: ['asd']}}).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
-                    expect(e).to.be.an('array');
-                    expect(e).to.have.lengthOf(1);
-                    const err = e[0];
-                    expect(err.property).to.be.eq('gender');
-                    expect(err.constraints).to.have.key('isGenderQuery');
+                    expect(e.name).to.be.eq('ArgumentValidationError');
+                    expect(e.hasError('gender', 'isGenderQuery')).to.be.eq(true);
                 }
             });
         });
@@ -182,11 +175,8 @@ describe('GraphQL -> Inputs -> UserFilterArgs', () => {
                     await new UserFilterInput({role: {eq: 'asd'}}).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
-                    expect(e).to.be.an('array');
-                    expect(e).to.have.lengthOf(1);
-                    const err = e[0];
-                    expect(err.property).to.be.eq('role');
-                    expect(err.constraints).to.have.key('isRoleQuery');
+                    expect(e.name).to.be.eq('ArgumentValidationError');
+                    expect(e.hasError('role', 'isRoleQuery')).to.be.eq(true);
                 }
             });
         });
@@ -231,33 +221,24 @@ describe('GraphQL -> Inputs -> UserFilterArgs', () => {
                     await new UserFilterInput({role: {eq: 'asd'}}).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
-                    expect(e).to.be.an('array');
-                    expect(e).to.have.lengthOf(1);
-                    const err = e[0];
-                    expect(err.property).to.be.eq('role');
-                    expect(err.constraints).to.have.key('isRoleQuery');
+                    expect(e.name).to.be.eq('ArgumentValidationError');
+                    expect(e.hasError('role', 'isRoleQuery')).to.be.eq(true);
                 }
 
                 try {
                     await new UserFilterInput({role: {in: 'asd'}}).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
-                    expect(e).to.be.an('array');
-                    expect(e).to.have.lengthOf(1);
-                    const err = e[0];
-                    expect(err.property).to.be.eq('role');
-                    expect(err.constraints).to.have.key('isRoleQuery');
+                    expect(e.name).to.be.eq('ArgumentValidationError');
+                    expect(e.hasError('role', 'isRoleQuery')).to.be.eq(true);
                 }
 
                 try {
                     await new UserFilterInput({role: {in: ['asd']}}).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
-                    expect(e).to.be.an('array');
-                    expect(e).to.have.lengthOf(1);
-                    const err = e[0];
-                    expect(err.property).to.be.eq('role');
-                    expect(err.constraints).to.have.key('isRoleQuery');
+                    expect(e.name).to.be.eq('ArgumentValidationError');
+                    expect(e.hasError('role', 'isRoleQuery')).to.be.eq(true);
                 }
             });
         });
@@ -279,11 +260,8 @@ describe('GraphQL -> Inputs -> UserFilterArgs', () => {
                 await new UserFilterInput({deleted: 'asd'}).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
-                expect(e).to.be.an('array');
-                expect(e).to.have.lengthOf(1);
-                const err = e[0];
-                expect(err.property).to.be.eq('deleted');
-                expect(err.constraints).to.have.key('isBoolean');
+                expect(e.name).to.be.eq('ArgumentValidationError');
+                expect(e.hasError('deleted', 'isBoolean')).to.be.eq(true);
             }
         });
     });
@@ -307,11 +285,8 @@ describe('GraphQL -> Inputs -> UserFilterArgs', () => {
                     await new UserFilterInput({deletedAt: {eq: new Date('asd')}}).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
-                    expect(e).to.be.an('array');
-                    expect(e).to.have.lengthOf(1);
-                    const err = e[0];
-                    expect(err.property).to.be.eq('deletedAt');
-                    expect(err.constraints).to.have.key('isCompareDateInput');
+                    expect(e.name).to.be.eq('ArgumentValidationError');
+                    expect(e.hasError('deletedAt', 'isCompareDateInput')).to.be.eq(true);
                 }
             });
 
@@ -320,11 +295,8 @@ describe('GraphQL -> Inputs -> UserFilterArgs', () => {
                     await new UserFilterInput({deletedAt: {eq: 'asd'}}).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
-                    expect(e).to.be.an('array');
-                    expect(e).to.have.lengthOf(1);
-                    const err = e[0];
-                    expect(err.property).to.be.eq('deletedAt');
-                    expect(err.constraints).to.have.key('isCompareDateInput');
+                    expect(e.name).to.be.eq('ArgumentValidationError');
+                    expect(e.hasError('deletedAt', 'isCompareDateInput')).to.be.eq(true);
                 }
             });
         });
@@ -341,11 +313,8 @@ describe('GraphQL -> Inputs -> UserFilterArgs', () => {
                     await new UserFilterInput({deletedAt: {gt: new Date('asd')}}).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
-                    expect(e).to.be.an('array');
-                    expect(e).to.have.lengthOf(1);
-                    const err = e[0];
-                    expect(err.property).to.be.eq('deletedAt');
-                    expect(err.constraints).to.have.key('isCompareDateInput');
+                    expect(e.name).to.be.eq('ArgumentValidationError');
+                    expect(e.hasError('deletedAt', 'isCompareDateInput')).to.be.eq(true);
                 }
             });
 
@@ -354,11 +323,8 @@ describe('GraphQL -> Inputs -> UserFilterArgs', () => {
                     await new UserFilterInput({deletedAt: {gt: 'asd'}}).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
-                    expect(e).to.be.an('array');
-                    expect(e).to.have.lengthOf(1);
-                    const err = e[0];
-                    expect(err.property).to.be.eq('deletedAt');
-                    expect(err.constraints).to.have.key('isCompareDateInput');
+                    expect(e.name).to.be.eq('ArgumentValidationError');
+                    expect(e.hasError('deletedAt', 'isCompareDateInput')).to.be.eq(true);
                 }
             });
         });
@@ -375,11 +341,8 @@ describe('GraphQL -> Inputs -> UserFilterArgs', () => {
                     await new UserFilterInput({deletedAt: {gte: new Date('asd')}}).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
-                    expect(e).to.be.an('array');
-                    expect(e).to.have.lengthOf(1);
-                    const err = e[0];
-                    expect(err.property).to.be.eq('deletedAt');
-                    expect(err.constraints).to.have.key('isCompareDateInput');
+                    expect(e.name).to.be.eq('ArgumentValidationError');
+                    expect(e.hasError('deletedAt', 'isCompareDateInput')).to.be.eq(true);
                 }
             });
 
@@ -388,11 +351,8 @@ describe('GraphQL -> Inputs -> UserFilterArgs', () => {
                     await new UserFilterInput({deletedAt: {gte: 'asd'}}).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
-                    expect(e).to.be.an('array');
-                    expect(e).to.have.lengthOf(1);
-                    const err = e[0];
-                    expect(err.property).to.be.eq('deletedAt');
-                    expect(err.constraints).to.have.key('isCompareDateInput');
+                    expect(e.name).to.be.eq('ArgumentValidationError');
+                    expect(e.hasError('deletedAt', 'isCompareDateInput')).to.be.eq(true);
                 }
             });
         });
@@ -409,11 +369,8 @@ describe('GraphQL -> Inputs -> UserFilterArgs', () => {
                     await new UserFilterInput({deletedAt: {lt: new Date('asd')}}).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
-                    expect(e).to.be.an('array');
-                    expect(e).to.have.lengthOf(1);
-                    const err = e[0];
-                    expect(err.property).to.be.eq('deletedAt');
-                    expect(err.constraints).to.have.key('isCompareDateInput');
+                    expect(e.name).to.be.eq('ArgumentValidationError');
+                    expect(e.hasError('deletedAt', 'isCompareDateInput')).to.be.eq(true);
                 }
             });
 
@@ -422,11 +379,8 @@ describe('GraphQL -> Inputs -> UserFilterArgs', () => {
                     await new UserFilterInput({deletedAt: {lt: 'asd'}}).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
-                    expect(e).to.be.an('array');
-                    expect(e).to.have.lengthOf(1);
-                    const err = e[0];
-                    expect(err.property).to.be.eq('deletedAt');
-                    expect(err.constraints).to.have.key('isCompareDateInput');
+                    expect(e.name).to.be.eq('ArgumentValidationError');
+                    expect(e.hasError('deletedAt', 'isCompareDateInput')).to.be.eq(true);
                 }
             });
         });
@@ -443,11 +397,8 @@ describe('GraphQL -> Inputs -> UserFilterArgs', () => {
                     await new UserFilterInput({deletedAt: {lte: new Date('asd')}}).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
-                    expect(e).to.be.an('array');
-                    expect(e).to.have.lengthOf(1);
-                    const err = e[0];
-                    expect(err.property).to.be.eq('deletedAt');
-                    expect(err.constraints).to.have.key('isCompareDateInput');
+                    expect(e.name).to.be.eq('ArgumentValidationError');
+                    expect(e.hasError('deletedAt', 'isCompareDateInput')).to.be.eq(true);
                 }
             });
 
@@ -456,11 +407,8 @@ describe('GraphQL -> Inputs -> UserFilterArgs', () => {
                     await new UserFilterInput({deletedAt: {lte: 'asd'}}).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
-                    expect(e).to.be.an('array');
-                    expect(e).to.have.lengthOf(1);
-                    const err = e[0];
-                    expect(err.property).to.be.eq('deletedAt');
-                    expect(err.constraints).to.have.key('isCompareDateInput');
+                    expect(e.name).to.be.eq('ArgumentValidationError');
+                    expect(e.hasError('deletedAt', 'isCompareDateInput')).to.be.eq(true);
                 }
             });
         });
@@ -485,11 +433,8 @@ describe('GraphQL -> Inputs -> UserFilterArgs', () => {
                     await new UserFilterInput({createdAt: {eq: new Date('asd')}}).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
-                    expect(e).to.be.an('array');
-                    expect(e).to.have.lengthOf(1);
-                    const err = e[0];
-                    expect(err.property).to.be.eq('createdAt');
-                    expect(err.constraints).to.have.key('isCompareDateInput');
+                    expect(e.name).to.be.eq('ArgumentValidationError');
+                    expect(e.hasError('createdAt', 'isCompareDateInput')).to.be.eq(true);
                 }
             });
 
@@ -498,11 +443,8 @@ describe('GraphQL -> Inputs -> UserFilterArgs', () => {
                     await new UserFilterInput({createdAt: {eq: 'asd'}}).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
-                    expect(e).to.be.an('array');
-                    expect(e).to.have.lengthOf(1);
-                    const err = e[0];
-                    expect(err.property).to.be.eq('createdAt');
-                    expect(err.constraints).to.have.key('isCompareDateInput');
+                    expect(e.name).to.be.eq('ArgumentValidationError');
+                    expect(e.hasError('createdAt', 'isCompareDateInput')).to.be.eq(true);
                 }
             });
         });
@@ -519,11 +461,8 @@ describe('GraphQL -> Inputs -> UserFilterArgs', () => {
                     await new UserFilterInput({createdAt: {gt: new Date('asd')}}).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
-                    expect(e).to.be.an('array');
-                    expect(e).to.have.lengthOf(1);
-                    const err = e[0];
-                    expect(err.property).to.be.eq('createdAt');
-                    expect(err.constraints).to.have.key('isCompareDateInput');
+                    expect(e.name).to.be.eq('ArgumentValidationError');
+                    expect(e.hasError('createdAt', 'isCompareDateInput')).to.be.eq(true);
                 }
             });
 
@@ -532,11 +471,8 @@ describe('GraphQL -> Inputs -> UserFilterArgs', () => {
                     await new UserFilterInput({createdAt: {gt: 'asd'}}).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
-                    expect(e).to.be.an('array');
-                    expect(e).to.have.lengthOf(1);
-                    const err = e[0];
-                    expect(err.property).to.be.eq('createdAt');
-                    expect(err.constraints).to.have.key('isCompareDateInput');
+                    expect(e.name).to.be.eq('ArgumentValidationError');
+                    expect(e.hasError('createdAt', 'isCompareDateInput')).to.be.eq(true);
                 }
             });
         });
@@ -553,11 +489,8 @@ describe('GraphQL -> Inputs -> UserFilterArgs', () => {
                     await new UserFilterInput({createdAt: {gte: new Date('asd')}}).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
-                    expect(e).to.be.an('array');
-                    expect(e).to.have.lengthOf(1);
-                    const err = e[0];
-                    expect(err.property).to.be.eq('createdAt');
-                    expect(err.constraints).to.have.key('isCompareDateInput');
+                    expect(e.name).to.be.eq('ArgumentValidationError');
+                    expect(e.hasError('createdAt', 'isCompareDateInput')).to.be.eq(true);
                 }
             });
 
@@ -566,11 +499,8 @@ describe('GraphQL -> Inputs -> UserFilterArgs', () => {
                     await new UserFilterInput({createdAt: {gte: 'asd'}}).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
-                    expect(e).to.be.an('array');
-                    expect(e).to.have.lengthOf(1);
-                    const err = e[0];
-                    expect(err.property).to.be.eq('createdAt');
-                    expect(err.constraints).to.have.key('isCompareDateInput');
+                    expect(e.name).to.be.eq('ArgumentValidationError');
+                    expect(e.hasError('createdAt', 'isCompareDateInput')).to.be.eq(true);
                 }
             });
         });
@@ -587,11 +517,8 @@ describe('GraphQL -> Inputs -> UserFilterArgs', () => {
                     await new UserFilterInput({createdAt: {lt: new Date('asd')}}).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
-                    expect(e).to.be.an('array');
-                    expect(e).to.have.lengthOf(1);
-                    const err = e[0];
-                    expect(err.property).to.be.eq('createdAt');
-                    expect(err.constraints).to.have.key('isCompareDateInput');
+                    expect(e.name).to.be.eq('ArgumentValidationError');
+                    expect(e.hasError('createdAt', 'isCompareDateInput')).to.be.eq(true);
                 }
             });
 
@@ -600,11 +527,8 @@ describe('GraphQL -> Inputs -> UserFilterArgs', () => {
                     await new UserFilterInput({createdAt: {lt: 'asd'}}).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
-                    expect(e).to.be.an('array');
-                    expect(e).to.have.lengthOf(1);
-                    const err = e[0];
-                    expect(err.property).to.be.eq('createdAt');
-                    expect(err.constraints).to.have.key('isCompareDateInput');
+                    expect(e.name).to.be.eq('ArgumentValidationError');
+                    expect(e.hasError('createdAt', 'isCompareDateInput')).to.be.eq(true);
                 }
             });
         });
@@ -621,11 +545,8 @@ describe('GraphQL -> Inputs -> UserFilterArgs', () => {
                     await new UserFilterInput({createdAt: {lte: new Date('asd')}}).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
-                    expect(e).to.be.an('array');
-                    expect(e).to.have.lengthOf(1);
-                    const err = e[0];
-                    expect(err.property).to.be.eq('createdAt');
-                    expect(err.constraints).to.have.key('isCompareDateInput');
+                    expect(e.name).to.be.eq('ArgumentValidationError');
+                    expect(e.hasError('createdAt', 'isCompareDateInput')).to.be.eq(true);
                 }
             });
 
@@ -634,11 +555,8 @@ describe('GraphQL -> Inputs -> UserFilterArgs', () => {
                     await new UserFilterInput({createdAt: {lte: 'asd'}}).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
-                    expect(e).to.be.an('array');
-                    expect(e).to.have.lengthOf(1);
-                    const err = e[0];
-                    expect(err.property).to.be.eq('createdAt');
-                    expect(err.constraints).to.have.key('isCompareDateInput');
+                    expect(e.name).to.be.eq('ArgumentValidationError');
+                    expect(e.hasError('createdAt', 'isCompareDateInput')).to.be.eq(true);
                 }
             });
         });
@@ -663,11 +581,8 @@ describe('GraphQL -> Inputs -> UserFilterArgs', () => {
                     await new UserFilterInput({updatedAt: {eq: new Date('asd')}}).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
-                    expect(e).to.be.an('array');
-                    expect(e).to.have.lengthOf(1);
-                    const err = e[0];
-                    expect(err.property).to.be.eq('updatedAt');
-                    expect(err.constraints).to.have.key('isCompareDateInput');
+                    expect(e.name).to.be.eq('ArgumentValidationError');
+                    expect(e.hasError('updatedAt', 'isCompareDateInput')).to.be.eq(true);
                 }
             });
 
@@ -676,11 +591,8 @@ describe('GraphQL -> Inputs -> UserFilterArgs', () => {
                     await new UserFilterInput({updatedAt: {eq: 'asd'}}).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
-                    expect(e).to.be.an('array');
-                    expect(e).to.have.lengthOf(1);
-                    const err = e[0];
-                    expect(err.property).to.be.eq('updatedAt');
-                    expect(err.constraints).to.have.key('isCompareDateInput');
+                    expect(e.name).to.be.eq('ArgumentValidationError');
+                    expect(e.hasError('updatedAt', 'isCompareDateInput')).to.be.eq(true);
                 }
             });
         });
@@ -697,11 +609,8 @@ describe('GraphQL -> Inputs -> UserFilterArgs', () => {
                     await new UserFilterInput({updatedAt: {gt: new Date('asd')}}).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
-                    expect(e).to.be.an('array');
-                    expect(e).to.have.lengthOf(1);
-                    const err = e[0];
-                    expect(err.property).to.be.eq('updatedAt');
-                    expect(err.constraints).to.have.key('isCompareDateInput');
+                    expect(e.name).to.be.eq('ArgumentValidationError');
+                    expect(e.hasError('updatedAt', 'isCompareDateInput')).to.be.eq(true);
                 }
             });
 
@@ -710,11 +619,8 @@ describe('GraphQL -> Inputs -> UserFilterArgs', () => {
                     await new UserFilterInput({updatedAt: {gt: 'asd'}}).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
-                    expect(e).to.be.an('array');
-                    expect(e).to.have.lengthOf(1);
-                    const err = e[0];
-                    expect(err.property).to.be.eq('updatedAt');
-                    expect(err.constraints).to.have.key('isCompareDateInput');
+                    expect(e.name).to.be.eq('ArgumentValidationError');
+                    expect(e.hasError('updatedAt', 'isCompareDateInput')).to.be.eq(true);
                 }
             });
         });
@@ -731,11 +637,8 @@ describe('GraphQL -> Inputs -> UserFilterArgs', () => {
                     await new UserFilterInput({updatedAt: {gte: new Date('asd')}}).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
-                    expect(e).to.be.an('array');
-                    expect(e).to.have.lengthOf(1);
-                    const err = e[0];
-                    expect(err.property).to.be.eq('updatedAt');
-                    expect(err.constraints).to.have.key('isCompareDateInput');
+                    expect(e.name).to.be.eq('ArgumentValidationError');
+                    expect(e.hasError('updatedAt', 'isCompareDateInput')).to.be.eq(true);
                 }
             });
 
@@ -744,11 +647,8 @@ describe('GraphQL -> Inputs -> UserFilterArgs', () => {
                     await new UserFilterInput({updatedAt: {gte: 'asd'}}).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
-                    expect(e).to.be.an('array');
-                    expect(e).to.have.lengthOf(1);
-                    const err = e[0];
-                    expect(err.property).to.be.eq('updatedAt');
-                    expect(err.constraints).to.have.key('isCompareDateInput');
+                    expect(e.name).to.be.eq('ArgumentValidationError');
+                    expect(e.hasError('updatedAt', 'isCompareDateInput')).to.be.eq(true);
                 }
             });
         });
@@ -765,11 +665,8 @@ describe('GraphQL -> Inputs -> UserFilterArgs', () => {
                     await new UserFilterInput({updatedAt: {lt: new Date('asd')}}).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
-                    expect(e).to.be.an('array');
-                    expect(e).to.have.lengthOf(1);
-                    const err = e[0];
-                    expect(err.property).to.be.eq('updatedAt');
-                    expect(err.constraints).to.have.key('isCompareDateInput');
+                    expect(e.name).to.be.eq('ArgumentValidationError');
+                    expect(e.hasError('updatedAt', 'isCompareDateInput')).to.be.eq(true);
                 }
             });
 
@@ -778,11 +675,8 @@ describe('GraphQL -> Inputs -> UserFilterArgs', () => {
                     await new UserFilterInput({updatedAt: {lt: 'asd'}}).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
-                    expect(e).to.be.an('array');
-                    expect(e).to.have.lengthOf(1);
-                    const err = e[0];
-                    expect(err.property).to.be.eq('updatedAt');
-                    expect(err.constraints).to.have.key('isCompareDateInput');
+                    expect(e.name).to.be.eq('ArgumentValidationError');
+                    expect(e.hasError('updatedAt', 'isCompareDateInput')).to.be.eq(true);
                 }
             });
         });
@@ -799,11 +693,8 @@ describe('GraphQL -> Inputs -> UserFilterArgs', () => {
                     await new UserFilterInput({updatedAt: {lte: new Date('asd')}}).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
-                    expect(e).to.be.an('array');
-                    expect(e).to.have.lengthOf(1);
-                    const err = e[0];
-                    expect(err.property).to.be.eq('updatedAt');
-                    expect(err.constraints).to.have.key('isCompareDateInput');
+                    expect(e.name).to.be.eq('ArgumentValidationError');
+                    expect(e.hasError('updatedAt', 'isCompareDateInput')).to.be.eq(true);
                 }
             });
 
@@ -812,11 +703,8 @@ describe('GraphQL -> Inputs -> UserFilterArgs', () => {
                     await new UserFilterInput({updatedAt: {lte: 'asd'}}).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
-                    expect(e).to.be.an('array');
-                    expect(e).to.have.lengthOf(1);
-                    const err = e[0];
-                    expect(err.property).to.be.eq('updatedAt');
-                    expect(err.constraints).to.have.key('isCompareDateInput');
+                    expect(e.name).to.be.eq('ArgumentValidationError');
+                    expect(e.hasError('updatedAt', 'isCompareDateInput')).to.be.eq(true);
                 }
             });
         });
@@ -841,11 +729,8 @@ describe('GraphQL -> Inputs -> UserFilterArgs', () => {
                     await new UserFilterInput({lastLogin: {eq: new Date('asd')}}).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
-                    expect(e).to.be.an('array');
-                    expect(e).to.have.lengthOf(1);
-                    const err = e[0];
-                    expect(err.property).to.be.eq('lastLogin');
-                    expect(err.constraints).to.have.key('isCompareDateInput');
+                    expect(e.name).to.be.eq('ArgumentValidationError');
+                    expect(e.hasError('lastLogin', 'isCompareDateInput')).to.be.eq(true);
                 }
             });
 
@@ -854,11 +739,8 @@ describe('GraphQL -> Inputs -> UserFilterArgs', () => {
                     await new UserFilterInput({lastLogin: {eq: 'asd'}}).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
-                    expect(e).to.be.an('array');
-                    expect(e).to.have.lengthOf(1);
-                    const err = e[0];
-                    expect(err.property).to.be.eq('lastLogin');
-                    expect(err.constraints).to.have.key('isCompareDateInput');
+                    expect(e.name).to.be.eq('ArgumentValidationError');
+                    expect(e.hasError('lastLogin', 'isCompareDateInput')).to.be.eq(true);
                 }
             });
         });
@@ -875,11 +757,8 @@ describe('GraphQL -> Inputs -> UserFilterArgs', () => {
                     await new UserFilterInput({lastLogin: {gt: new Date('asd')}}).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
-                    expect(e).to.be.an('array');
-                    expect(e).to.have.lengthOf(1);
-                    const err = e[0];
-                    expect(err.property).to.be.eq('lastLogin');
-                    expect(err.constraints).to.have.key('isCompareDateInput');
+                    expect(e.name).to.be.eq('ArgumentValidationError');
+                    expect(e.hasError('lastLogin', 'isCompareDateInput')).to.be.eq(true);
                 }
             });
 
@@ -888,11 +767,8 @@ describe('GraphQL -> Inputs -> UserFilterArgs', () => {
                     await new UserFilterInput({lastLogin: {gt: 'asd'}}).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
-                    expect(e).to.be.an('array');
-                    expect(e).to.have.lengthOf(1);
-                    const err = e[0];
-                    expect(err.property).to.be.eq('lastLogin');
-                    expect(err.constraints).to.have.key('isCompareDateInput');
+                    expect(e.name).to.be.eq('ArgumentValidationError');
+                    expect(e.hasError('lastLogin', 'isCompareDateInput')).to.be.eq(true);
                 }
             });
         });
@@ -909,11 +785,8 @@ describe('GraphQL -> Inputs -> UserFilterArgs', () => {
                     await new UserFilterInput({lastLogin: {gte: new Date('asd')}}).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
-                    expect(e).to.be.an('array');
-                    expect(e).to.have.lengthOf(1);
-                    const err = e[0];
-                    expect(err.property).to.be.eq('lastLogin');
-                    expect(err.constraints).to.have.key('isCompareDateInput');
+                    expect(e.name).to.be.eq('ArgumentValidationError');
+                    expect(e.hasError('lastLogin', 'isCompareDateInput')).to.be.eq(true);
                 }
             });
 
@@ -922,11 +795,8 @@ describe('GraphQL -> Inputs -> UserFilterArgs', () => {
                     await new UserFilterInput({lastLogin: {gte: 'asd'}}).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
-                    expect(e).to.be.an('array');
-                    expect(e).to.have.lengthOf(1);
-                    const err = e[0];
-                    expect(err.property).to.be.eq('lastLogin');
-                    expect(err.constraints).to.have.key('isCompareDateInput');
+                    expect(e.name).to.be.eq('ArgumentValidationError');
+                    expect(e.hasError('lastLogin', 'isCompareDateInput')).to.be.eq(true);
                 }
             });
         });
@@ -943,11 +813,8 @@ describe('GraphQL -> Inputs -> UserFilterArgs', () => {
                     await new UserFilterInput({lastLogin: {lt: new Date('asd')}}).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
-                    expect(e).to.be.an('array');
-                    expect(e).to.have.lengthOf(1);
-                    const err = e[0];
-                    expect(err.property).to.be.eq('lastLogin');
-                    expect(err.constraints).to.have.key('isCompareDateInput');
+                    expect(e.name).to.be.eq('ArgumentValidationError');
+                    expect(e.hasError('lastLogin', 'isCompareDateInput')).to.be.eq(true);
                 }
             });
 
@@ -956,11 +823,8 @@ describe('GraphQL -> Inputs -> UserFilterArgs', () => {
                     await new UserFilterInput({lastLogin: {lt: 'asd'}}).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
-                    expect(e).to.be.an('array');
-                    expect(e).to.have.lengthOf(1);
-                    const err = e[0];
-                    expect(err.property).to.be.eq('lastLogin');
-                    expect(err.constraints).to.have.key('isCompareDateInput');
+                    expect(e.name).to.be.eq('ArgumentValidationError');
+                    expect(e.hasError('lastLogin', 'isCompareDateInput')).to.be.eq(true);
                 }
             });
         });
@@ -977,11 +841,8 @@ describe('GraphQL -> Inputs -> UserFilterArgs', () => {
                     await new UserFilterInput({lastLogin: {lte: new Date('asd')}}).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
-                    expect(e).to.be.an('array');
-                    expect(e).to.have.lengthOf(1);
-                    const err = e[0];
-                    expect(err.property).to.be.eq('lastLogin');
-                    expect(err.constraints).to.have.key('isCompareDateInput');
+                    expect(e.name).to.be.eq('ArgumentValidationError');
+                    expect(e.hasError('lastLogin', 'isCompareDateInput')).to.be.eq(true);
                 }
             });
 
@@ -990,11 +851,8 @@ describe('GraphQL -> Inputs -> UserFilterArgs', () => {
                     await new UserFilterInput({lastLogin: {lte: 'asd'}}).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
-                    expect(e).to.be.an('array');
-                    expect(e).to.have.lengthOf(1);
-                    const err = e[0];
-                    expect(err.property).to.be.eq('lastLogin');
-                    expect(err.constraints).to.have.key('isCompareDateInput');
+                    expect(e.name).to.be.eq('ArgumentValidationError');
+                    expect(e.hasError('lastLogin', 'isCompareDateInput')).to.be.eq(true);
                 }
             });
         });
@@ -1018,22 +876,16 @@ describe('GraphQL -> Inputs -> UserFilterArgs', () => {
                 await new UserFilterInput({groups: 'asd'}).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
-                expect(e).to.be.an('array');
-                expect(e).to.have.lengthOf(1);
-                const err = e[0];
-                expect(err.property).to.be.eq('groups');
-                expect(err.constraints).to.have.key('isArray');
+                expect(e.name).to.be.eq('ArgumentValidationError');
+                expect(e.hasError('groups', 'isArray')).to.be.eq(true);
             }
 
             try {
                 await new UserFilterInput({groups: ['id']}).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
-                expect(e).to.be.an('array');
-                expect(e).to.have.lengthOf(1);
-                const err = e[0];
-                expect(err.property).to.be.eq('groups');
-                expect(err.constraints).to.have.key('length');
+                expect(e.name).to.be.eq('ArgumentValidationError');
+                expect(e.hasError('groups', 'length')).to.be.eq(true);
             }
         });
     });

@@ -26,11 +26,8 @@ describe('GraphQL -> Inputs -> CompareNumberInput', () => {
                 await new CompareNumberInput({eq: new Date()}).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
-                expect(e).to.be.an('array');
-                expect(e).to.have.lengthOf(1);
-                const err = e[0];
-                expect(err.property).to.be.eq('eq');
-                expect(err.constraints).to.have.key('isNumber');
+                expect(e.name).to.be.eq('ArgumentValidationError');
+                expect(e.hasError('eq', 'isNumber')).to.be.eq(true);
             }
         });
 
@@ -39,11 +36,8 @@ describe('GraphQL -> Inputs -> CompareNumberInput', () => {
                 await new CompareNumberInput({eq: 'asd'}).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
-                expect(e).to.be.an('array');
-                expect(e).to.have.lengthOf(1);
-                const err = e[0];
-                expect(err.property).to.be.eq('eq');
-                expect(err.constraints).to.have.key('isNumber');
+                expect(e.name).to.be.eq('ArgumentValidationError');
+                expect(e.hasError('eq', 'isNumber')).to.be.eq(true);
             }
         });
     });
@@ -60,11 +54,8 @@ describe('GraphQL -> Inputs -> CompareNumberInput', () => {
                 await new CompareNumberInput({gt: new Date()}).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
-                expect(e).to.be.an('array');
-                expect(e).to.have.lengthOf(1);
-                const err = e[0];
-                expect(err.property).to.be.eq('gt');
-                expect(err.constraints).to.have.key('isNumber');
+                expect(e.name).to.be.eq('ArgumentValidationError');
+                expect(e.hasError('gt', 'isNumber')).to.be.eq(true);
             }
         });
 
@@ -73,11 +64,8 @@ describe('GraphQL -> Inputs -> CompareNumberInput', () => {
                 await new CompareNumberInput({gt: 'asd'}).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
-                expect(e).to.be.an('array');
-                expect(e).to.have.lengthOf(1);
-                const err = e[0];
-                expect(err.property).to.be.eq('gt');
-                expect(err.constraints).to.have.key('isNumber');
+                expect(e.name).to.be.eq('ArgumentValidationError');
+                expect(e.hasError('gt', 'isNumber')).to.be.eq(true);
             }
         });
     });
@@ -94,11 +82,8 @@ describe('GraphQL -> Inputs -> CompareNumberInput', () => {
                 await new CompareNumberInput({gte: new Date()}).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
-                expect(e).to.be.an('array');
-                expect(e).to.have.lengthOf(1);
-                const err = e[0];
-                expect(err.property).to.be.eq('gte');
-                expect(err.constraints).to.have.key('isNumber');
+                expect(e.name).to.be.eq('ArgumentValidationError');
+                expect(e.hasError('gte', 'isNumber')).to.be.eq(true);
             }
         });
 
@@ -107,11 +92,8 @@ describe('GraphQL -> Inputs -> CompareNumberInput', () => {
                 await new CompareNumberInput({gte: 'asd'}).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
-                expect(e).to.be.an('array');
-                expect(e).to.have.lengthOf(1);
-                const err = e[0];
-                expect(err.property).to.be.eq('gte');
-                expect(err.constraints).to.have.key('isNumber');
+                expect(e.name).to.be.eq('ArgumentValidationError');
+                expect(e.hasError('gte', 'isNumber')).to.be.eq(true);
             }
         });
     });
@@ -128,11 +110,8 @@ describe('GraphQL -> Inputs -> CompareNumberInput', () => {
                 await new CompareNumberInput({lt: new Date()}).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
-                expect(e).to.be.an('array');
-                expect(e).to.have.lengthOf(1);
-                const err = e[0];
-                expect(err.property).to.be.eq('lt');
-                expect(err.constraints).to.have.key('isNumber');
+                expect(e.name).to.be.eq('ArgumentValidationError');
+                expect(e.hasError('lt', 'isNumber')).to.be.eq(true);
             }
         });
 
@@ -141,11 +120,8 @@ describe('GraphQL -> Inputs -> CompareNumberInput', () => {
                 await new CompareNumberInput({lt: 'asd'}).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
-                expect(e).to.be.an('array');
-                expect(e).to.have.lengthOf(1);
-                const err = e[0];
-                expect(err.property).to.be.eq('lt');
-                expect(err.constraints).to.have.key('isNumber');
+                expect(e.name).to.be.eq('ArgumentValidationError');
+                expect(e.hasError('lt', 'isNumber')).to.be.eq(true);
             }
         });
     });
@@ -162,11 +138,8 @@ describe('GraphQL -> Inputs -> CompareNumberInput', () => {
                 await new CompareNumberInput({lte: new Date()}).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
-                expect(e).to.be.an('array');
-                expect(e).to.have.lengthOf(1);
-                const err = e[0];
-                expect(err.property).to.be.eq('lte');
-                expect(err.constraints).to.have.key('isNumber');
+                expect(e.name).to.be.eq('ArgumentValidationError');
+                expect(e.hasError('lte', 'isNumber')).to.be.eq(true);
             }
         });
 
@@ -175,11 +148,8 @@ describe('GraphQL -> Inputs -> CompareNumberInput', () => {
                 await new CompareNumberInput({lte: 'asd'}).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
-                expect(e).to.be.an('array');
-                expect(e).to.have.lengthOf(1);
-                const err = e[0];
-                expect(err.property).to.be.eq('lte');
-                expect(err.constraints).to.have.key('isNumber');
+                expect(e.name).to.be.eq('ArgumentValidationError');
+                expect(e.hasError('lte', 'isNumber')).to.be.eq(true);
             }
         });
     });

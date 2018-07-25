@@ -7,7 +7,7 @@ class ShouldNotSucceed extends Error {
     public name = 'ShouldNotSucceed';
 }
 
-describe('DeleteInput', () => {
+describe('GraphQL -> Inputs -> IDInput', () => {
     it('should validate', async () => {
         const input = new IDInput({id: '5b4b57f1fc13ae1730000646'});
         await input.validate();
@@ -21,11 +21,7 @@ describe('DeleteInput', () => {
             throw new ShouldNotSucceed();
         } catch (e) {
             expect(e.name).to.be.eq('ArgumentValidationError');
-            expect(e.validationErrors).to.be.an('array');
-            expect(e.validationErrors).to.have.lengthOf(1);
-            const err = e.validationErrors[0];
-            expect(err).to.have.keys(['target', 'value', 'property', 'children', 'constraints']);
-            expect(err.property).to.be.eq('id');
+            expect(e.hasError('id')).to.be.eq(true);
         }
     });
 });

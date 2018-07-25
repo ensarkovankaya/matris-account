@@ -2,6 +2,7 @@ import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import "reflect-metadata";
 import { UserArgs } from '../../../../src/graphql/args/user.args';
+import { ArgumentValidationError } from '../../../../src/graphql/validatable';
 
 class ShouldNotSucceed extends Error {
     public name = 'ShouldNotSucceed';
@@ -22,11 +23,8 @@ describe('GraphQL -> Args -> User', () => {
                 await new UserArgs({id: 'notid'}).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
-                expect(e).to.be.an('array');
-                expect(e).to.have.lengthOf(1);
-                const err = e[0];
-                expect(err.property).to.be.eq('id');
-                expect(err.constraints).to.have.key('isMongoId');
+                expect(e.name).to.be.eq('ArgumentValidationError');
+                expect(e.hasError('id')).to.be.eq(true);
             }
         });
     });
@@ -44,11 +42,8 @@ describe('GraphQL -> Args -> User', () => {
                 await new UserArgs({email: 'notamail'}).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
-                expect(e).to.be.an('array');
-                expect(e).to.have.lengthOf(1);
-                const err = e[0];
-                expect(err.property).to.be.eq('email');
-                expect(err.constraints).to.have.key('isEmail');
+                expect(e.name).to.be.eq('ArgumentValidationError');
+                expect(e.hasError('email')).to.be.eq(true);
             }
         });
     });
@@ -66,44 +61,32 @@ describe('GraphQL -> Args -> User', () => {
                 await new UserArgs({username: 'asd'}).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
-                expect(e).to.be.an('array');
-                expect(e).to.have.lengthOf(1);
-                const err = e[0];
-                expect(err.property).to.be.eq('username');
-                expect(err.constraints).to.have.key('length');
+                expect(e.name).to.be.eq('ArgumentValidationError');
+                expect(e.hasError('username', 'length')).to.be.eq(true);
             }
 
             try {
                 await new UserArgs({username: 'a'.repeat(33)}).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
-                expect(e).to.be.an('array');
-                expect(e).to.have.lengthOf(1);
-                const err = e[0];
-                expect(err.property).to.be.eq('username');
-                expect(err.constraints).to.have.key('length');
+                expect(e.name).to.be.eq('ArgumentValidationError');
+                expect(e.hasError('username', 'length')).to.be.eq(true);
             }
 
             try {
                 await new UserArgs({username: 'userName'}).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
-                expect(e).to.be.an('array');
-                expect(e).to.have.lengthOf(1);
-                const err = e[0];
-                expect(err.property).to.be.eq('username');
-                expect(err.constraints).to.have.key('isLowercase');
+                expect(e.name).to.be.eq('ArgumentValidationError');
+                expect(e.hasError('username', 'isLowercase')).to.be.eq(true);
             }
 
             try {
                 await new UserArgs({username: 'username-123'}).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
-                expect(e).to.be.an('array');
-                expect(e).to.have.lengthOf(1);
-                const err = e[0];
-                expect(err.property).to.be.eq('username');
-                expect(err.constraints).to.have.key('isAlphanumeric');
+                expect(e.name).to.be.eq('ArgumentValidationError');
+                expect(e.hasError('username', 'isAlphanumeric')).to.be.eq(true);
             }
         });
     });
