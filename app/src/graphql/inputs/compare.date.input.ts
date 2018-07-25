@@ -7,8 +7,8 @@ import { Validatable } from '../validatable';
         'Combine two field such as "gt" and "lt" to make range operations.'
 })
 export class CompareDateInput extends Validatable {
-    @Field({nullable: true, description: 'Equal to date'})
-    @ValidateIf((object, value) => value !== undefined || value !== null)
+    @Field({nullable: true, description: 'Equal to date or null'})
+    @ValidateIf((object, value) => !!value)
     @IsDate()
     public eq?: Date | null;
 
