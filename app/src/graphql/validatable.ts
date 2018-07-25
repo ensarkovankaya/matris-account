@@ -1,12 +1,24 @@
-import { validateOrReject } from 'class-validator';
-import { ValidationError } from "class-validator";
+import { validateOrReject, ValidationError } from 'class-validator';
 import { ArgsType, ArgumentValidationError as AVE } from 'type-graphql';
 
 export class ArgumentValidationError extends AVE {
     public name = 'ArgumentValidationError';
+    public errors: { [key: string]: { [key: string]: string } };
+    public fields: string[];
 
-    constructor(validationErrors: ValidationError[]) {
-        super(validationErrors);
+    constructor(errors: ValidationError[]) {
+        super(errors);
+        this.errors = {};
+        errors.forEach(err => this.errors[err.property] = err.constraints);
+        this.fields = Object.keys(this.errors);
+    }
+
+    /**
+     * Check field has error
+     * @param field
+     */
+    public hasError(field: string): boolean {
+        return field in this.errors;
     }
 }
 
@@ -20,7 +32,7 @@ export class Validatable {
     public async validate(overwrites: object = {}) {
         try {
             await validateOrReject(this, {
-                skipMissingProperties: true,
+                skipMissingProperties: false,
                 forbidNonWhitelisted: true,
                 forbidUnknownValues: true,
                 ...overwrites
