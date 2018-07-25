@@ -122,7 +122,7 @@ describe('GraphQL', () => {
                         groups
                     }
                 }`;
-            const variables = {id: mockUser.id};
+            const variables = {id: mockUser._id.toString()};
             const response = await client.request<{ data: { user: IUserModel } }>(query, variables);
             expect(response.status).to.be.eq(200);
             expect(response.data).to.be.an('object');
@@ -152,7 +152,7 @@ describe('GraphQL', () => {
                 'groups'
             ]);
 
-            expect(user._id).to.be.eq(mockUser.id.toString());
+            expect(user._id).to.be.eq(mockUser._id.toString());
             expect(user.email).to.be.eq(mockUser.email);
             expect(user.firstName).to.be.eq(mockUser.firstName);
             expect(user.lastName).to.be.eq(mockUser.lastName);
@@ -232,7 +232,7 @@ describe('GraphQL', () => {
                 'groups'
             ]);
 
-            expect(user._id).to.be.eq(mockUser.id.toString());
+            expect(user._id).to.be.eq(mockUser._id.toString());
             expect(user.email).to.be.eq(mockUser.email);
             expect(user.firstName).to.be.eq(mockUser.firstName);
             expect(user.lastName).to.be.eq(mockUser.lastName);
@@ -312,7 +312,7 @@ describe('GraphQL', () => {
                 'groups'
             ]);
 
-            expect(user._id).to.be.eq(mockUser.id.toString());
+            expect(user._id).to.be.eq(mockUser._id.toString());
             expect(user.email).to.be.eq(mockUser.email);
             expect(user.firstName).to.be.eq(mockUser.firstName);
             expect(user.lastName).to.be.eq(mockUser.lastName);
@@ -362,7 +362,7 @@ describe('GraphQL', () => {
                         groups
                     }
                 }`;
-            const variables = {id: mockUser.id};
+            const variables = {id: mockUser._id.toString()};
             const response = await client.request<{ data: { user: IUserModel } }>(query, variables);
             expect(response.status).to.be.eq(200);
             expect(response.data).to.be.an('object');
@@ -562,7 +562,7 @@ describe('GraphQL', () => {
             const query = `mutation deleteUser($id: String!) {
                     deleted: delete(data: {id: $id})
                 }`;
-            const variables = {id: mockUser.id};
+            const variables = {id: mockUser._id.toString()};
             const response = await client.request<{ data: { deleted: boolean } }>(query, variables);
             expect(response.status).to.be.eq(200);
             expect(response.data).to.be.an('object');
@@ -577,7 +577,7 @@ describe('GraphQL', () => {
             const query = `mutation deleteUser($id: String!) {
                     deleted: delete(data: {id: $id})
                 }`;
-            const variables = {id: mockUser.id};
+            const variables = {id: mockUser._id.toString()};
             const response = await client.request<{ data: { deleted: boolean } }>(query, variables);
             expect(response.status).to.be.eq(200);
             expect(response.data).to.be.an('object');
@@ -592,7 +592,7 @@ describe('GraphQL', () => {
             const query = `mutation deleteUser($id: String!) {
                     deleted: delete(data: {id: $id})
                 }`;
-            const variables = {id: mockUser.id};
+            const variables = {id: mockUser._id.toString()};
 
             try {
                 await client.request<{ data: { deleted: boolean } }>(query, variables);
@@ -976,7 +976,7 @@ describe('GraphQL', () => {
                     }
                 }`;
             const variables = {
-                id: mockUser.id,
+                id: mockUser._id.toString(),
                 data: {
                     email: 'mail@mail.com',
                     firstName: 'First Name',
@@ -996,7 +996,7 @@ describe('GraphQL', () => {
                 '_id', 'email', 'firstName', 'lastName', 'username', 'createdAt', 'updatedAt', 'deletedAt', 'deleted',
                 'gender', 'active', 'birthday', 'groups', 'role', 'lastLogin'
             ]);
-            expect(user._id).to.be.eq(mockUser.id);
+            expect(user._id).to.be.eq(mockUser._id.toString());
             expect(user.email).to.be.eq('mail@mail.com');
             expect(user.firstName).to.be.eq('First Name');
             expect(user.lastName).to.be.eq('Last Name');
