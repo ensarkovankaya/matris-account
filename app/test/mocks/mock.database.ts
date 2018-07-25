@@ -217,7 +217,7 @@ export class MockDatabase implements IDatabaseModel<IUserModel> {
         this.logger.debug('Filter', {filters});
         try {
             if (filters._id) {
-                return data.filter(d => d._id.toString() === filters._id.toString());
+                data = data.filter(d => d._id.toString() === filters._id.toString());
             }
             if (filters.username) {
                 data = data.filter(d => d.username === filters.username);
