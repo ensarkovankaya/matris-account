@@ -1,7 +1,6 @@
 import { registerDecorator, ValidationOptions } from "class-validator";
 import { CompareDateInput } from '../graphql/inputs/compare.date.input';
 import { CompareNumberInput } from '../graphql/inputs/compare.number.input';
-import { ValidationError } from './error';
 
 /**
  * Checks is value type of CompareNumberInput
