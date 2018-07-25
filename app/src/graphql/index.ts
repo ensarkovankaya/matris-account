@@ -4,7 +4,7 @@ import { registerEnumType } from "type-graphql";
 import { Container } from "typedi";
 import { getLogger } from '../logger';
 import { Gender, Role } from '../models/user.model';
-import { isDevelopment } from '../utils';
+import { isProduction } from '../utils';
 import { UserResolver } from './resolvers/user.resolver';
 
 import { OptionsData } from 'express-graphql';
@@ -37,7 +37,7 @@ export const getGraphQLHTTPServer = () => graphqlHTTP((): OptionsData => {
     try {
         return {
             schema: getRootSchema(),
-            graphiql: isDevelopment(),
+            graphiql: !isProduction(),
             formatError: formatArgumentValidationError
         };
     } catch (err) {
