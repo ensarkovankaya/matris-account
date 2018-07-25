@@ -4,7 +4,7 @@ import { Validatable } from '../validatable';
 
 @InputType({
     description: 'Compare integer information for given field. ' +
-    'You can combine two field such as "gt" and "lt" to make range operations.'
+        'Combine two field such as "gt" and "lt" to make range operations.'
 })
 export class CompareNumberInput extends Validatable {
     @Field(type => Int, {nullable: true, description: 'Equal to number.'})
