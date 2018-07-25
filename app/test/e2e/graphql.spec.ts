@@ -949,7 +949,7 @@ describe('GraphQL', () => {
     });
 
     describe('Update', () => {
-        it.only('should update user', async () => {
+        it('should update user', async () => {
             const mockUser = database.getOne({
                 deleted: false,
                 role: {eq: Role.PARENT},
