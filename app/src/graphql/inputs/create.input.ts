@@ -6,7 +6,8 @@ import {
     IsIn,
     IsLowercase,
     Length,
-    Matches
+    Matches,
+    ValidateIf
 } from "class-validator";
 import { Field, InputType } from 'type-graphql';
 import { IsDateLike, IsInDateRange } from '../../decorators/date';
@@ -43,30 +44,31 @@ export class CreateInput extends Validatable {
         nullable: true,
         description: 'User unique username. If not provided will be generated. Must be between 4 and 32 characters.',
     })
+    @ValidateIf((object, value) => value !== undefined)
     @Length(4, 32, {message: 'InvalidLength'})
     @IsLowercase({message: 'NotLowercase'})
     @IsAlphanumeric({message: 'NotAlphanumeric'})
     public username?: string;
 
     @Field({nullable: true, description: 'Is user active?'})
+    @ValidateIf((object, value) => value !== undefined)
     @IsBoolean()
     public active?: boolean;
 
     @Field(type => Gender, {nullable: true, description: 'User Gender. MALE or FEMALE'})
+    @ValidateIf((object, value) => value !== undefined)
     @IsIn([Gender.MALE, Gender.FEMALE, Gender.UNKNOWN])
     public gender?: Gender;
 
     @Field(type => String, {nullable: true, description: 'User birthday. Can be null if not defined.'})
+    @ValidateIf((object, value) => value !== undefined)
     @IsDateLike(true)
     @IsInDateRange(new Date(1950, 1, 1), new Date(2000, 12, 31))
     public birthday?: string | null;
 
     @Field(type => [String], {nullable: true, description: 'User associated group ids.'})
+    @ValidateIf((object, value) => value !== undefined)
     @IsArray()
     @Length(24, 24, {message: 'InvalidIDLength', each: true})
     public groups?: string[];
-
-    constructor(data = {}) {
-        super(data);
-    }
 }
