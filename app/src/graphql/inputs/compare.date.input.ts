@@ -4,13 +4,13 @@ import { Validatable } from '../validatable';
 
 @InputType({
     description: 'Compare date information for given field. ' +
-    'You can combine two field such as "gt" and "lt" to make range operations.'
+        'Combine two field such as "gt" and "lt" to make range operations.'
 })
 export class CompareDateInput extends Validatable {
     @Field({nullable: true, description: 'Equal to date'})
-    @ValidateIf((object, value) => value !== undefined)
+    @ValidateIf((object, value) => value !== undefined || value !== null)
     @IsDate()
-    public eq?: Date;
+    public eq?: Date | null;
 
     @Field({nullable: true, description: 'After than date'})
     @ValidateIf((object, value) => value !== undefined)
