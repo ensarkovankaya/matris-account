@@ -13,7 +13,6 @@ install () {
 if [ "$1" == "bash" ]; then
     /usr/bin/env bash
 elif [ "$1" == "test" ]; then
-    NODE_ENV=test # Set Environment to test
     npm run test
 elif [ "$1" == "install" ]; then
     install
@@ -22,6 +21,8 @@ else
     # Otherwise just run the server
     if [ "$NODE_ENV" == "development" ] || [ "$NODE_ENV" == "dev" ]; then
         npm run watch
+    elif [ "$NODE_ENV" == "test" ]; then
+        npm run start:test
     else
         # Install dependencies if node_modules not exists
         if [ ! -d "node_modules" ]; then
