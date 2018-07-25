@@ -14,11 +14,15 @@ export class ArgumentValidationError extends AVE {
     }
 
     /**
-     * Check field has error
-     * @param field
+     * Check field has error. If error is given checks error exists on field
+     * @param {string} field: Field name
+     * @param {string} error: Error name for the field
      */
-    public hasError(field: string): boolean {
-        return field in this.errors;
+    public hasError(field: string, error?: string): boolean {
+        if (field in this.errors) {
+            return error ? error in this.errors[field] : true;
+        }
+        return false;
     }
 }
 
