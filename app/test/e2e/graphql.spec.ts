@@ -560,7 +560,7 @@ describe('GraphQL', () => {
         it('should delete active user', async () => {
             const mockUser = database.getOne({deleted: false, active: true});
             const query = `mutation deleteUser($id: String!) {
-                    deleted: delete(data: {id: $id})
+                    deleted: delete(id: $id)
                 }`;
             const variables = {id: mockUser._id.toString()};
             const response = await client.request<{ data: { deleted: boolean } }>(query, variables);
@@ -575,7 +575,7 @@ describe('GraphQL', () => {
         it('should delete inactive user', async () => {
             const mockUser = database.getOne({deleted: false, active: false});
             const query = `mutation deleteUser($id: String!) {
-                    deleted: delete(data: {id: $id})
+                    deleted: delete(id: $id)
                 }`;
             const variables = {id: mockUser._id.toString()};
             const response = await client.request<{ data: { deleted: boolean } }>(query, variables);
@@ -590,7 +590,7 @@ describe('GraphQL', () => {
         it('should raise error for already deleted user', async () => {
             const mockUser = database.getOne({deleted: true});
             const query = `mutation deleteUser($id: String!) {
-                    deleted: delete(data: {id: $id})
+                    deleted: delete(id: $id)
                 }`;
             const variables = {id: mockUser._id.toString()};
 
@@ -614,7 +614,7 @@ describe('GraphQL', () => {
 
         it('should raise error for not exists user', async () => {
             const query = `mutation deleteUser($id: String!) {
-                    deleted: delete(data: {id: $id})
+                    deleted: delete(id: $id)
                 }`;
             const variables = {id: '1'.repeat(24)};
 
