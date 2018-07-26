@@ -3,4 +3,3 @@
 app/node_modules/
 app/build/
 *.DS_Store
-app/logs/*.log

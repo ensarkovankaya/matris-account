@@ -39,7 +39,7 @@ describe('GraphQL -> Inputs -> Create', () => {
         });
     });
 
-    describe('First Name', () => {
+    describe('FirstName', () => {
         it('should be valid', async () => {
             try {
                 const input = new CreateInput({firstName: 'First Name'});
@@ -88,7 +88,7 @@ describe('GraphQL -> Inputs -> Create', () => {
         });
     });
 
-    describe('Last Name', () => {
+    describe('LastName', () => {
         it('should be valid', async () => {
             try {
                 const input = new CreateInput({lastName: 'Last Name'});
