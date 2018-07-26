@@ -1,7 +1,7 @@
 export class UserNotFound extends Error {
     public name = 'UserNotFound';
 
-    constructor(by?: { id?: string, username?: string, email?: string }) {
+    constructor(by: { id?: string, username?: string, email?: string } = {}) {
         super();
         let message = 'User not found.';
         if (by.id) {
