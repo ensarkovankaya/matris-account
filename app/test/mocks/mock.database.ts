@@ -242,13 +242,13 @@ export class MockDatabase implements IDatabaseModel<IUserModel> {
                     data = data.filter(u => filters.gender.in.indexOf(u.gender) > 0);
                 }
             }
-            if (filters.birthday) {
+            if (filters.birthday !== undefined) {
                 data = MockDatabase.compare(data, 'birthday', filters.birthday);
             }
             if (filters.deleted !== undefined) {
                 data = data.filter(u => u.deleted === filters.deleted);
             }
-            if (filters.deletedAt) {
+            if (filters.deletedAt !== undefined) {
                 data = MockDatabase.compare(data, 'deletedAt', filters.deletedAt);
             }
             if (filters.createdAt) {
@@ -257,7 +257,7 @@ export class MockDatabase implements IDatabaseModel<IUserModel> {
             if (filters.updatedAt) {
                 data = MockDatabase.compare(data, 'updatedAt', filters.updatedAt);
             }
-            if (filters.lastLogin) {
+            if (filters.lastLogin !== undefined) {
                 data = MockDatabase.compare(data, 'lastLogin', filters.lastLogin);
             }
             if (filters.groups && filters.groups.length > 0) {
