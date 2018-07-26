@@ -9,7 +9,7 @@ class ShouldNotSucceed extends Error {
 
 describe('GraphQL -> Inputs -> IDInput', () => {
     it('should validate', async () => {
-        const input = new IDInput({id: '5b4b57f1fc13ae1730000646'});
+        const input = new IDInput('5b4b57f1fc13ae1730000646');
         await input.validate();
         expect(input).to.have.key('id');
         expect(input.id).to.be.eq('5b4b57f1fc13ae1730000646');
@@ -17,7 +17,7 @@ describe('GraphQL -> Inputs -> IDInput', () => {
 
     it('should raise ArgumentValidationError', async () => {
         try {
-            await new IDInput({id: 'notaid'}).validate();
+            await new IDInput('notaid').validate();
             throw new ShouldNotSucceed();
         } catch (e) {
             expect(e.name).to.be.eq('ArgumentValidationError');

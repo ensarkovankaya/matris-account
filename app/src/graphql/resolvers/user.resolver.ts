@@ -138,7 +138,7 @@ export class UserResolver {
     @Mutation(returnType => User, {description: 'Update User'})
     public async update(@Arg('id') id: string, @Arg('data') data: UpdateInput) {
         this.logger.debug('Update', {id, data});
-        await new IDInput({id}).validate();
+        await new IDInput(id).validate();
         await new UpdateInput(data).validate();
         // Check is user exists
         const user = await this.us.getBy({id});
@@ -209,17 +209,17 @@ export class UserResolver {
     }
 
     @Mutation(returnType => Boolean, {description: 'Delete user'})
-    public async delete(@Arg('data') data: IDInput) {
-        this.logger.debug('Delete', {data});
-        await new IDInput(data).validate();
+    public async delete(@Arg('id') id: string) {
+        this.logger.debug('Delete', {id});
+        await new IDInput(id).validate();
         // Check is user exists
-        const user = await this.us.getBy({id: data.id});
+        const user = await this.us.getBy({id});
         this.logger.debug('Delete', {user});
         if (!user) {
-            throw new UserNotFound({id: data.id});
+            throw new UserNotFound();
         }
         try {
-            await this.us.delete(data.id);
+            await this.us.delete(id);
             return true;
         } catch (err) {
             this.logger.error('Delete', err);

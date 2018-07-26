@@ -1,4 +1,4 @@
-import { IsMongoId } from 'class-validator';
+import { IsMongoId, IsString } from 'class-validator';
 import { Field, InputType } from 'type-graphql';
 import { Validatable } from '../validatable';
 
@@ -6,10 +6,12 @@ import { Validatable } from '../validatable';
 export class IDInput extends Validatable {
 
     @Field({description: 'User id.'})
+    @IsString()
     @IsMongoId()
     public id: string;
 
-    constructor(data: { id: string }) {
-        super(data);
+    constructor(id: string) {
+        super();
+        this.id = id;
     }
 }
