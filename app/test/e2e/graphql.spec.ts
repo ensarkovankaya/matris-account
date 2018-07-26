@@ -15,9 +15,9 @@ import { MockDatabase } from '../mocks/mock.database';
 
 let server: HttpServer;
 
-const PORT = parseInt(process.env.TEST_PORT || '1234', 10);
-const HOST = process.env.TEST_HOST || '0.0.0.0';
-const URL = process.env.TEST_URL || '/graphql';
+const PORT = parseInt(process.env.PORT || '1234', 10);
+const HOST = process.env.HOST || '0.0.0.0';
+const URL = process.env.URL || '/graphql';
 const ENDPOINT = `http://${HOST}:${PORT}${URL}`;
 
 const PATH: string = process.env.MOCK_DATA || __dirname + '/../data/db.json';
