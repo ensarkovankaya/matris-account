@@ -1,55 +1,15 @@
 import * as bcrypt from 'bcrypt';
 import { PaginateOptions, PaginateResult, Types } from 'mongoose';
 import { Service } from 'typedi';
+import { EmailRequired,
+    FirstNameRequired,
+    LastNameRequired,
+    PasswordRequired,
+    RoleRequired,
+    UserNameRequired } from '../errors';
 import { getLogger, Logger } from '../logger';
 import { ICreateUserModel, IUpdateUserModel, IUserFilterModel, IUserModel } from '../models/user.model';
 import { DatabaseService } from './database.service';
-
-class PasswordRequired extends Error {
-    public name = 'PasswordRequired';
-    public message = 'User must have valid password.';
-}
-
-class RoleRequired extends Error {
-    public name = 'RoleRequired';
-    public message = 'User must have valid role.';
-}
-
-class EmailRequired extends Error {
-    public name = 'EmailRequired';
-    public message = 'User must have valid email address.';
-}
-
-class FirstNameRequired extends Error {
-    public name = 'FirstNameRequired';
-    public message = 'User must have valid first name.';
-}
-
-class LastNameRequired extends Error {
-    public name = 'LastNameRequired';
-    public message = 'User must have valid last name.';
-}
-
-class ParameterRequired extends Error {
-    public name = 'ParameterRequired';
-
-    constructor(paramName: string) {
-        super(`Parameter '${paramName}' required.`);
-    }
-}
-
-class UserNameRequired extends Error {
-    public name = 'UserNameRequired';
-    public message = 'User must have valid username.';
-}
-
-class InvalidID extends Error {
-    public name = 'InvalidID';
-}
-
-export class NothingToUpdate extends Error {
-    public name = 'NothingToUpdate';
-}
 
 @Service('UserService')
 export class UserService {
@@ -205,7 +165,7 @@ export class UserService {
     public async getBy(by: { id?: string, email?: string, username?: string }, deleted: boolean | null = false) {
         this.logger.debug('GetBy', {by, deleted});
         if (!by.id && !by.email && !by.username) {
-            throw new ParameterRequired('id, email or username');
+            throw new ParameterRequired();
         }
         try {
             let condition: object = {};

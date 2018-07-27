@@ -1,7 +1,7 @@
 import { Logger } from 'matris-logger';
 import { PaginateOptions } from 'mongoose';
 import { Service } from 'typedi';
-import { ParameterRequired } from '../../src/graphql/resolvers/user.resolver.errors';
+import { ParameterRequired } from '../../src/errors';
 import { getLogger } from '../../src/logger';
 import { ICompareDateModel } from '../../src/models/compare.model';
 import { IDatabaseModel } from '../../src/models/database.model';
@@ -77,7 +77,7 @@ export class MockDatabase implements IDatabaseModel<IUserModel> {
         this.callStack.push({method: 'update', parameters: {id, data}});
 
         if (!id) {
-            throw new ParameterRequired('id');
+            throw new ParameterRequired();
         }
         this.data = await Promise.all(this.data.map(async user => {
             if (user._id.toString() === id.toString()) {

@@ -2,7 +2,6 @@ import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import 'reflect-metadata';
 import { UserResolver } from '../../../../src/graphql/resolvers/user.resolver';
-import { ParameterRequired, UserNotActive } from '../../../../src/graphql/resolvers/user.resolver.errors';
 import { Gender, Role } from '../../../../src/models/user.model';
 
 class ShouldNotSucceed extends Error {

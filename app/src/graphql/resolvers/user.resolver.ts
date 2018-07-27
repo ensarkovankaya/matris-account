@@ -1,5 +1,13 @@
 import { Arg, Args, Mutation, Query, Resolver } from 'type-graphql';
 import { Service } from 'typedi';
+import {
+    EmailAlreadyExists,
+    ParameterRequired,
+    UserNameExists,
+    UserNameNotNormalized,
+    UserNotActive,
+    UserNotFound
+} from '../../errors';
 import { getLogger, Logger } from '../../logger';
 import { ICreateUserModel, IUpdateUserModel } from '../../models/user.model';
 import { UserService } from '../../services/user.service';
@@ -12,14 +20,6 @@ import { UpdateInput } from '../inputs/update.input';
 import { UserFilterInput } from '../inputs/user.filter.input';
 import { ListResultSchema } from '../schemas/list.result.schema';
 import { User } from '../schemas/user.schema';
-import {
-    EmailAlreadyExists,
-    ParameterRequired,
-    UserNameExists,
-    UserNameNotNormalized,
-    UserNotActive,
-    UserNotFound
-} from './user.resolver.errors';
 
 @Service('UserResolver')
 @Resolver(of => User)
@@ -45,7 +45,7 @@ export class UserResolver {
         this.logger.debug('Get', {by});
         await new UserArgs(by).validate();
         if (!by.id && !by.email && !by.username) {
-            throw new ParameterRequired('id, email or username');
+            throw new ParameterRequired();
         }
         try {
             if (by.id) {
@@ -74,10 +74,10 @@ export class UserResolver {
             throw e;
         }
         if (!user) {
-            throw new UserNotFound({email: data.email});
+            throw new UserNotFound();
         }
         if (!user.active) {
-            throw new UserNotActive({email: data.email});
+            throw new UserNotActive();
         }
         try {
             return await this.us.isPasswordValid(data.password, user.password);
@@ -144,7 +144,7 @@ export class UserResolver {
         const user = await this.us.getBy({id});
         this.logger.debug('Update', {user});
         if (!user) {
-            throw new UserNotFound({id});
+            throw new UserNotFound();
         }
         // Create update object
         const updateData: IUpdateUserModel = {};
@@ -166,7 +166,7 @@ export class UserResolver {
             const isUsernameExists = await this.us.getBy({username: data.username}, null);
             this.logger.debug('Update', {isUsernameExists});
             if (isUsernameExists) {
-                throw new UserNameExists(data.username);
+                throw new UserNameExists();
             }
             updateData.username = data.username;
         }
