@@ -3,10 +3,13 @@ import { PaginateOptions, PaginateResult, Types } from 'mongoose';
 import { Service } from 'typedi';
 import { EmailRequired,
     FirstNameRequired,
+    InvalidID,
     LastNameRequired,
+    NothingToUpdate,
+    ParameterRequired,
     PasswordRequired,
     RoleRequired,
-    UserNameRequired } from '../errors';
+    UserNameRequired} from '../errors';
 import { getLogger, Logger } from '../logger';
 import { ICreateUserModel, IUpdateUserModel, IUserFilterModel, IUserModel } from '../models/user.model';
 import { DatabaseService } from './database.service';
