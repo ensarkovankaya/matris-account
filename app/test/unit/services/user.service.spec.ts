@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import 'reflect-metadata';
 import { Gender, IUserModel, Role } from '../../../src/models/user.model';
-import { NothingToUpdate, UserService } from '../../../src/services/user.service';
+import { UserService } from '../../../src/services/user.service';
 
 class ShouldNotSucceed extends Error {
     public name = 'ShouldNotSucceed';
