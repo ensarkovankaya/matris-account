@@ -410,7 +410,7 @@ describe('GraphQL', () => {
                 const error = e.response.data.errors[0];
                 expect(error).to.be.an('object');
                 expect(error).to.have.keys(['message', 'locations', 'path']);
-                expect(error.message).to.have.string('is not active');
+                expect(error.message).to.be.eq('UserNotActive');
             }
         });
 
@@ -435,7 +435,7 @@ describe('GraphQL', () => {
                 const error = e.response.data.errors[0];
                 expect(error).to.be.an('object');
                 expect(error).to.have.keys(['message', 'locations', 'path']);
-                expect(error.message).to.have.string('User not found');
+                expect(error.message).to.be.eq('UserNotFound');
             }
         });
 
@@ -459,7 +459,7 @@ describe('GraphQL', () => {
                 const error = e.response.data.errors[0];
                 expect(error).to.be.an('object');
                 expect(error).to.have.keys(['message', 'locations', 'path']);
-                expect(error.message).to.have.string('User not found');
+                expect(error.message).to.be.eq('UserNotFound');
             }
         });
 
@@ -608,7 +608,7 @@ describe('GraphQL', () => {
                 const error = e.response.data.errors[0];
                 expect(error).to.be.an('object');
                 expect(error).to.have.keys(['message', 'locations', 'path']);
-                expect(error.message).to.have.string('User not found');
+                expect(error.message).to.be.eq('UserNotFound');
             }
         });
 
@@ -632,7 +632,7 @@ describe('GraphQL', () => {
                 const error = e.response.data.errors[0];
                 expect(error).to.be.an('object');
                 expect(error).to.have.keys(['message', 'locations', 'path']);
-                expect(error.message).to.have.string('User not found');
+                expect(error.message).to.be.eq('UserNotFound');
             }
         });
     });
@@ -895,7 +895,7 @@ describe('GraphQL', () => {
                 expect(e.response.data.errors).to.have.lengthOf(1);
                 const error = e.response.data.errors[0];
                 expect(error).to.have.keys(['message', 'locations', 'path']);
-                expect(error.message).to.be.eq('Mail already exists.');
+                expect(error.message).to.be.eq('EmailAlreadyExists');
             }
         });
 
@@ -943,7 +943,7 @@ describe('GraphQL', () => {
                 expect(e.response.data.errors).to.have.lengthOf(1);
                 const error = e.response.data.errors[0];
                 expect(error).to.have.keys(['message', 'locations', 'path']);
-                expect(error.message).to.be.eq('Username already exists.');
+                expect(error.message).to.be.eq('UserNameExists');
             }
         });
     });
