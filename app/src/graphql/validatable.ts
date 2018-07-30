@@ -48,5 +48,6 @@ export class Validatable {
             }
             throw e;
         }
+        return this;
     }
 }
