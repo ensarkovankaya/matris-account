@@ -31,13 +31,13 @@ export class CreateInput extends Validatable {
 
     @Field({nullable: true, description: 'User first name.'})
     @ValidateIf((object, value) => value !== undefined)
-    @Matches(new RegExp('^[a-zA-Z ]+$'))
+    @Matches(new RegExp('^[a-zA-Z ]*$'))
     @Length(0, 32, {message: 'InvalidLength'})
     public firstName: string;
 
     @Field({nullable: true, description: 'User last name.'})
     @ValidateIf((object, value) => value !== undefined)
-    @Matches(new RegExp('^[a-zA-Z ]+$'))
+    @Matches(new RegExp('^[a-zA-Z ]*$'))
     @Length(0, 32, {message: 'InvalidLength'})
     public lastName: string;
 
