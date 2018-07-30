@@ -2,7 +2,6 @@ import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import "reflect-metadata";
 import { UserArgs } from '../../../../src/graphql/args/user.args';
-import { ArgumentValidationError } from '../../../../src/graphql/validatable';
 
 class ShouldNotSucceed extends Error {
     public name = 'ShouldNotSucceed';
