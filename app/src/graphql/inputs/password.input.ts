@@ -12,7 +12,7 @@ export class PasswordInput extends Validatable {
     @Length(8, 32, {message: 'InvalidLength'})
     public password: string;
 
-    constructor(data = {}) {
-        super(data);
+    constructor(data: {email: string, password: string}) {
+        super(data, ['email', 'password']);
     }
 }

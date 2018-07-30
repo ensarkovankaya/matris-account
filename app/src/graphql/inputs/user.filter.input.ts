@@ -60,4 +60,9 @@ export class UserFilterInput extends Validatable {
     @IsArray()
     @Length(24, 24, {message: 'InvalidIDLength', each: true})
     public groups?: string[];
+
+    constructor(data: object) {
+        super(data, ['groups', 'birthday', 'lastLogin', 'updatedAt',
+            'createdAt', 'deletedAt', 'deleted', 'role', 'gender', 'active']);
+    }
 }

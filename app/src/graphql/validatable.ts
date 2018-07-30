@@ -1,6 +1,7 @@
 import { validateOrReject, ValidationError } from 'class-validator';
 import { ValidatorOptions } from 'class-validator/validation/ValidatorOptions';
 import { ArgsType, ArgumentValidationError as AVE } from 'type-graphql';
+import { isObject } from 'util';
 
 export class ArgumentValidationError extends AVE {
     public name = 'ArgumentValidationError';
@@ -30,8 +31,16 @@ export class ArgumentValidationError extends AVE {
 @ArgsType()
 export class Validatable {
 
-    constructor(data: object = {}) {
-        Object.keys(data).forEach(key => this[key] = data[key]);
+    constructor(data: object = {}, fields: string[]) {
+        if (typeof data === 'object') {
+            Object.keys(data).forEach(key => {
+                if (!!fields.find(field => field === key)) {
+                    this[key] = data[key];
+                }
+            });
+        } else {
+            throw new Error('Data is not object');
+        }
     }
 
     public async validate(overwrites: ValidatorOptions = {}) {

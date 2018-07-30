@@ -1,5 +1,6 @@
 import { IsDate, ValidateIf } from 'class-validator';
 import { Field, InputType } from 'type-graphql';
+import { ICompareDateModel } from '../../models/compare.model';
 import { Validatable } from '../validatable';
 
 @InputType({
@@ -8,7 +9,7 @@ import { Validatable } from '../validatable';
 })
 export class CompareDateInput extends Validatable {
     @Field({nullable: true, description: 'Equal to date or null'})
-    @ValidateIf((object, value) => !!value)
+    @ValidateIf((object, value) => value !== undefined && value !== null)
     @IsDate()
     public eq?: Date | null;
 
@@ -31,4 +32,8 @@ export class CompareDateInput extends Validatable {
     @ValidateIf((object, value) => value !== undefined)
     @IsDate()
     public lte?: Date;
+
+    constructor(data: ICompareDateModel) {
+        super(data, ['eq', 'gt', 'gte', 'lt', 'lte']);
+    }
 }

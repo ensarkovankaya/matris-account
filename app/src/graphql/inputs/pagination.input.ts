@@ -26,6 +26,6 @@ export class PaginationInput extends Validatable implements PaginateOptions {
     public limit?: number = 10;
 
     constructor(data: PaginateOptions = {}) {
-        super(data);
+        super(data, ['page', 'offset', 'limit']);
     }
 }

@@ -17,6 +17,6 @@ export class RoleQuery extends Validatable {
     public in?: Role[];
 
     constructor(data = {}) {
-        super(data);
+        super(data, ['eq', 'in']);
     }
 }

@@ -72,4 +72,9 @@ export class CreateInput extends Validatable {
     @IsArray()
     @Length(24, 24, {message: 'InvalidIDLength', each: true})
     public groups?: string[];
+
+    constructor(data: object) {
+        super(data, ['email', 'role', 'firstName', 'lastName', 'password',
+            'username', 'active', 'gender', 'birthday', 'groups']);
+    }
 }

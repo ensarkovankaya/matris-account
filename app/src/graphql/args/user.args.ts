@@ -22,6 +22,6 @@ export class UserArgs extends Validatable {
     public email?: string;
 
     constructor(data = {}) {
-        super(data);
+        super(data, ['id', 'username', 'email']);
     }
 }

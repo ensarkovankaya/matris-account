@@ -1,5 +1,6 @@
 import { IsNumber, ValidateIf } from 'class-validator';
 import { Field, InputType, Int } from 'type-graphql';
+import { ICompareNumberModel } from '../../models/compare.model';
 import { Validatable } from '../validatable';
 
 @InputType({
@@ -31,4 +32,8 @@ export class CompareNumberInput extends Validatable {
     @ValidateIf((object, value) => value !== undefined)
     @IsNumber()
     public lte?: number;
+
+    constructor(data: ICompareNumberModel) {
+        super(data, ['eq', 'gt', 'gte', 'lt', 'lte']);
+    }
 }

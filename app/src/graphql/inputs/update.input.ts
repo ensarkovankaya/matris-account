@@ -83,4 +83,9 @@ export class UpdateInput extends Validatable {
     @ValidateIf((object, value) => value !== undefined)
     @IsBoolean()
     public updateLastLogin?: boolean;
+
+    constructor(data: object) {
+        super(data, ['email', 'role', 'firstName', 'lastName', 'password',
+        'username', 'active', 'gender', 'birthday', 'groups', 'updateLastLogin']);
+    }
 }
