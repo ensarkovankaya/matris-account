@@ -170,6 +170,7 @@ export class UserService {
         if (!by.id && !by.email && !by.username) {
             throw new ParameterRequired();
         }
+        let user: IUserModel | null = null;
         try {
             let condition: object = {};
             if (typeof deleted === 'boolean') {
@@ -180,11 +181,14 @@ export class UserService {
                 if (!Types.ObjectId.isValid(by.id)) {
                     throw new InvalidID();
                 }
-                return await this.db.findOne({...condition, _id: by.id});
+                user = await this.db.findOne({...condition, _id: by.id});
             } else if (by.email) {
-                return await this.db.findOne({...condition, email: by.email});
+                user = await this.db.findOne({...condition, email: by.email});
+            } else if (by.username) {
+                user = await this.db.findOne({...condition, username: by.username});
             }
-            return await this.db.findOne({...condition, username: by.username});
+            this.logger.debug('User get from database.', {user});
+            return user;
         } catch (err) {
             this.logger.error('GetBy', err);
             throw err;

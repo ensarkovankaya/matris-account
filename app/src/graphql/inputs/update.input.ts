@@ -24,13 +24,13 @@ export class UpdateInput extends Validatable {
 
     @Field({nullable: true, description: 'User first name. Must be between 2 and 32 characters.'})
     @ValidateIf((object, value) => value !== undefined)
-    @Matches(new RegExp('^[a-zA-Z ]+$', 'g'))
+    @Matches(new RegExp('^[a-zA-Z ]+$'))
     @Length(2, 32, {message: 'InvalidLength'})
     public firstName?: string;
 
     @Field({nullable: true, description: 'User last name. Must be between 2 and 32 characters.'})
     @ValidateIf((object, value) => value !== undefined)
-    @Matches(new RegExp('^[a-zA-Z ]+$', 'g'))
+    @Matches(new RegExp('^[a-zA-Z ]+$'))
     @Length(2, 32, {message: 'InvalidLength'})
     public lastName?: string;
 
@@ -55,7 +55,6 @@ export class UpdateInput extends Validatable {
     @Field({nullable: true, description: 'User password. Must be between 8 and 32 characters.'})
     @ValidateIf((object, value) => value !== undefined)
     @Length(8, 32, {message: 'InvalidLength'})
-    @Matches(new RegExp('.*\\S.*', 'g'))
     public password?: string;
 
     @Field({nullable: true, description: 'Is user active?'})

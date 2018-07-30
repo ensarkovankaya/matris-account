@@ -173,6 +173,8 @@ export class UserResolver {
         // Transform birthday from string to Date object
         if (data.birthday) {
             updateData.birthday = new Date(data.birthday);
+        } else if (data.birthday === null) {
+            updateData.birthday = null;
         }
 
         // Add other fields to update object
