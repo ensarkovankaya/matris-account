@@ -35,7 +35,10 @@ export class Validatable {
         if (typeof data === 'object') {
             Object.keys(data).forEach(key => {
                 if (!!fields.find(field => field === key)) {
-                    this[key] = data[key];
+                    const value = data[key];
+                    if (value !== undefined) {
+                        this[key] = value;
+                    }
                 }
             });
         } else {

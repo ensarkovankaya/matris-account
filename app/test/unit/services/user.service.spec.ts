@@ -1,7 +1,9 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import 'reflect-metadata';
-import { Gender, IUserModel, Role } from '../../../src/models/user.model';
+import { Gender } from '../../../src/models/gender.model';
+import { Role } from '../../../src/models/role.model';
+import { IUserModel } from '../../../src/models/user.model';
 import { UserService } from '../../../src/services/user.service';
 
 class ShouldNotSucceed extends Error {
@@ -127,7 +129,9 @@ describe('Services -> User', () => {
             expect(result).to.be.eq('a');
             expect(db.data).to.be.an('object');
 
-            expect(db.data).to.have.keys(['username', 'password', 'email', 'firstName', 'lastName', 'role', 'active']);
+            expect(db.data).to.have.keys(
+                ['username', 'password', 'email', 'firstName', 'lastName', 'role', 'active', 'birthday']
+            );
 
             expect(db.data.username).to.be.eq('username');
             expect(db.data.role).to.be.eq('STUDENT');

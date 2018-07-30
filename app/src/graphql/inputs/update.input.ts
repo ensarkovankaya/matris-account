@@ -11,7 +11,9 @@ import {
 } from "class-validator";
 import { Field, InputType } from 'type-graphql';
 import { IsDateLike, IsInDateRange } from '../../decorators/date';
-import { Gender, Role } from '../../models/user.model';
+import { Gender } from "../../models/gender.model";
+import { Role } from "../../models/role.model";
+import { IUpdateUserModel } from "../../models/update.user.model";
 import { Validatable } from '../validatable';
 
 @InputType({description: 'User update data.'})
@@ -54,7 +56,7 @@ export class UpdateInput extends Validatable {
 
     @Field({nullable: true, description: 'User password. Must be between 8 and 32 characters.'})
     @ValidateIf((object, value) => value !== undefined)
-    @Length(8, 32, {message: 'InvalidLength'})
+    @Length(8, 40, {message: 'InvalidLength'})
     public password?: string;
 
     @Field({nullable: true, description: 'Is user active?'})
@@ -68,10 +70,10 @@ export class UpdateInput extends Validatable {
     public gender?: Gender;
 
     @Field(type => String, {nullable: true, description: 'User birthday. Can be null if not defined.'})
-    @ValidateIf((object, value) => value !== undefined)
+    @ValidateIf((object, value) => value !== undefined && value !== null)
     @IsDateLike(true)
     @IsInDateRange(new Date(1950, 1, 1), new Date(2000, 12, 31))
-    public birthday?: string | null;
+    public birthday?: Date | null;
 
     @Field(type => [String], {nullable: true, description: 'User associated group ids.'})
     @ValidateIf((object, value) => value !== undefined)
@@ -84,8 +86,12 @@ export class UpdateInput extends Validatable {
     @IsBoolean()
     public updateLastLogin?: boolean;
 
-    constructor(data: object) {
+    constructor(input: IUpdateUserModel) {
+        const data = input ? {
+            ...input,
+            birthday: input.birthday ? new Date(input.birthday) : input.birthday
+        } : {};
         super(data, ['email', 'role', 'firstName', 'lastName', 'password',
-        'username', 'active', 'gender', 'birthday', 'groups', 'updateLastLogin']);
+            'username', 'active', 'gender', 'birthday', 'groups', 'updateLastLogin']);
     }
 }

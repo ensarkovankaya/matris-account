@@ -1,4 +1,4 @@
-import { Role } from './user.model';
+import { Role } from './role.model';
 
 export interface IRoleQueryModel {
     eq?: Role;

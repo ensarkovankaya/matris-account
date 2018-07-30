@@ -3,7 +3,8 @@ import { Service } from 'typedi';
 import { getLogger, Logger } from '../logger';
 import { ICompareDateModel, ICompareNumberModel } from '../models/compare.model';
 import { IDatabaseModel } from '../models/database.model';
-import { IUserFilterModel, IUserModel } from '../models/user.model';
+import { IUserFilterModel } from '../models/user.filter.model';
+import { IUserModel } from '../models/user.model';
 import { User } from '../models/user.schema';
 
 export const compareFilter =

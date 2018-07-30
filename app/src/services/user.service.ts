@@ -11,7 +11,10 @@ import { EmailRequired,
     RoleRequired,
     UserNameRequired} from '../errors';
 import { getLogger, Logger } from '../logger';
-import { ICreateUserModel, IUpdateUserModel, IUserFilterModel, IUserModel } from '../models/user.model';
+import { ICreateUserModel } from '../models/create.user.model';
+import { IUpdateUserModel } from '../models/update.user.model';
+import { IUserFilterModel } from '../models/user.filter.model';
+import { IUserModel } from '../models/user.model';
 import { DatabaseService } from './database.service';
 
 @Service('UserService')
@@ -55,15 +58,12 @@ export class UserService {
                 username: data.username,
                 role: data.role,
                 email: data.email,
-                active: data.active !== false
+                active: data.active !== false,
+                birthday: data.birthday ? new Date(data.birthday) : null
             };
 
             if (data.gender) {
                 create = {...create, gender: data.gender};
-            }
-
-            if (data.birthday === null || data.birthday) {
-                create = {...create, birthday: data.birthday ? new Date(data.birthday) : null};
             }
 
             if (data.groups) {

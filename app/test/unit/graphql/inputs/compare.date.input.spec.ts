@@ -9,7 +9,7 @@ class ShouldNotSucceed extends Error {
 
 describe('GraphQL -> Inputs -> CompareDateInput', () => {
     it('should be valid for empty object', async () => {
-        const input = new CompareDateInput();
+        const input = new CompareDateInput({});
         await input.validate();
         expect(input).to.be.deep.eq({});
     });
@@ -39,7 +39,7 @@ describe('GraphQL -> Inputs -> CompareDateInput', () => {
 
         it('should raise ValidationError for eq is not a date', async () => {
             try {
-                await new CompareDateInput({eq: 'asd'}).validate();
+                await new CompareDateInput({eq: 'asd'} as any).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
                 expect(e.name).to.be.eq('ArgumentValidationError');
@@ -67,7 +67,7 @@ describe('GraphQL -> Inputs -> CompareDateInput', () => {
 
         it('should raise ValidationError for gt is not a date', async () => {
             try {
-                await new CompareDateInput({gt: 'asd'}).validate();
+                await new CompareDateInput({gt: 'asd'} as any).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
                 expect(e.name).to.be.eq('ArgumentValidationError');
@@ -105,7 +105,7 @@ describe('GraphQL -> Inputs -> CompareDateInput', () => {
 
         it('should raise ValidationError for gte is not a date', async () => {
             try {
-                await new CompareDateInput({gte: 'asd'}).validate();
+                await new CompareDateInput({gte: 'asd'} as any).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
                 expect(e.name).to.be.eq('ArgumentValidationError');
@@ -143,7 +143,7 @@ describe('GraphQL -> Inputs -> CompareDateInput', () => {
 
         it('should raise ValidationError for lt is not a date', async () => {
             try {
-                await new CompareDateInput({lt: 'asd'}).validate();
+                await new CompareDateInput({lt: 'asd'} as any).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
                 expect(e.name).to.be.eq('ArgumentValidationError');
@@ -181,7 +181,7 @@ describe('GraphQL -> Inputs -> CompareDateInput', () => {
 
         it('should raise ValidationError for lte is not a date', async () => {
             try {
-                await new CompareDateInput({lte: 'asd'}).validate();
+                await new CompareDateInput({lte: 'asd'} as any).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
                 expect(e.name).to.be.eq('ArgumentValidationError');

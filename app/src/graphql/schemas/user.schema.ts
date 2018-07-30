@@ -1,5 +1,6 @@
 import { Field, ID, ObjectType } from 'type-graphql';
-import { Gender, Role } from '../../models/user.model';
+import { Gender } from '../../models/gender.model';
+import { Role } from '../../models/role.model';
 
 @ObjectType()
 export class User {

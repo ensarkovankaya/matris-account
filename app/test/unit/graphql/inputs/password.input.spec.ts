@@ -11,7 +11,7 @@ describe('GraphQL -> Inputs -> PasswordInput', () => {
     describe('Email', () => {
         it('should be valid', async () => {
             try {
-                const input = new PasswordInput({email: 'email@mail.com'});
+                const input = new PasswordInput({email: 'email@mail.com'} as any);
                 expect(input).to.have.keys(['email']);
                 expect(input.email).to.be.eq('email@mail.com');
                 await input.validate();
@@ -24,7 +24,7 @@ describe('GraphQL -> Inputs -> PasswordInput', () => {
 
         it('should raise ValidationError', async () => {
             try {
-                await new PasswordInput({email: 'notaemail'}).validate();
+                await new PasswordInput({email: 'notaemail'} as any).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
                 expect(e.name).to.be.eq('ArgumentValidationError');
@@ -36,7 +36,7 @@ describe('GraphQL -> Inputs -> PasswordInput', () => {
     describe('Password', () => {
         it('should be valid', async () => {
             try {
-                const input1 = new PasswordInput({password: '12345678'});
+                const input1 = new PasswordInput({password: '12345678'} as any);
                 expect(input1).to.have.keys(['password']);
                 expect(input1.password).to.be.eq('12345678');
                 await input1.validate();
@@ -47,7 +47,7 @@ describe('GraphQL -> Inputs -> PasswordInput', () => {
             }
 
             try {
-                const input2 = new PasswordInput({password: '1237aysd.1öças-*149-*'});
+                const input2 = new PasswordInput({password: '1237aysd.1öças-*149-*'} as any);
                 expect(input2).to.have.keys(['password']);
                 expect(input2.password).to.be.eq('1237aysd.1öças-*149-*');
                 await input2.validate();
@@ -60,7 +60,7 @@ describe('GraphQL -> Inputs -> PasswordInput', () => {
 
         it('should raise ValidationError', async () => {
             try {
-                await new PasswordInput({password: ''}).validate();
+                await new PasswordInput({password: ''} as any).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
                 expect(e.name).to.be.eq('ArgumentValidationError');
@@ -68,7 +68,7 @@ describe('GraphQL -> Inputs -> PasswordInput', () => {
             }
 
             try {
-                await new PasswordInput({password: 'a'.repeat(33)}).validate();
+                await new PasswordInput({password: 'a'.repeat(41)} as any).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
                 expect(e.name).to.be.eq('ArgumentValidationError');

@@ -9,7 +9,7 @@ export class PasswordInput extends Validatable {
     public email: string;
 
     @Field({description: 'User raw password.'})
-    @Length(8, 32, {message: 'InvalidLength'})
+    @Length(8, 40, {message: 'InvalidLength'})
     public password: string;
 
     constructor(data: {email: string, password: string}) {

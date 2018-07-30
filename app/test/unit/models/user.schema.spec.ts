@@ -1,7 +1,8 @@
 import { ObjectID } from 'bson';
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
-import { Gender, Role } from '../../../src/models/user.model';
+import { Gender } from '../../../src/models/gender.model';
+import { Role } from '../../../src/models/role.model';
 import { User } from '../../../src/models/user.schema';
 
 class ValidationPassed extends Error {

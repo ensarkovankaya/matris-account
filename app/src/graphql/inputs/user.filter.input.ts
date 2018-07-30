@@ -3,6 +3,7 @@ import { Field, InputType } from 'type-graphql';
 import { IsCompareDateInput } from '../../decorators/is.compare.input';
 import { IsGenderQuery } from '../../decorators/is.gender.query';
 import { IsRoleQuery } from '../../decorators/is.role.query';
+import { IUserFilterModel } from "../../models/user.filter.model";
 import { GenderQuery } from '../args/gender.query';
 import { RoleQuery } from '../args/role.query';
 import { Validatable } from '../validatable';
@@ -61,7 +62,7 @@ export class UserFilterInput extends Validatable {
     @Length(24, 24, {message: 'InvalidIDLength', each: true})
     public groups?: string[];
 
-    constructor(data: object) {
+    constructor(data: IUserFilterModel) {
         super(data, ['groups', 'birthday', 'lastLogin', 'updatedAt',
             'createdAt', 'deletedAt', 'deleted', 'role', 'gender', 'active']);
     }

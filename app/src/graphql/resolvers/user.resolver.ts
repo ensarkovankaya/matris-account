@@ -9,7 +9,8 @@ import {
     UserNotFound
 } from '../../errors';
 import { getLogger, Logger } from '../../logger';
-import { ICreateUserModel, IUpdateUserModel } from '../../models/user.model';
+import { ICreateUserModel } from '../../models/create.user.model';
+import { IUpdateUserModel } from '../../models/update.user.model';
 import { UserService } from '../../services/user.service';
 import { UserArgs } from '../args/user.args';
 import { CreateInput } from '../inputs/create.input';
@@ -90,44 +91,34 @@ export class UserResolver {
     @Mutation(returnType => User, {description: 'Create user.'})
     public async create(@Arg('data') data: CreateInput) {
         this.logger.debug('Create', {data});
-        await new CreateInput(data).validate();
+        const validatedData = await new CreateInput(data).validate();
         // Check email exists
-        const isEmailExists = await this.us.getBy({email: data.email});
+        const isEmailExists = await this.us.getBy({email: validatedData.email});
         this.logger.debug('Create', {isEmailExists});
         if (isEmailExists) {
             throw new EmailAlreadyExists();
         }
         const createData: ICreateUserModel = {
-            email: data.email,
-            firstName: data.firstName || '',
-            lastName: data.lastName || '',
-            password: data.password,
-            role: data.role,
-            gender: data.gender,
-            active: data.active,
-            groups: data.groups
+            ...validatedData,
+            firstName: validatedData.firstName || '',
+            lastName: validatedData.lastName || '',
         };
-        if (data.username) {
-            if (this.us.normalizeUserName(data.username) !== data.username) {
+        if (createData.username) {
+            if (this.us.normalizeUserName(createData.username) !== createData.username) {
                 throw new UserNameNotNormalized();
             }
             // Check username exists
-            const isUsernameExists = await this.us.isUsernameExists(data.username);
+            const isUsernameExists = await this.us.isUsernameExists(createData.username);
             this.logger.debug('Create', {isUsernameExists});
             if (isUsernameExists) {
                 throw new UserNameExists();
             }
-            createData.username = data.username;
         } else {
-            const initial = ((data.firstName || '') + (data.lastName || '')) || 'user';
+            const initial = ((validatedData.firstName || '') + (validatedData.lastName || '')) || 'user';
             createData.username = this.us.generateUserName(initial);
-            this.logger.debug('Create', {generatedUsername: data.username});
+            this.logger.debug('Create', {generatedUsername: validatedData.username});
         }
 
-        // Transform birthday from string to Date object
-        if (data.birthday) {
-            createData.birthday = new Date(data.birthday);
-        }
         try {
             return await this.us.create(createData);
         } catch (err) {
@@ -140,7 +131,7 @@ export class UserResolver {
     public async update(@Arg('id') id: string, @Arg('data') data: UpdateInput) {
         this.logger.debug('Update', {id, data});
         await new IDInput(id).validate();
-        await new UpdateInput(data).validate();
+        const validatedData = await new UpdateInput(data).validate();
         // Check is user exists
         const user = await this.us.getBy({id});
         this.logger.debug('Update', {user});
@@ -151,56 +142,56 @@ export class UserResolver {
         const updateData: IUpdateUserModel = {};
 
         // If user email changed check is email already exists
-        if (data.email && data.email !== user.email) {
-            const isEmailExists = await this.us.getBy({email: data.email});
+        if (validatedData.email && validatedData.email !== user.email) {
+            const isEmailExists = await this.us.getBy({email: validatedData.email});
             this.logger.debug('Update', {isEmailExists});
             if (isEmailExists) {
                 throw new EmailAlreadyExists();
             }
-            updateData.email = data.email;
+            updateData.email = validatedData.email;
         }
         // If user username changed check is username already exists
-        if (data.username && data.username !== user.username) {
-            if (this.us.normalizeUserName(data.username) !== data.username) {
+        if (validatedData.username && validatedData.username !== user.username) {
+            if (this.us.normalizeUserName(validatedData.username) !== validatedData.username) {
                 throw new UserNameNotNormalized();
             }
-            const isUsernameExists = await this.us.getBy({username: data.username}, null);
+            const isUsernameExists = await this.us.getBy({username: validatedData.username}, null);
             this.logger.debug('Update', {isUsernameExists});
             if (isUsernameExists) {
                 throw new UserNameExists();
             }
-            updateData.username = data.username;
+            updateData.username = validatedData.username;
         }
         // Transform birthday from string to Date object
-        if (data.birthday) {
-            updateData.birthday = new Date(data.birthday);
-        } else if (data.birthday === null) {
+        if (validatedData.birthday) {
+            updateData.birthday = new Date(validatedData.birthday);
+        } else if (validatedData.birthday === null) {
             updateData.birthday = null;
         }
 
         // Add other fields to update object
-        if (data.firstName && data.firstName !== user.firstName) {
-            updateData.firstName = data.firstName;
+        if (validatedData.firstName && validatedData.firstName !== user.firstName) {
+            updateData.firstName = validatedData.firstName;
         }
-        if (data.lastName && data.lastName !== user.lastName) {
-            updateData.lastName = data.lastName;
+        if (validatedData.lastName && validatedData.lastName !== user.lastName) {
+            updateData.lastName = validatedData.lastName;
         }
-        if (data.password) {
-            updateData.password = data.password;
+        if (validatedData.password) {
+            updateData.password = validatedData.password;
         }
-        if (data.role && data.role !== user.role) {
-            updateData.role = data.role;
+        if (validatedData.role && validatedData.role !== user.role) {
+            updateData.role = validatedData.role;
         }
-        if (data.gender && data.gender !== user.gender) {
-            updateData.gender = data.gender;
+        if (validatedData.gender && validatedData.gender !== user.gender) {
+            updateData.gender = validatedData.gender;
         }
-        if (typeof data.active === 'boolean' && data.active !== user.active) {
-            updateData.active = data.active;
+        if (typeof validatedData.active === 'boolean' && validatedData.active !== user.active) {
+            updateData.active = validatedData.active;
         }
-        if (data.groups) {
-            updateData.groups = data.groups;
+        if (validatedData.groups) {
+            updateData.groups = validatedData.groups;
         }
-        if (data.updateLastLogin) {
+        if (validatedData.updateLastLogin) {
             updateData.updateLastLogin = true;
         }
         try {

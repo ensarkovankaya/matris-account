@@ -2,7 +2,8 @@ import { expect } from 'chai';
 import { readFileSync } from "fs";
 import { describe, it } from 'mocha';
 import 'reflect-metadata';
-import { Gender, Role } from '../../src/models/user.model';
+import { Gender } from '../../src/models/gender.model';
+import { Role } from '../../src/models/role.model';
 import { IDBUserModel } from '../data/db.model';
 import { MockDatabase } from './mock.database';
 

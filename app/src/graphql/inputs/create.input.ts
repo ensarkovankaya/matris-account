@@ -11,7 +11,9 @@ import {
 } from "class-validator";
 import { Field, InputType } from 'type-graphql';
 import { IsDateLike, IsInDateRange } from '../../decorators/date';
-import { Gender, Role } from '../../models/user.model';
+import { ICreateUserModel } from '../../models/create.user.model';
+import { Gender } from "../../models/gender.model";
+import { Role } from "../../models/role.model";
 import { Validatable } from '../validatable';
 
 @InputType({description: 'User creation data.'})
@@ -26,7 +28,7 @@ export class CreateInput extends Validatable {
     public role: Role;
 
     @Field({description: 'User password. Must be between 8 and 32 characters.'})
-    @Length(8, 32, {message: 'InvalidLength'})
+    @Length(8, 40, {message: 'InvalidLength'})
     public password: string;
 
     @Field({nullable: true, description: 'User first name.'})
@@ -62,10 +64,10 @@ export class CreateInput extends Validatable {
     public gender?: Gender;
 
     @Field(type => String, {nullable: true, description: 'User birthday. Can be null if not defined.'})
-    @ValidateIf((object, value) => value !== undefined)
+    @ValidateIf((object, value) => value !== undefined && value !== null)
     @IsDateLike(true)
     @IsInDateRange(new Date(1950, 1, 1), new Date(2000, 12, 31))
-    public birthday?: string | null;
+    public birthday?: Date | null;
 
     @Field(type => [String], {nullable: true, description: 'User associated group ids.'})
     @ValidateIf((object, value) => value !== undefined)
@@ -73,8 +75,13 @@ export class CreateInput extends Validatable {
     @Length(24, 24, {message: 'InvalidIDLength', each: true})
     public groups?: string[];
 
-    constructor(data: object) {
-        super(data, ['email', 'role', 'firstName', 'lastName', 'password',
-            'username', 'active', 'gender', 'birthday', 'groups']);
+    constructor(input: ICreateUserModel) {
+        const data = input ? {
+            ...input,
+            birthday: input.birthday ? new Date(input.birthday) : input.birthday
+        } : {};
+        super(data,
+            ['email', 'role', 'firstName', 'lastName', 'password', 'username', 'active', 'gender', 'birthday', 'groups']
+        );
     }
 }

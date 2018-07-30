@@ -4,8 +4,11 @@ import { Service } from 'typedi';
 import { ParameterRequired } from '../../src/errors';
 import { getLogger } from '../../src/logger';
 import { ICompareDateModel } from '../../src/models/compare.model';
+import { ICreateUserModel } from '../../src/models/create.user.model';
 import { IDatabaseModel } from '../../src/models/database.model';
-import { ICreateUserModel, IUpdateUserModel, IUserFilterModel, IUserModel } from '../../src/models/user.model';
+import { IUpdateUserModel } from '../../src/models/update.user.model';
+import { IUserFilterModel } from '../../src/models/user.filter.model';
+import { IUserModel } from '../../src/models/user.model';
 import { User } from '../../src/models/user.schema';
 import { IDBUserModel } from '../data/db.model';
 

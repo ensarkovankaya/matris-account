@@ -1,7 +1,9 @@
 import { model, Schema } from "mongoose";
 import * as mongoosePaginate from 'mongoose-paginate';
 import { isAlphanumeric, isEmail } from 'validator';
-import { Gender, IUserModel, Role } from './user.model';
+import { Gender } from "./gender.model";
+import { Role } from "./role.model";
+import { IUserModel } from './user.model';
 
 const isNotContainEmptySpaces = (value: string): boolean => value.replace(/\s/g, '') === value;
 

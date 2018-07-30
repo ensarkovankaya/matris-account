@@ -9,7 +9,7 @@ class ShouldNotSucceed extends Error {
 
 describe('GraphQL -> Inputs -> CompareNumberInput', () => {
     it('should be valid for empty object', async () => {
-        const input = new CompareNumberInput();
+        const input = new CompareNumberInput({});
         await input.validate();
         expect(input).to.be.deep.eq({});
     });
@@ -23,7 +23,7 @@ describe('GraphQL -> Inputs -> CompareNumberInput', () => {
 
         it('should raise ValidationError for eq is Date', async () => {
             try {
-                await new CompareNumberInput({eq: new Date()}).validate();
+                await new CompareNumberInput({eq: new Date()} as any).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
                 expect(e.name).to.be.eq('ArgumentValidationError');
@@ -33,7 +33,7 @@ describe('GraphQL -> Inputs -> CompareNumberInput', () => {
 
         it('should raise ValidationError for eq is not a number', async () => {
             try {
-                await new CompareNumberInput({eq: 'asd'}).validate();
+                await new CompareNumberInput({eq: 'asd'} as any).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
                 expect(e.name).to.be.eq('ArgumentValidationError');
@@ -51,7 +51,7 @@ describe('GraphQL -> Inputs -> CompareNumberInput', () => {
 
         it('should raise ValidationError for gt is Date', async () => {
             try {
-                await new CompareNumberInput({gt: new Date()}).validate();
+                await new CompareNumberInput({gt: new Date()} as any).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
                 expect(e.name).to.be.eq('ArgumentValidationError');
@@ -61,7 +61,7 @@ describe('GraphQL -> Inputs -> CompareNumberInput', () => {
 
         it('should raise ValidationError for gt is not a number', async () => {
             try {
-                await new CompareNumberInput({gt: 'asd'}).validate();
+                await new CompareNumberInput({gt: 'asd'} as any).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
                 expect(e.name).to.be.eq('ArgumentValidationError');
@@ -79,7 +79,7 @@ describe('GraphQL -> Inputs -> CompareNumberInput', () => {
 
         it('should raise ValidationError for gte is Date', async () => {
             try {
-                await new CompareNumberInput({gte: new Date()}).validate();
+                await new CompareNumberInput({gte: new Date()} as any).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
                 expect(e.name).to.be.eq('ArgumentValidationError');
@@ -89,7 +89,7 @@ describe('GraphQL -> Inputs -> CompareNumberInput', () => {
 
         it('should raise ValidationError for gte is not a number', async () => {
             try {
-                await new CompareNumberInput({gte: 'asd'}).validate();
+                await new CompareNumberInput({gte: 'asd'} as any).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
                 expect(e.name).to.be.eq('ArgumentValidationError');
@@ -107,7 +107,7 @@ describe('GraphQL -> Inputs -> CompareNumberInput', () => {
 
         it('should raise ValidationError for lt is Date', async () => {
             try {
-                await new CompareNumberInput({lt: new Date()}).validate();
+                await new CompareNumberInput({lt: new Date()} as any).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
                 expect(e.name).to.be.eq('ArgumentValidationError');
@@ -117,7 +117,7 @@ describe('GraphQL -> Inputs -> CompareNumberInput', () => {
 
         it('should raise ValidationError for lt is not a number', async () => {
             try {
-                await new CompareNumberInput({lt: 'asd'}).validate();
+                await new CompareNumberInput({lt: 'asd'} as any).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
                 expect(e.name).to.be.eq('ArgumentValidationError');
@@ -135,7 +135,7 @@ describe('GraphQL -> Inputs -> CompareNumberInput', () => {
 
         it('should raise ValidationError for lte is Date', async () => {
             try {
-                await new CompareNumberInput({lte: new Date()}).validate();
+                await new CompareNumberInput({lte: new Date()} as any).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
                 expect(e.name).to.be.eq('ArgumentValidationError');
@@ -145,7 +145,7 @@ describe('GraphQL -> Inputs -> CompareNumberInput', () => {
 
         it('should raise ValidationError for lte is not a number', async () => {
             try {
-                await new CompareNumberInput({lte: 'asd'}).validate();
+                await new CompareNumberInput({lte: 'asd'} as any).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
                 expect(e.name).to.be.eq('ArgumentValidationError');

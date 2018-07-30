@@ -3,12 +3,13 @@ import { buildSchemaSync, formatArgumentValidationError, useContainer } from 'ty
 import { registerEnumType } from "type-graphql";
 import { Container } from "typedi";
 import { getLogger } from '../logger';
-import { Gender, Role } from '../models/user.model';
 import { isProduction } from '../utils';
 import { UserResolver } from './resolvers/user.resolver';
 
 import { OptionsData } from 'express-graphql';
 import * as graphqlHTTP from 'express-graphql';
+import { Gender } from '../models/gender.model';
+import { Role } from '../models/role.model';
 
 useContainer(Container);
 

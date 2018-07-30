@@ -14,7 +14,6 @@ export interface INullableCompareDateModel {
     lte?: Date;
 }
 
-
 export interface ICompareNumberModel {
     eq?: number;
     gt?: number;

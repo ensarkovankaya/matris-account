@@ -2,7 +2,8 @@ import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import "reflect-metadata";
 import { UserFilterInput } from '../../../../src/graphql/inputs/user.filter.input';
-import { Gender, Role } from '../../../../src/models/user.model';
+import { Gender } from '../../../../src/models/gender.model';
+import { Role } from '../../../../src/models/role.model';
 
 class ShouldNotSucceed extends Error {
     public name = 'ShouldNotSucceed';
@@ -10,7 +11,7 @@ class ShouldNotSucceed extends Error {
 
 describe('GraphQL -> Inputs -> UserFilterInput', () => {
     it('should be valid for empty object', async () => {
-        const input = new UserFilterInput();
+        const input = new UserFilterInput({});
         await input.validate();
         expect(input).to.be.deep.eq({});
     });
@@ -28,7 +29,7 @@ describe('GraphQL -> Inputs -> UserFilterInput', () => {
 
         it('should raise ValidationError', async () => {
             try {
-                await new UserFilterInput({active: ''}).validate();
+                await new UserFilterInput({active: ''} as any).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
                 expect(e.name).to.be.eq('ArgumentValidationError');
@@ -122,7 +123,7 @@ describe('GraphQL -> Inputs -> UserFilterInput', () => {
                 }
 
                 try {
-                    await new UserFilterInput({gender: {in: 'asd'}}).validate();
+                    await new UserFilterInput({gender: {in: 'asd'}} as any).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
                     expect(e.name).to.be.eq('ArgumentValidationError');
@@ -172,7 +173,7 @@ describe('GraphQL -> Inputs -> UserFilterInput', () => {
 
             it('should raise ValidationError', async () => {
                 try {
-                    await new UserFilterInput({role: {eq: 'asd'}}).validate();
+                    await new UserFilterInput({role: {eq: 'asd'}} as any).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
                     expect(e.name).to.be.eq('ArgumentValidationError');
@@ -218,7 +219,7 @@ describe('GraphQL -> Inputs -> UserFilterInput', () => {
 
             it('should raise ValidationError', async () => {
                 try {
-                    await new UserFilterInput({role: {eq: 'asd'}}).validate();
+                    await new UserFilterInput({role: {eq: 'asd'}} as any).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
                     expect(e.name).to.be.eq('ArgumentValidationError');
@@ -226,7 +227,7 @@ describe('GraphQL -> Inputs -> UserFilterInput', () => {
                 }
 
                 try {
-                    await new UserFilterInput({role: {in: 'asd'}}).validate();
+                    await new UserFilterInput({role: {in: 'asd'}} as any).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
                     expect(e.name).to.be.eq('ArgumentValidationError');
@@ -234,7 +235,7 @@ describe('GraphQL -> Inputs -> UserFilterInput', () => {
                 }
 
                 try {
-                    await new UserFilterInput({role: {in: ['asd']}}).validate();
+                    await new UserFilterInput({role: {in: ['asd']}} as any).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
                     expect(e.name).to.be.eq('ArgumentValidationError');
@@ -257,7 +258,7 @@ describe('GraphQL -> Inputs -> UserFilterInput', () => {
 
         it('should raise ValidationError', async () => {
             try {
-                await new UserFilterInput({deleted: 'asd'}).validate();
+                await new UserFilterInput({deleted: 'asd'} as any).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
                 expect(e.name).to.be.eq('ArgumentValidationError');
@@ -292,7 +293,7 @@ describe('GraphQL -> Inputs -> UserFilterInput', () => {
 
             it('should raise ValidationError for eq is not a date', async () => {
                 try {
-                    await new UserFilterInput({deletedAt: {eq: 'asd'}}).validate();
+                    await new UserFilterInput({deletedAt: {eq: 'asd'}} as any).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
                     expect(e.name).to.be.eq('ArgumentValidationError');
@@ -320,7 +321,7 @@ describe('GraphQL -> Inputs -> UserFilterInput', () => {
 
             it('should raise ValidationError for gt is not a date', async () => {
                 try {
-                    await new UserFilterInput({deletedAt: {gt: 'asd'}}).validate();
+                    await new UserFilterInput({deletedAt: {gt: 'asd'}} as any).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
                     expect(e.name).to.be.eq('ArgumentValidationError');
@@ -348,7 +349,7 @@ describe('GraphQL -> Inputs -> UserFilterInput', () => {
 
             it('should raise ValidationError for gte is not a date', async () => {
                 try {
-                    await new UserFilterInput({deletedAt: {gte: 'asd'}}).validate();
+                    await new UserFilterInput({deletedAt: {gte: 'asd'}} as any).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
                     expect(e.name).to.be.eq('ArgumentValidationError');
@@ -376,7 +377,7 @@ describe('GraphQL -> Inputs -> UserFilterInput', () => {
 
             it('should raise ValidationError for lt is not a date', async () => {
                 try {
-                    await new UserFilterInput({deletedAt: {lt: 'asd'}}).validate();
+                    await new UserFilterInput({deletedAt: {lt: 'asd'}} as any).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
                     expect(e.name).to.be.eq('ArgumentValidationError');
@@ -404,7 +405,7 @@ describe('GraphQL -> Inputs -> UserFilterInput', () => {
 
             it('should raise ValidationError for lte is not a date', async () => {
                 try {
-                    await new UserFilterInput({deletedAt: {lte: 'asd'}}).validate();
+                    await new UserFilterInput({deletedAt: {lte: 'asd'}} as any).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
                     expect(e.name).to.be.eq('ArgumentValidationError');
@@ -440,7 +441,7 @@ describe('GraphQL -> Inputs -> UserFilterInput', () => {
 
             it('should raise ValidationError for eq is not a date', async () => {
                 try {
-                    await new UserFilterInput({createdAt: {eq: 'asd'}}).validate();
+                    await new UserFilterInput({createdAt: {eq: 'asd'}} as any).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
                     expect(e.name).to.be.eq('ArgumentValidationError');
@@ -468,7 +469,7 @@ describe('GraphQL -> Inputs -> UserFilterInput', () => {
 
             it('should raise ValidationError for gt is not a date', async () => {
                 try {
-                    await new UserFilterInput({createdAt: {gt: 'asd'}}).validate();
+                    await new UserFilterInput({createdAt: {gt: 'asd'}} as any).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
                     expect(e.name).to.be.eq('ArgumentValidationError');
@@ -496,7 +497,7 @@ describe('GraphQL -> Inputs -> UserFilterInput', () => {
 
             it('should raise ValidationError for gte is not a date', async () => {
                 try {
-                    await new UserFilterInput({createdAt: {gte: 'asd'}}).validate();
+                    await new UserFilterInput({createdAt: {gte: 'asd'}} as any).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
                     expect(e.name).to.be.eq('ArgumentValidationError');
@@ -524,7 +525,7 @@ describe('GraphQL -> Inputs -> UserFilterInput', () => {
 
             it('should raise ValidationError for lt is not a date', async () => {
                 try {
-                    await new UserFilterInput({createdAt: {lt: 'asd'}}).validate();
+                    await new UserFilterInput({createdAt: {lt: 'asd'}} as any).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
                     expect(e.name).to.be.eq('ArgumentValidationError');
@@ -552,7 +553,7 @@ describe('GraphQL -> Inputs -> UserFilterInput', () => {
 
             it('should raise ValidationError for lte is not a date', async () => {
                 try {
-                    await new UserFilterInput({createdAt: {lte: 'asd'}}).validate();
+                    await new UserFilterInput({createdAt: {lte: 'asd'}} as any).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
                     expect(e.name).to.be.eq('ArgumentValidationError');
@@ -588,7 +589,7 @@ describe('GraphQL -> Inputs -> UserFilterInput', () => {
 
             it('should raise ValidationError for eq is not a date', async () => {
                 try {
-                    await new UserFilterInput({updatedAt: {eq: 'asd'}}).validate();
+                    await new UserFilterInput({updatedAt: {eq: 'asd'}} as any).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
                     expect(e.name).to.be.eq('ArgumentValidationError');
@@ -616,7 +617,7 @@ describe('GraphQL -> Inputs -> UserFilterInput', () => {
 
             it('should raise ValidationError for gt is not a date', async () => {
                 try {
-                    await new UserFilterInput({updatedAt: {gt: 'asd'}}).validate();
+                    await new UserFilterInput({updatedAt: {gt: 'asd'}} as any).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
                     expect(e.name).to.be.eq('ArgumentValidationError');
@@ -644,7 +645,7 @@ describe('GraphQL -> Inputs -> UserFilterInput', () => {
 
             it('should raise ValidationError for gte is not a date', async () => {
                 try {
-                    await new UserFilterInput({updatedAt: {gte: 'asd'}}).validate();
+                    await new UserFilterInput({updatedAt: {gte: 'asd'}} as any).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
                     expect(e.name).to.be.eq('ArgumentValidationError');
@@ -672,7 +673,7 @@ describe('GraphQL -> Inputs -> UserFilterInput', () => {
 
             it('should raise ValidationError for lt is not a date', async () => {
                 try {
-                    await new UserFilterInput({updatedAt: {lt: 'asd'}}).validate();
+                    await new UserFilterInput({updatedAt: {lt: 'asd'}} as any).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
                     expect(e.name).to.be.eq('ArgumentValidationError');
@@ -700,7 +701,7 @@ describe('GraphQL -> Inputs -> UserFilterInput', () => {
 
             it('should raise ValidationError for lte is not a date', async () => {
                 try {
-                    await new UserFilterInput({updatedAt: {lte: 'asd'}}).validate();
+                    await new UserFilterInput({updatedAt: {lte: 'asd'}} as any).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
                     expect(e.name).to.be.eq('ArgumentValidationError');
@@ -736,7 +737,7 @@ describe('GraphQL -> Inputs -> UserFilterInput', () => {
 
             it('should raise ValidationError for eq is not a date', async () => {
                 try {
-                    await new UserFilterInput({lastLogin: {eq: 'asd'}}).validate();
+                    await new UserFilterInput({lastLogin: {eq: 'asd'}} as any).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
                     expect(e.name).to.be.eq('ArgumentValidationError');
@@ -764,7 +765,7 @@ describe('GraphQL -> Inputs -> UserFilterInput', () => {
 
             it('should raise ValidationError for gt is not a date', async () => {
                 try {
-                    await new UserFilterInput({lastLogin: {gt: 'asd'}}).validate();
+                    await new UserFilterInput({lastLogin: {gt: 'asd'}} as any).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
                     expect(e.name).to.be.eq('ArgumentValidationError');
@@ -792,7 +793,7 @@ describe('GraphQL -> Inputs -> UserFilterInput', () => {
 
             it('should raise ValidationError for gte is not a date', async () => {
                 try {
-                    await new UserFilterInput({lastLogin: {gte: 'asd'}}).validate();
+                    await new UserFilterInput({lastLogin: {gte: 'asd'}} as any).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
                     expect(e.name).to.be.eq('ArgumentValidationError');
@@ -820,7 +821,7 @@ describe('GraphQL -> Inputs -> UserFilterInput', () => {
 
             it('should raise ValidationError for lt is not a date', async () => {
                 try {
-                    await new UserFilterInput({lastLogin: {lt: 'asd'}}).validate();
+                    await new UserFilterInput({lastLogin: {lt: 'asd'}} as any).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
                     expect(e.name).to.be.eq('ArgumentValidationError');
@@ -848,7 +849,7 @@ describe('GraphQL -> Inputs -> UserFilterInput', () => {
 
             it('should raise ValidationError for lte is not a date', async () => {
                 try {
-                    await new UserFilterInput({lastLogin: {lte: 'asd'}}).validate();
+                    await new UserFilterInput({lastLogin: {lte: 'asd'}} as any).validate();
                     throw new ShouldNotSucceed();
                 } catch (e) {
                     expect(e.name).to.be.eq('ArgumentValidationError');
@@ -873,7 +874,7 @@ describe('GraphQL -> Inputs -> UserFilterInput', () => {
 
         it('should raise ValidationError', async () => {
             try {
-                await new UserFilterInput({groups: 'asd'}).validate();
+                await new UserFilterInput({groups: 'asd'} as any).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
                 expect(e.name).to.be.eq('ArgumentValidationError');

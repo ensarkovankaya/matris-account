@@ -2,7 +2,8 @@ import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import "reflect-metadata";
 import { UpdateInput } from '../../../../src/graphql/inputs/update.input';
-import { Gender, Role } from '../../../../src/models/user.model';
+import { Gender } from '../../../../src/models/gender.model';
+import { Role } from '../../../../src/models/role.model';
 
 class ShouldNotSucceed extends Error {
     public name = 'ShouldNotSucceed';
@@ -10,7 +11,7 @@ class ShouldNotSucceed extends Error {
 
 describe('GraphQL -> Inputs -> Update', () => {
     it('should have validate function ', () => {
-        const input = new UpdateInput();
+        const input = new UpdateInput({});
         expect(input.validate).to.be.a('function');
     });
 
@@ -86,7 +87,7 @@ describe('GraphQL -> Inputs -> Update', () => {
 
         it('should raise ValidationError', async () => {
             try {
-                await new UpdateInput({lastName: 'F'.repeat(33)}).validate();
+                await new UpdateInput({lastName: 'F'.repeat(41)}).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
                 expect(e.name).to.be.eq('ArgumentValidationError');
@@ -141,7 +142,7 @@ describe('GraphQL -> Inputs -> Update', () => {
 
         it('should raise ValidationError', async () => {
             try {
-                await new UpdateInput({role: 'NotARole'}).validate();
+                await new UpdateInput({role: 'NotARole'} as any).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
                 expect(e.name).to.be.eq('ArgumentValidationError');
@@ -173,7 +174,7 @@ describe('GraphQL -> Inputs -> Update', () => {
             }
 
             try {
-                await new UpdateInput({password: 'a'.repeat(33)}).validate();
+                await new UpdateInput({password: 'a'.repeat(41)}).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
                 expect(e.name).to.be.eq('ArgumentValidationError');
@@ -240,7 +241,7 @@ describe('GraphQL -> Inputs -> Update', () => {
 
         it('should raise ValidationError', async () => {
             try {
-                await new UpdateInput({active: 'asd'}).validate();
+                await new UpdateInput({active: 'asd'} as any).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
                 expect(e.name).to.be.eq('ArgumentValidationError');
@@ -261,7 +262,7 @@ describe('GraphQL -> Inputs -> Update', () => {
             expect(input2).to.have.keys(['gender']);
             expect(input2.gender).to.be.eq('FEMALE');
 
-            const input3 = new UpdateInput({gender: 'UNKNOWN'});
+            const input3 = new UpdateInput({gender: 'UNKNOWN'} as any);
             await input3.validate();
             expect(input3).to.have.keys(['gender']);
             expect(input3.gender).to.be.eq('UNKNOWN');
@@ -269,7 +270,7 @@ describe('GraphQL -> Inputs -> Update', () => {
 
         it('should raise ValidationError', async () => {
             try {
-                await new UpdateInput({gender: 'asd'}).validate();
+                await new UpdateInput({gender: 'asd'} as any).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
                 expect(e.name).to.be.eq('ArgumentValidationError');
@@ -283,10 +284,12 @@ describe('GraphQL -> Inputs -> Update', () => {
             const input1 = new UpdateInput({birthday: new Date(1994, 2, 3)});
             await input1.validate();
             expect(input1.birthday).to.be.a('date');
+            expect(input1.birthday.toJSON()).to.be.eq('1994-03-03T00:00:00.000Z');
 
-            const input2 = new UpdateInput({birthday: '04/19/1995'});
+            const input2 = new UpdateInput({birthday: '04/19/1995'} as any);
             await input2.validate();
-            expect(input2.birthday).to.be.eq('04/19/1995');
+            expect(input2.birthday).to.be.a('date');
+            expect(input2.birthday.toJSON()).to.be.eq('1995-04-19T00:00:00.000Z');
         });
 
         it('should raise ValidationError', async () => {
@@ -330,7 +333,7 @@ describe('GraphQL -> Inputs -> Update', () => {
 
         it('should raise ValidationError', async () => {
             try {
-                await new UpdateInput({groups: 'asd'}).validate();
+                await new UpdateInput({groups: 'asd'} as any).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
                 expect(e.name).to.be.eq('ArgumentValidationError');
@@ -360,7 +363,7 @@ describe('GraphQL -> Inputs -> Update', () => {
 
         it('should raise ValidationError', async () => {
             try {
-                await new UpdateInput({updateLastLogin: 'asd'}).validate();
+                await new UpdateInput({updateLastLogin: 'asd'} as any).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
                 expect(e.name).to.be.eq('ArgumentValidationError');

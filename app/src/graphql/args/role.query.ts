@@ -1,6 +1,6 @@
 import { IsArray, IsIn, ValidateIf } from "class-validator";
 import { Field, InputType } from 'type-graphql';
-import { Role } from '../../models/user.model';
+import { Role } from '../../models/role.model';
 import { Validatable } from '../validatable';
 
 @InputType({description: 'Role Query'})

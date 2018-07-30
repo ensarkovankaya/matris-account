@@ -1,7 +1,7 @@
 import { IsArray, IsIn, ValidateIf } from "class-validator";
 import { Field, InputType } from 'type-graphql';
+import { Gender } from '../../models/gender.model';
 import { IGenderQueryModel } from '../../models/gender.query.model';
-import { Gender } from '../../models/user.model';
 import { Validatable } from '../validatable';
 
 @InputType({description: 'Gender Query'})
