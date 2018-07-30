@@ -20,17 +20,17 @@ const UserSchema: Schema = new Schema({
     },
     firstName: {
         type: String,
-        required: true,
-        minlength: 1,
+        required: false,
+        minlength: 0,
         maxlength: 32,
         trim: true,
         match: new RegExp('^[A-Za-z ]+$')
     },
     lastName: {
         type: String,
-        required: true,
+        required: false,
         trim: true,
-        minlength: 1,
+        minlength: 0,
         maxlength: 32,
         match: new RegExp('^[A-Za-z ]+$')
     },

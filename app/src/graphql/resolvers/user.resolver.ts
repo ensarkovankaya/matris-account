@@ -99,8 +99,8 @@ export class UserResolver {
         }
         const createData: ICreateUserModel = {
             email: data.email,
-            firstName: data.firstName,
-            lastName: data.lastName,
+            firstName: data.firstName || '',
+            lastName: data.lastName || '',
             password: data.password,
             role: data.role,
             gender: data.gender,
