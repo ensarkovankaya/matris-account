@@ -10,8 +10,8 @@ export class ArgumentValidationError extends AVE {
     constructor(errors: ValidationError[]) {
         super(errors);
         this.errors = {};
-        this.fields = Object.keys(this.errors);
         errors.forEach(err => this.errors[err.property] = err.constraints);
+        this.fields = Object.keys(this.errors);
     }
 
     /**
