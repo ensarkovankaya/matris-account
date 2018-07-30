@@ -51,17 +51,17 @@ describe('GraphQL -> Inputs -> Create', () => {
                 expect(e.name).to.be.eq('ArgumentValidationError');
                 expect(e.hasError('firstName')).to.be.eq(false);
             }
-        });
 
-        it('should raise ValidationError', async () => {
             try {
-                await new CreateInput({firstName: 'F'}).validate();
+                await new CreateInput({firstName: ''}).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
                 expect(e.name).to.be.eq('ArgumentValidationError');
-                expect(e.hasError('firstName', 'length')).to.be.eq(true);
+                expect(e.hasError('firstName')).to.be.eq(false);
             }
+        });
 
+        it('should raise ValidationError', async () => {
             try {
                 await new CreateInput({firstName: 'F'.repeat(33)}).validate();
                 throw new ShouldNotSucceed();
@@ -100,17 +100,17 @@ describe('GraphQL -> Inputs -> Create', () => {
                 expect(e.name).to.be.eq('ArgumentValidationError');
                 expect(e.hasError('lastName')).to.be.eq(false);
             }
-        });
 
-        it('should raise ValidationError', async () => {
             try {
-                await new CreateInput({lastName: 'F'}).validate();
+                await new CreateInput({lastName: ''}).validate();
                 throw new ShouldNotSucceed();
             } catch (e) {
                 expect(e.name).to.be.eq('ArgumentValidationError');
-                expect(e.hasError('lastName', 'length')).to.be.eq(true);
+                expect(e.hasError('lastName')).to.be.eq(false);
             }
+        });
 
+        it('should raise ValidationError', async () => {
             try {
                 await new CreateInput({lastName: 'F'.repeat(33)}).validate();
                 throw new ShouldNotSucceed();

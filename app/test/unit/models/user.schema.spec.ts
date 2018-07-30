@@ -44,11 +44,9 @@ describe('Models -> User', () => {
         } catch (err) {
             expect(err.name).to.eq('ValidationError');
             expect(err.errors).to.be.an('object');
-            expect(err.errors).to.have.keys(['firstName', 'lastName', 'username', 'password', 'email', 'role']);
+            expect(err.errors).to.have.keys(['username', 'password', 'email', 'role']);
             expect(err.errors.username.kind).to.eq('required');
             expect(err.errors.password.kind).to.eq('required');
-            expect(err.errors.firstName.kind).to.eq('required');
-            expect(err.errors.lastName.kind).to.eq('required');
             expect(err.errors.email.kind).to.eq('required');
             expect(err.errors.role.kind).to.eq('required');
         }

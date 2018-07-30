@@ -39,18 +39,13 @@ describe('GraphQL -> Inputs -> Update', () => {
             await input.validate();
             expect(input).to.have.keys(['firstName']);
             expect(input.firstName).to.be.eq('First Name');
+
+            const input2 = await new UpdateInput({firstName: ''}).validate();
+            expect(input2).to.have.keys(['firstName']);
+            expect(input2.firstName).to.be.eq('');
         });
 
         it('should raise ValidationError', async () => {
-            try {
-                await new UpdateInput({firstName: 'F'}).validate();
-                throw new ShouldNotSucceed();
-            } catch (e) {
-                expect(e.name).to.be.eq('ArgumentValidationError');
-                expect(e.hasError('firstName', 'length')).to.be.eq(true);
-                expect(e.hasError('firstName', 'matches')).to.be.eq(true);
-            }
-
             try {
                 await new UpdateInput({firstName: 'F'.repeat(33)}).validate();
                 throw new ShouldNotSucceed();
@@ -83,18 +78,13 @@ describe('GraphQL -> Inputs -> Update', () => {
             await input.validate();
             expect(input).to.have.keys(['lastName']);
             expect(input.lastName).to.be.eq('Last Name');
+
+            const input2 = await new UpdateInput({lastName: ''}).validate();
+            expect(input2).to.have.keys(['lastName']);
+            expect(input2.lastName).to.be.eq('');
         });
 
         it('should raise ValidationError', async () => {
-            try {
-                await new UpdateInput({lastName: 'F'}).validate();
-                throw new ShouldNotSucceed();
-            } catch (e) {
-                expect(e.name).to.be.eq('ArgumentValidationError');
-                expect(e.hasError('lastName', 'length')).to.be.eq(true);
-                expect(e.hasError('lastName', 'matches')).to.be.eq(true);
-            }
-
             try {
                 await new UpdateInput({lastName: 'F'.repeat(33)}).validate();
                 throw new ShouldNotSucceed();
@@ -180,7 +170,6 @@ describe('GraphQL -> Inputs -> Update', () => {
             } catch (e) {
                 expect(e.name).to.be.eq('ArgumentValidationError');
                 expect(e.hasError('password', 'length')).to.be.eq(true);
-                expect(e.hasError('password', 'matches')).to.be.eq(true);
             }
 
             try {
@@ -189,14 +178,6 @@ describe('GraphQL -> Inputs -> Update', () => {
             } catch (e) {
                 expect(e.name).to.be.eq('ArgumentValidationError');
                 expect(e.hasError('password', 'length')).to.be.eq(true);
-            }
-
-            try {
-                await new UpdateInput({password: 'asdasd asd'}).validate();
-                throw new ShouldNotSucceed();
-            } catch (e) {
-                expect(e.name).to.be.eq('ArgumentValidationError');
-                expect(e.hasError('password', 'matches')).to.be.eq(true);
             }
         });
     });
