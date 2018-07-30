@@ -119,7 +119,8 @@ export class UserResolver {
             }
             createData.username = data.username;
         } else {
-            createData.username = this.us.generateUserName(data.firstName + data.lastName);
+            const initial = ((data.firstName || '') + (data.lastName || '')) || 'user';
+            createData.username = this.us.generateUserName(initial);
             this.logger.debug('Create', {generatedUsername: data.username});
         }
 
