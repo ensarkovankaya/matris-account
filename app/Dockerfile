@@ -5,6 +5,6 @@ USER node
 
 ENV NODE_ENV=prod
 
-COPY ./build /home/node/app
+COPY ./ /home/node/app
 
 ENTRYPOINT /home/node/app/entrypoint.sh
