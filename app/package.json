@@ -30,7 +30,6 @@
     "mongoose-paginate": "^5.0.3",
     "morgan": "^1.9.0",
     "reflect-metadata": "^0.1.12",
-    "ts-node": "^6.1.2",
     "type-graphql": "^0.12.3",
     "typedi": "^0.7.3",
     "validator": "^10.4.0"
@@ -56,6 +55,7 @@
     "graphql-request": "^1.6.0",
     "mocha": "^5.2.0",
     "nodemon": "^1.18.3",
+    "ts-node": "^6.1.2",
     "tslint": "^5.11.0",
     "typescript": "^2.9.2"
   },
