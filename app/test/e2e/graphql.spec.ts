@@ -1,19 +1,16 @@
-import * as axios from 'axios';
-import { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { expect } from 'chai';
 import { readFileSync } from "fs";
 import { createServer, Server as HttpServer } from 'http';
-import { Logger } from 'matris-logger';
 import { after, before, beforeEach, describe, it } from 'mocha';
 import "reflect-metadata";
 import { Container } from 'typedi';
-import { getLogger } from '../../src/logger';
 import { Gender } from '../../src/models/gender.model';
 import { Role } from '../../src/models/role.model';
 import { IUserModel } from '../../src/models/user.model';
 import { Server } from '../../src/server';
 import { DatabaseService } from '../../src/services/database.service';
 import { MockDatabase } from '../mocks/mock.database';
+import { HttpClient } from './http.client';
 
 let server: HttpServer;
 
@@ -36,58 +33,14 @@ class ShouldNotSucceed extends Error {
     public name = 'ShouldNotSucceed';
 }
 
-class HttpClientError extends Error implements AxiosError {
-    public name = 'HttpClientError';
-    public config: AxiosRequestConfig;
-    public code?: string;
-    public request?: any;
-    public response?: AxiosResponse;
-
-    constructor(e: AxiosError) {
-        super();
-        this.config = e.config;
-        this.code = e.code;
-        this.request = e.request;
-        this.response = e.response;
-    }
-
-}
-
 beforeEach('Mock Database', async () => {
     await database.load(DATA);
     Container.set(DatabaseService, database);
 });
 
-class HttpClient {
-
-    private logger: Logger;
-
-    constructor() {
-        this.logger = getLogger('HttpClient', ['test']);
-    }
-
-    public async request<T>(query: string, variables: { [key: string]: any }): Promise<AxiosResponse<T>> {
-        try {
-            this.logger.debug('Request', {query, variables});
-            return await axios.default.request<T>({
-                method: 'POST',
-                url: ENDPOINT,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                data: {query, variables}
-            });
-        } catch (e) {
-            this.logger.http('Request', e.request, e.response, {data: e.response.data});
-            throw new HttpClientError(e);
-        }
-    }
-}
-
 describe('GraphQL', () => {
 
-    const client = new HttpClient();
+    const client = new HttpClient(ENDPOINT);
 
     it('should server running and excepting request', async () => {
         try {
