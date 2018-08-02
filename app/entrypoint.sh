@@ -3,10 +3,10 @@ set -e
 
 install () {
     # Install Dependencies
-    if [ "$NODE_ENV" == "development" ] || [ "$NODE_ENV" == "dev" ]; then
-        npm install
-    else
+    if [ "$NODE_ENV" == "prod" ] || [ "$NODE_ENV" == "production" ]; then
         npm install --only=prod
+    else
+        npm install
     fi
 }
 
@@ -16,6 +16,8 @@ elif [ "$1" == "test" ]; then
     npm run test
 elif [ "$1" == "install" ]; then
     install
+elif [ "$1" == "e2e" ]; then
+    npm run e2e
 else
     # If environment development use nodemon to watch file changes
     # Otherwise just run the server
