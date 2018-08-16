@@ -25,7 +25,7 @@
     "express-graphql": "^0.6.12",
     "express-validator": "^5.2.0",
     "helmet": "^3.12.1",
-    "matris-logger": "^1.1.4",
+    "matris-logger": "^1.1.5",
     "mongoose": "^5.2.4",
     "mongoose-paginate": "^5.0.3",
     "morgan": "^1.9.0",
