@@ -1,7 +1,6 @@
 import { validateOrReject, ValidationError } from 'class-validator';
 import { ValidatorOptions } from 'class-validator/validation/ValidatorOptions';
 import { ArgsType, ArgumentValidationError as AVE } from 'type-graphql';
-import { isObject } from 'util';
 
 export class ArgumentValidationError extends AVE {
     public name = 'ArgumentValidationError';
