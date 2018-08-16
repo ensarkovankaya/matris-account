@@ -73,8 +73,7 @@ describe('GraphQL', () => {
                         lastLogin,
                         gender,
                         active,
-                        birthday,
-                        groups
+                        birthday
                     }
                 }`;
             const variables = {id: mockUser._id.toString()};
@@ -103,8 +102,7 @@ describe('GraphQL', () => {
                 'lastLogin',
                 'gender',
                 'active',
-                'birthday',
-                'groups'
+                'birthday'
             ]);
 
             expect(user._id).to.be.eq(mockUser._id.toString());
@@ -133,7 +131,6 @@ describe('GraphQL', () => {
             } else {
                 expect(user.birthday).to.be.eq(null);
             }
-            expect(user.groups).to.be.deep.eq(mockUser.groups);
         });
 
         it('should get user by email', async () => {
@@ -153,8 +150,7 @@ describe('GraphQL', () => {
                         lastLogin,
                         gender,
                         active,
-                        birthday,
-                        groups
+                        birthday
                     }
                 }`;
             const variables = {email: mockUser.email};
@@ -183,8 +179,7 @@ describe('GraphQL', () => {
                 'lastLogin',
                 'gender',
                 'active',
-                'birthday',
-                'groups'
+                'birthday'
             ]);
 
             expect(user._id).to.be.eq(mockUser._id.toString());
@@ -213,7 +208,6 @@ describe('GraphQL', () => {
             } else {
                 expect(user.birthday).to.be.eq(null);
             }
-            expect(user.groups).to.be.deep.eq(mockUser.groups);
         });
 
         it('should get user by username', async () => {
@@ -233,8 +227,7 @@ describe('GraphQL', () => {
                         lastLogin,
                         gender,
                         active,
-                        birthday,
-                        groups
+                        birthday
                     }
                 }`;
             const variables = {username: mockUser.username};
@@ -263,8 +256,7 @@ describe('GraphQL', () => {
                 'lastLogin',
                 'gender',
                 'active',
-                'birthday',
-                'groups'
+                'birthday'
             ]);
 
             expect(user._id).to.be.eq(mockUser._id.toString());
@@ -293,7 +285,6 @@ describe('GraphQL', () => {
             } else {
                 expect(user.birthday).to.be.eq(null);
             }
-            expect(user.groups).to.be.deep.eq(mockUser.groups);
         });
 
         it('should return null for deleted user', async () => {
@@ -313,8 +304,7 @@ describe('GraphQL', () => {
                         lastLogin,
                         gender,
                         active,
-                        birthday,
-                        groups
+                        birthday
                     }
                 }`;
             const variables = {id: mockUser._id.toString()};
@@ -609,8 +599,7 @@ describe('GraphQL', () => {
                         lastLogin,
                         gender,
                         active,
-                        birthday,
-                        groups
+                        birthday
                     }
                 }`;
             const variables = {};
@@ -646,8 +635,7 @@ describe('GraphQL', () => {
                         lastLogin,
                         gender,
                         active,
-                        birthday,
-                        groups
+                        birthday
                     }
                 }`;
             const variables = {
@@ -697,8 +685,7 @@ describe('GraphQL', () => {
                         lastLogin,
                         gender,
                         active,
-                        birthday,
-                        groups
+                        birthday
                     }
                 }`;
             const variables = {
@@ -717,7 +704,7 @@ describe('GraphQL', () => {
             const user = response.data.data.user;
             expect(user).to.have.keys([
                 '_id', 'email', 'firstName', 'lastName', 'username', 'createdAt', 'updatedAt', 'deletedAt', 'deleted',
-                'gender', 'active', 'birthday', 'groups', 'role', 'lastLogin'
+                'gender', 'active', 'birthday', 'role', 'lastLogin'
             ]);
             expect(user._id).to.be.a('string');
             expect(user._id).to.have.lengthOf(24);
@@ -737,8 +724,6 @@ describe('GraphQL', () => {
             expect(user.active).to.be.eq(true);
             expect(user.birthday).to.be.eq(null);
             expect(user.lastLogin).to.be.eq(null);
-            expect(user.groups).to.be.an('array');
-            expect(user.groups).to.have.lengthOf(0);
         });
 
         it('should create user with all data', async () => {
@@ -757,8 +742,7 @@ describe('GraphQL', () => {
                         lastLogin,
                         gender,
                         active,
-                        birthday,
-                        groups
+                        birthday
                     }
                 }`;
             const variables = {
@@ -771,8 +755,7 @@ describe('GraphQL', () => {
                     username: 'username',
                     gender: Gender.MALE,
                     active: false,
-                    birthday: new Date(1993, 19, 5),
-                    groups: ['1'.repeat(24), '2'.repeat(24)]
+                    birthday: new Date(1993, 19, 5)
                 }
             };
             const response = await client.request<{ data: { user: IUserModel } }>(query, variables);
@@ -782,7 +765,7 @@ describe('GraphQL', () => {
             const user = response.data.data.user;
             expect(user).to.have.keys([
                 '_id', 'email', 'firstName', 'lastName', 'username', 'createdAt', 'updatedAt', 'deletedAt', 'deleted',
-                'gender', 'active', 'birthday', 'groups', 'role', 'lastLogin'
+                'gender', 'active', 'birthday', 'role', 'lastLogin'
             ]);
             expect(user._id).to.be.a('string');
             expect(user._id).to.have.lengthOf(24);
@@ -802,9 +785,6 @@ describe('GraphQL', () => {
             expect(user.birthday).to.be.a('string');
             expect(new Date(user.birthday)).to.be.a('date');
             expect(user.lastLogin).to.be.eq(null);
-            expect(user.groups).to.be.an('array');
-            expect(user.groups).to.have.lengthOf(2);
-            expect(user.groups).to.be.deep.eq(['1'.repeat(24), '2'.repeat(24)]);
         });
 
         it('should return user exists with email error', async () => {
@@ -824,8 +804,7 @@ describe('GraphQL', () => {
                         lastLogin,
                         gender,
                         active,
-                        birthday,
-                        groups
+                        birthday
                     }
                 }`;
             const variables = {
@@ -871,8 +850,7 @@ describe('GraphQL', () => {
                         lastLogin,
                         gender,
                         active,
-                        birthday,
-                        groups
+                        birthday
                     }
                 }`;
             const variables = {
@@ -926,8 +904,7 @@ describe('GraphQL', () => {
                         lastLogin,
                         gender,
                         active,
-                        birthday,
-                        groups
+                        birthday
                     }
                 }`;
             const variables = {
@@ -949,7 +926,7 @@ describe('GraphQL', () => {
             const user = response.data.data.user;
             expect(user).to.have.keys([
                 '_id', 'email', 'firstName', 'lastName', 'username', 'createdAt', 'updatedAt', 'deletedAt', 'deleted',
-                'gender', 'active', 'birthday', 'groups', 'role', 'lastLogin'
+                'gender', 'active', 'birthday', 'role', 'lastLogin'
             ]);
             expect(user._id).to.be.eq(mockUser._id.toString());
             expect(user.email).to.be.eq('mail@mail.com');
@@ -973,7 +950,6 @@ describe('GraphQL', () => {
             } else {
                 expect(user.lastLogin).to.be.eq(null);
             }
-            expect(user.groups).to.be.deep.eq(mockUser.groups);
         });
     });
 });

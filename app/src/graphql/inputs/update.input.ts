@@ -1,6 +1,5 @@
 import {
     IsAlphanumeric,
-    IsArray,
     IsBoolean,
     IsEmail,
     IsIn,
@@ -75,12 +74,6 @@ export class UpdateInput extends Validatable {
     @IsInDateRange(new Date(1950, 1, 1), new Date(2000, 12, 31))
     public birthday?: Date | null;
 
-    @Field(type => [String], {nullable: true, description: 'User associated group ids.'})
-    @ValidateIf((object, value) => value !== undefined)
-    @IsArray()
-    @Length(12, 24, {message: 'InvalidIDLength', each: true})
-    public groups?: string[];
-
     @Field({nullable: true, description: 'If true updates user last login date to now.'})
     @ValidateIf((object, value) => value !== undefined)
     @IsBoolean()
@@ -92,6 +85,6 @@ export class UpdateInput extends Validatable {
             birthday: input.birthday ? new Date(input.birthday) : input.birthday
         } : {};
         super(data, ['email', 'role', 'firstName', 'lastName', 'password',
-            'username', 'active', 'gender', 'birthday', 'groups', 'updateLastLogin']);
+            'username', 'active', 'gender', 'birthday', 'updateLastLogin']);
     }
 }

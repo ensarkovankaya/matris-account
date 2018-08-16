@@ -858,36 +858,4 @@ describe('GraphQL -> Inputs -> UserFilterInput', () => {
             });
         });
     });
-
-    describe('Groups', () => {
-        it('should be valid', async () => {
-            const input1 = new UserFilterInput({groups: []});
-            await input1.validate();
-            expect(input1.groups).to.be.an('array');
-            expect(input1.groups).to.have.lengthOf(0);
-
-            const input2 = new UserFilterInput({groups: ['i'.repeat(24)]});
-            await input2.validate();
-            expect(input2.groups).to.be.an('array');
-            expect(input2.groups).to.have.lengthOf(1);
-        });
-
-        it('should raise ValidationError', async () => {
-            try {
-                await new UserFilterInput({groups: 'asd'} as any).validate();
-                throw new ShouldNotSucceed();
-            } catch (e) {
-                expect(e.name).to.be.eq('ArgumentValidationError');
-                expect(e.hasError('groups', 'isArray')).to.be.eq(true);
-            }
-
-            try {
-                await new UserFilterInput({groups: ['id']}).validate();
-                throw new ShouldNotSucceed();
-            } catch (e) {
-                expect(e.name).to.be.eq('ArgumentValidationError');
-                expect(e.hasError('groups', 'length')).to.be.eq(true);
-            }
-        });
-    });
 });

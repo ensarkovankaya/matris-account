@@ -11,6 +11,5 @@ export interface IUpdateUserModel {
     gender?: Gender;
     birthday?: Date | string | null;
     active?: boolean;
-    groups?: string[];
     updateLastLogin?: boolean;
 }

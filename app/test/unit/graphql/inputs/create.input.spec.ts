@@ -437,48 +437,4 @@ describe('GraphQL -> Inputs -> Create', () => {
             }
         });
     });
-
-    describe('Groups', () => {
-        it('should be valid', async () => {
-            try {
-                const input1 = new CreateInput({groups: []} as any);
-                expect(input1.groups).to.be.an('array');
-                expect(input1.groups).to.have.lengthOf(0);
-                await input1.validate();
-                throw new ShouldNotSucceed();
-            } catch (e) {
-                expect(e.name).to.be.eq('ArgumentValidationError');
-                expect(e.hasError('groups')).to.be.eq(false);
-            }
-
-            try {
-                const input2 = new CreateInput({groups: ['i'.repeat(24)]} as any);
-                expect(input2.groups).to.be.an('array');
-                expect(input2.groups).to.have.lengthOf(1);
-                await input2.validate();
-                throw new ShouldNotSucceed();
-            } catch (e) {
-                expect(e.name).to.be.eq('ArgumentValidationError');
-                expect(e.hasError('groups')).to.be.eq(false);
-            }
-        });
-
-        it('should raise ValidationError', async () => {
-            try {
-                await new CreateInput({groups: 'asd'} as any).validate();
-                throw new ShouldNotSucceed();
-            } catch (e) {
-                expect(e.name).to.be.eq('ArgumentValidationError');
-                expect(e.hasError('groups', 'isArray')).to.be.eq(true);
-            }
-
-            try {
-                await new CreateInput({groups: ['id']} as any).validate();
-                throw new ShouldNotSucceed();
-            } catch (e) {
-                expect(e.name).to.be.eq('ArgumentValidationError');
-                expect(e.hasError('groups', 'length')).to.be.eq(true);
-            }
-        });
-    });
 });

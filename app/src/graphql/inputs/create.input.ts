@@ -1,6 +1,5 @@
 import {
     IsAlphanumeric,
-    IsArray,
     IsBoolean,
     IsEmail,
     IsIn,
@@ -69,19 +68,13 @@ export class CreateInput extends Validatable {
     @IsInDateRange(new Date(1950, 1, 1), new Date(2000, 12, 31))
     public birthday?: Date | null;
 
-    @Field(type => [String], {nullable: true, description: 'User associated group ids.'})
-    @ValidateIf((object, value) => value !== undefined)
-    @IsArray()
-    @Length(24, 24, {message: 'InvalidIDLength', each: true})
-    public groups?: string[];
-
     constructor(input: ICreateUserModel) {
         const data = input ? {
             ...input,
             birthday: input.birthday ? new Date(input.birthday) : input.birthday
         } : {};
         super(data,
-            ['email', 'role', 'firstName', 'lastName', 'password', 'username', 'active', 'gender', 'birthday', 'groups']
+            ['email', 'role', 'firstName', 'lastName', 'password', 'username', 'active', 'gender', 'birthday']
         );
     }
 }

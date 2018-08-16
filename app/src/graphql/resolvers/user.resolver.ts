@@ -188,9 +188,6 @@ export class UserResolver {
         if (typeof validatedData.active === 'boolean' && validatedData.active !== user.active) {
             updateData.active = validatedData.active;
         }
-        if (validatedData.groups) {
-            updateData.groups = validatedData.groups;
-        }
         if (validatedData.updateLastLogin) {
             updateData.updateLastLogin = true;
         }

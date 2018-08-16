@@ -470,48 +470,4 @@ describe('Models -> User', () => {
             }
         });
     });
-
-    describe('groups', () => {
-        it('should be valid', async () => {
-            await new User({
-                firstName: 'FirstName',
-                lastName: 'LastName',
-                email: 'email@mail.com',
-                username: 'username',
-                password: '$2b$10$lGsV.ebrEirwro.83ZHKqeHuEvfZmrJU9.AF6JUGxiKmuyPop/djC',
-                role: Role.ADMIN,
-                groups: []
-            }).validate();
-
-            await new User({
-                firstName: 'FirstName',
-                lastName: 'LastName',
-                email: 'email@mail.com',
-                username: 'username',
-                password: '$2b$10$lGsV.ebrEirwro.83ZHKqeHuEvfZmrJU9.AF6JUGxiKmuyPop/djC',
-                role: Role.ADMIN,
-                groups: ['group-1', 'group-2']
-            }).validate();
-        });
-
-        it('should raise ValidationError', async () => {
-            try {
-                await new User({
-                    firstName: 'FirstName',
-                    lastName: 'LastName',
-                    email: 'email@mail.com',
-                    username: 'username',
-                    password: '$2b$10$lGsV.ebrEirwro.83ZHKqeHuEvfZmrJU9.AF6JUGxiKmuyPop/djC',
-                    role: Role.ADMIN,
-                    groups: null
-                }).validate();
-                throw new ValidationPassed();
-            } catch (err) {
-                expect(err.name).to.eq('ValidationError');
-                expect(err.errors).to.be.an('object');
-                expect(err.errors).to.have.key('groups');
-                expect(err.errors.groups.kind).to.eq('NotArray');
-            }
-        });
-    });
 });

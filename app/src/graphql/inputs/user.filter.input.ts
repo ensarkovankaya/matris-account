@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, Length, ValidateIf } from "class-validator";
+import { IsBoolean, ValidateIf } from "class-validator";
 import { Field, InputType } from 'type-graphql';
 import { IsCompareDateInput } from '../../decorators/is.compare.input';
 import { IsGenderQuery } from '../../decorators/is.gender.query';
@@ -56,14 +56,8 @@ export class UserFilterInput extends Validatable {
     @IsCompareDateInput()
     public birthday?: CompareDateInput;
 
-    @Field(type => [String], {nullable: true, description: 'User associated group ids.'})
-    @ValidateIf((object, value) => value !== undefined)
-    @IsArray()
-    @Length(24, 24, {message: 'InvalidIDLength', each: true})
-    public groups?: string[];
-
     constructor(data: IUserFilterModel) {
-        super(data, ['groups', 'birthday', 'lastLogin', 'updatedAt',
+        super(data, ['birthday', 'lastLogin', 'updatedAt',
             'createdAt', 'deletedAt', 'deleted', 'role', 'gender', 'active']);
     }
 }

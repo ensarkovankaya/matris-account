@@ -12,6 +12,5 @@ export interface IUserFilterModel {
     createdAt?: ICompareDateModel;
     updatedAt?: ICompareDateModel;
     lastLogin?: INullableCompareDateModel;
-    groups?: string[];
     _id?: string;
 }

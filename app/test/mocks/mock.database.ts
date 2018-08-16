@@ -263,9 +263,6 @@ export class MockDatabase implements IDatabaseModel<IUserModel> {
             if (filters.lastLogin !== undefined) {
                 data = MockDatabase.compare(data, 'lastLogin', filters.lastLogin);
             }
-            if (filters.groups && filters.groups.length > 0) {
-                data = data.filter(u => u.groups.some(id => filters.groups.indexOf(id) > 0));
-            }
             this.logger.debug('Filter result:', {count: data.length});
             return data;
         } catch (e) {

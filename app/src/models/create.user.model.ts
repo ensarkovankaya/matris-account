@@ -11,5 +11,4 @@ export interface ICreateUserModel {
     gender?: Gender;
     birthday?: Date | string | null;
     active?: boolean;
-    groups?: string[];
 }

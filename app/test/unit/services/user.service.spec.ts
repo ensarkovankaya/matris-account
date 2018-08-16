@@ -167,7 +167,6 @@ describe('Services -> User', () => {
                 role: Role.STUDENT,
                 gender: Gender.MALE,
                 birthday: '06/21/1956',
-                groups: ['groupID'],
                 extra: 'key'
             } as any);
 
@@ -175,7 +174,7 @@ describe('Services -> User', () => {
             expect(db.data).to.be.an('object');
 
             expect(db.data).to.have.keys(['username', 'email', 'password', 'firstName',
-                'lastName', 'role', 'active', 'birthday', 'gender', 'groups']);
+                'lastName', 'role', 'active', 'birthday', 'gender']);
 
             expect(db.data.username).to.be.eq('username');
             expect(db.data.role).to.be.eq('STUDENT');
@@ -191,9 +190,6 @@ describe('Services -> User', () => {
 
             expect(db.data.gender).to.be.eq('MALE');
             expect(db.data.birthday).to.be.a('date');
-
-            expect(db.data.groups).to.be.an('array');
-            expect(db.data.groups).to.have.lengthOf(1);
         });
     });
 
@@ -268,7 +264,6 @@ describe('Services -> User', () => {
                 firstName: 'FirstName',
                 lastName: 'LastName',
                 gender: Gender.UNKNOWN,
-                groups: ['group-id'],
                 role: Role.INSTRUCTOR,
                 username: 'username',
                 updateLastLogin: true,
@@ -279,7 +274,7 @@ describe('Services -> User', () => {
             expect(db.id).to.be.eq('id');
             expect(db.condition).to.be.deep.eq({_id: 'id'});
             expect(db.data).to.have.keys([
-                'password', 'active', 'birthday', 'email', 'firstName', 'lastName', 'gender', 'groups', 'role',
+                'password', 'active', 'birthday', 'email', 'firstName', 'lastName', 'gender', 'role',
                 'username', 'lastLogin', 'updatedAt'
             ]);
             expect(db.data.password).to.be.not.eq('12345678');
@@ -292,9 +287,6 @@ describe('Services -> User', () => {
             expect(db.data.firstName).to.be.eq('FirstName');
             expect(db.data.lastName).to.be.eq('LastName');
             expect(db.data.gender).to.be.eq('UNKNOWN');
-
-            expect(db.data.groups).to.be.an('array');
-            expect(db.data.groups).to.have.lengthOf(1);
 
             expect(db.data.role).to.be.eq('INSTRUCTOR');
             expect(db.data.username).to.be.eq('username');

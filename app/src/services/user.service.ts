@@ -66,9 +66,6 @@ export class UserService {
                 create = {...create, gender: data.gender};
             }
 
-            if (data.groups) {
-                create = {...create, groups: data.groups};
-            }
             // Create User
             return await this.db.create({...create});
         } catch (err) {
@@ -108,10 +105,6 @@ export class UserService {
 
             if (data.gender) {
                 update = {...update, gender: data.gender};
-            }
-
-            if (data.groups) {
-                update = {...update, groups: data.groups};
             }
 
             if (data.role) {

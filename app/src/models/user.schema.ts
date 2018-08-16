@@ -100,15 +100,6 @@ const UserSchema: Schema = new Schema({
     lastLogin: {
         type: Date,
         default: null
-    },
-    groups: {
-        type: [String],
-        default: [],
-        validate: {
-            validator: (val: any) => typeof val !== 'string' && Array.isArray(val) && new Set(val).size === val.length,
-            msg: 'Groups must be string array.',
-            type: 'NotArray'
-        }
     }
 });
 UserSchema.plugin(mongoosePaginate);

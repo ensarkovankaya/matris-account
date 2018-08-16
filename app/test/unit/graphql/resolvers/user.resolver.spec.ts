@@ -272,7 +272,6 @@ describe('Resolvers -> User', () => {
                     role: Role.ADMIN,
                     gender: Gender.FEMALE,
                     active: true,
-                    groups: [],
                     extra: 'key'
                 } as any);
                 throw new ShouldNotSucceed();
@@ -280,7 +279,7 @@ describe('Resolvers -> User', () => {
                 expect(e.name).to.be.eq('MethodCalled');
                 expect(e.methodName).to.be.eq('create');
                 expect(e.data).to.have.keys(
-                    ['email', 'firstName', 'lastName', 'password', 'role', 'gender', 'active', 'groups', 'username']
+                    ['email', 'firstName', 'lastName', 'password', 'role', 'gender', 'active', 'username']
                 );
                 expect(e.data).to.be.deep.eq({
                     email: 'mail@mail.com',
@@ -290,7 +289,6 @@ describe('Resolvers -> User', () => {
                     role: Role.ADMIN,
                     gender: Gender.FEMALE,
                     active: true,
-                    groups: [],
                     username: 'username'
                 });
             }
@@ -334,7 +332,6 @@ describe('Resolvers -> User', () => {
                     role: Role.ADMIN,
                     gender: Gender.FEMALE,
                     active: true,
-                    groups: [],
                     username: 'customusername',
                     extra: 'key'
                 } as any);
@@ -343,7 +340,7 @@ describe('Resolvers -> User', () => {
                 expect(e.name).to.be.eq('MethodCalled');
                 expect(e.methodName).to.be.eq('create');
                 expect(e.data).to.have.keys(
-                    ['email', 'firstName', 'lastName', 'password', 'role', 'gender', 'active', 'groups', 'username']
+                    ['email', 'firstName', 'lastName', 'password', 'role', 'gender', 'active', 'username']
                 );
                 expect(e.data).to.be.deep.eq({
                     email: 'mail@mail.com',
@@ -353,7 +350,6 @@ describe('Resolvers -> User', () => {
                     role: Role.ADMIN,
                     gender: Gender.FEMALE,
                     active: true,
-                    groups: [],
                     username: 'customusername'
                 });
             }
@@ -397,7 +393,6 @@ describe('Resolvers -> User', () => {
                     role: Role.ADMIN,
                     gender: Gender.FEMALE,
                     active: true,
-                    groups: [],
                     birthday,
                     extra: 'key'
                 } as any);
@@ -406,7 +401,7 @@ describe('Resolvers -> User', () => {
                 expect(e.name).to.be.eq('MethodCalled');
                 expect(e.methodName).to.be.eq('create');
                 expect(e.data).to.have.keys(['email', 'firstName', 'lastName', 'password', 'role',
-                    'gender', 'active', 'groups', 'username', 'birthday']);
+                    'gender', 'active', 'username', 'birthday']);
                 expect(e.data).to.be.deep.eq({
                     email: 'mail@mail.com',
                     firstName: 'firstName',
@@ -415,7 +410,6 @@ describe('Resolvers -> User', () => {
                     role: Role.ADMIN,
                     gender: Gender.FEMALE,
                     active: true,
-                    groups: [],
                     username: 'username',
                     birthday
                 });
@@ -459,7 +453,6 @@ describe('Resolvers -> User', () => {
                     role: Role.ADMIN,
                     gender: Gender.FEMALE,
                     active: true,
-                    groups: [],
                     birthday: '10/01/1993',
                     extra: 'key'
                 } as any);
@@ -603,7 +596,6 @@ describe('Resolvers -> User', () => {
                     role: Role.ADMIN,
                     gender: Gender.FEMALE,
                     active: true,
-                    groups: [],
                     updateLastLogin: true,
                     extra: 'key'
                 } as any);
@@ -614,7 +606,7 @@ describe('Resolvers -> User', () => {
                 expect(e.data.id).to.be.eq('1'.repeat(24));
                 expect(e.data.data).to.be.an('object');
                 expect(e.data.data).to.have.keys(
-                    ['firstName', 'lastName', 'password', 'role', 'gender', 'active', 'groups', 'updateLastLogin']
+                    ['firstName', 'lastName', 'password', 'role', 'gender', 'active', 'updateLastLogin']
                 );
                 expect(e.data.data).to.be.deep.eq({
                     firstName: 'FirstName',
@@ -623,7 +615,6 @@ describe('Resolvers -> User', () => {
                     role: Role.ADMIN,
                     gender: Gender.FEMALE,
                     active: true,
-                    groups: [],
                     updateLastLogin: true
                 });
             }

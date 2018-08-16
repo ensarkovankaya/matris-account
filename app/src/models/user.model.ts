@@ -17,5 +17,4 @@ export interface IUserModel extends Document {
     deletedAt: Date | null;
     deleted: boolean;
     lastLogin: Date | null;
-    groups: string[];
 }

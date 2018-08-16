@@ -102,9 +102,7 @@ export class DatabaseService implements IDatabaseModel<IUserModel> {
             if (conditions.birthday !== undefined) {
                 query = compareFilter(query, 'birthday', conditions.birthday);
             }
-            if (conditions.groups && conditions.groups.length > 0) {
-                query = query.where('groups').in(conditions.groups);
-            }
+
             if (conditions.role) {
                 if (conditions.role.eq) {
                     query = query.where('role', conditions.role.eq);
