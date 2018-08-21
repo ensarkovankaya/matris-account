@@ -14,7 +14,8 @@ class InvalidDate extends Error {
  * @return {(object: object, propertyName: string) => void}
  * @constructor
  */
-export const IsInDateRange = (minDate: Date, maxDate: Date, validationOptions?: ValidationOptions) => {
+export const IsInDateRange = (minDate: Date, maxDate: Date, validationOptions?: ValidationOptions):
+    (object: object, propertyName: string) => void => {
     return (object: object, propertyName: string) => {
         registerDecorator({
             name: "isInDateRange",
@@ -42,12 +43,13 @@ export const IsInDateRange = (minDate: Date, maxDate: Date, validationOptions?: 
 
 /**
  * Check given value can be transform to date
- * @param nullable: Can be null
+ * @param {boolean} nullable: Can be null. Default false.
  * @param {ValidationOptions} validationOptions
  * @return {(object: object, propertyName: string) => void}
  * @constructor
  */
-export const IsDateLike = (nullable: boolean = false, validationOptions?: ValidationOptions) => {
+export const IsDateLike = (nullable: boolean = false, validationOptions?: ValidationOptions):
+    (object: object, propertyName: string) => void => {
     return (object: object, propertyName: string) => {
         registerDecorator({
             name: "isDateLike",

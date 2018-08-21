@@ -3,7 +3,7 @@ import { GenderQuery } from '../graphql/args/gender.query';
 
 /**
  * Checks is value type of GenderQuery
- * See: https://github.com/typestack/class-validator#custom-validation-decorators
+ * @see https://github.com/typestack/class-validator#custom-validation-decorators
  * @param {ValidationOptions} validationOptions
  * @return {(object: object, propertyName: string) => void}
  * @constructor

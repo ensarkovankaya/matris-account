@@ -4,7 +4,7 @@ import { CompareNumberInput } from '../graphql/inputs/compare.number.input';
 
 /**
  * Checks is value type of CompareNumberInput
- * See: https://github.com/typestack/class-validator#custom-validation-decorators
+ * @see https://github.com/typestack/class-validator#custom-validation-decorators
  * @param {ValidationOptions} validationOptions
  * @return {(object: object, propertyName: string) => void}
  * @constructor
@@ -33,7 +33,7 @@ export const IsCompareNumberInput = (validationOptions?: ValidationOptions) => {
 
 /**
  * Checks is value type of CompareDateInput
- * See: https://github.com/typestack/class-validator#custom-validation-decorators
+ * @see https://github.com/typestack/class-validator#custom-validation-decorators
  * @param {ValidationOptions} validationOptions
  * @return {(object: object, propertyName: string) => void}
  * @constructor
