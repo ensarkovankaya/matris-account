@@ -16,7 +16,7 @@ let server: HttpServer;
 
 const PORT = parseInt(process.env.PORT || '1234', 10);
 const HOST = process.env.HOST || '0.0.0.0';
-const URL = process.env.URL || '/graphql';
+const URL = process.env.URL || '/';
 const ENDPOINT = `http://${HOST}:${PORT}${URL}`;
 
 const PATH: string = process.env.MOCK_DATA || __dirname + '/../data/db.json';
@@ -487,16 +487,7 @@ describe('GraphQL', () => {
                 expect(error).to.be.an('object');
                 expect(error).to.have.keys(['message', 'locations', 'path', 'validationErrors']);
                 expect(error.message).to.be.eq('Argument Validation Error');
-                expect(error.validationErrors).to.be.deep.eq([{
-                    target: {
-                        email: "notamailaddress",
-                        password: "12345678"
-                    },
-                    value: "notamailaddress",
-                    property: "email",
-                    children: [],
-                    constraints: {isEmail: "InvalidEmail"}
-                }]);
+                expect(error.validationErrors).to.be.deep.eq({email: {isEmail: "InvalidEmail"}});
             }
         });
     });
@@ -661,11 +652,10 @@ describe('GraphQL', () => {
                 expect(error).to.have.keys(['message', 'locations', 'path', 'validationErrors']);
                 expect(error.message).to.be.eq('Argument Validation Error');
                 const vErrors = error.validationErrors;
-                expect(vErrors).to.be.an('array');
-                expect(vErrors).to.have.lengthOf(1);
-                const vError = vErrors[0];
-                expect(vError).to.have.keys(['target', 'value', 'property', 'children', 'constraints']);
-                expect(vError.constraints).to.be.deep.eq({isEmail: "Invalid"});
+                expect(vErrors).to.be.an('object');
+                expect(vErrors).to.have.keys(['email']);
+                expect(vErrors.email).to.be.an('object');
+                expect(vErrors.email).to.be.deep.eq({isEmail: "Invalid"});
             }
         });
 
