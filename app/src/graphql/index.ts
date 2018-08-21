@@ -1,5 +1,5 @@
 import { GraphQLSchema } from 'graphql';
-import { buildSchemaSync, formatArgumentValidationError, useContainer } from 'type-graphql';
+import { buildSchemaSync, useContainer } from 'type-graphql';
 import { registerEnumType } from "type-graphql";
 import { Container } from "typedi";
 import { getLogger } from '../logger';
@@ -10,6 +10,7 @@ import { OptionsData } from 'express-graphql';
 import * as graphqlHTTP from 'express-graphql';
 import { Gender } from '../models/gender.model';
 import { Role } from '../models/role.model';
+import { formatArgumentValidationError } from './validation.error.handler';
 
 useContainer(Container);
 
