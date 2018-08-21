@@ -25,7 +25,7 @@ export class Server {
      * Connect Database
      * @return {Promise<void>}
      */
-    public async connect() {
+    public async connect(): Promise<void> {
         const username = process.env.MONGODB_USERNAME;
         const password = process.env.MONGODB_PASSWORD;
         const host = process.env.MONGODB_HOST;
@@ -59,7 +59,7 @@ export class Server {
                 next();
             });
 
-            // Http Log
+            // Logs incoming requests
             this.app.use((req, res, next) => {
                 this.logger.http('Incoming Request', req, res);
                 next();
@@ -73,7 +73,7 @@ export class Server {
     // Setup application routes
     private routes(): void {
         try {
-            this.app.use('/graphql', getGraphQLHTTPServer());
+            this.app.use('/', getGraphQLHTTPServer());
         } catch (err) {
             this.logger.error('Route configuration failed', err);
             throw err;
