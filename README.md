@@ -6,7 +6,7 @@ This service use [Mongodb](https://www.mongodb.com/) as database and
 
 See [API Documentation](docs/api.md) to how to use.
 
-## Prerequisites
+## Requirements
 
 * [Docker](https://www.docker.com/)
 * [Docker Compose](https://docs.docker.com/compose/)
