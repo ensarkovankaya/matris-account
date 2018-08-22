@@ -10,9 +10,9 @@
     "check": "tslint -p tslint.json",
     "build": "npm run check && tsc",
     "build:clean": "rm -rf ./build/* && npm run build",
-    "start": "node ./build/index.js",
+    "start:prod": "node ./build/index.js",
     "start:test": "nodemon -e ts -w src/ -i test/ --exec 'ts-node test/server/index.ts'",
-    "watch": "nodemon -e ts -w src/ -i test/ --exec 'ts-node src/index.ts'"
+    "start:dev": "nodemon -e ts -w src/ -i test/ --exec 'ts-node src/index.ts'"
   },
   "author": "Ensar Kovankaya <ensar@kovankaya.com> (https://kovankaya.com)",
   "dependencies": {
@@ -48,9 +48,7 @@
     "@types/mongoose": "^5.2.0",
     "@types/mongoose-paginate": "^5.0.6",
     "@types/morgan": "^1.7.35",
-    "@types/request-promise-native": "^1.0.15",
     "@types/validator": "^9.4.1",
-    "axios": "^0.18.0",
     "chai": "^4.1.2",
     "graphql-request": "^1.6.0",
     "mocha": "^5.2.0",
