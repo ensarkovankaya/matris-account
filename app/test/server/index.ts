@@ -15,22 +15,6 @@ const DATA = JSON.parse(readFileSync(PATH, { encoding: 'utf8' }));
 const database = new MockDatabase();
 
 const express = new Server();
-/**
- * Resets database data.
- * @param req Request
- * @param res Response
- */
-const resetRoute = async (req, res) => {
-    try {
-        await database.load(DATA);
-        return res.status(200).send({ message: 'Data Loaded' });
-    } catch (e) {
-        console.error('Database reset failed!', e);
-        return res.status(500).send({ message: 'Server Error' });
-    }
-};
-
-express.app.use('/reset', resetRoute);
 
 const server: HttpServer = createServer(express.app);
 
