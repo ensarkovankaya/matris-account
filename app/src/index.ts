@@ -14,8 +14,13 @@ const bootstrap = async (port: number, host: string) => {
     // Init express server
     const express = new Server();
 
+    const dbUserName = process.env.MONGODB_USERNAME;
+    const dbPassword = process.env.MONGODB_PASSWORD;
+    const dbHost = process.env.MONGODB_HOST;
+    const dbPort = parseInt(process.env.MONGODB_PORT, 10);
+
     // Connect to database
-    await express.connect();
+    await express.connect(dbUserName, dbPassword, dbHost, dbPort);
 
     // Create http server
     const server = http.createServer(express.app);

@@ -23,15 +23,16 @@ export class Server {
 
     /**
      * Connect Database
+     * @param {string} username: Database user name
+     * @param {string} password: Database password
+     * @param {string} host: Database host
+     * @param {number} port: Database port
      * @return {Promise<void>}
      */
-    public async connect(): Promise<void> {
-        const username = process.env.MONGODB_USERNAME;
-        const password = process.env.MONGODB_PASSWORD;
-        const host = process.env.MONGODB_HOST;
-        const port = process.env.MONGODB_PORT;
+    public async connect(username: string, password: string, host: string, port: number): Promise<void> {
         try {
             await mongoose.connect(`mongodb://${username}:${password}@${host}:${port}`);
+            this.logger.debug('Database Connected', {host, port, username});
         } catch (err) {
             this.logger.error('Database Connection Failed', err, {host, port, username});
             throw err;
