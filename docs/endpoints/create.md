@@ -4,4 +4,4 @@ Create user.
 
 ## Args
 
-- `data`: [CreateUserInput](../input.md#createuserinput)
+- `data`: [CreateInput](../graphql/inputs/create.input.md)

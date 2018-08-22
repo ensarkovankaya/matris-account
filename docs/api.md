@@ -1,22 +1,19 @@
 # API Documentation
 
-We are using [GrapghQL](https://graphql.org/) quering and mutations.
-
-For accessing api go to `/graphql` url.
+This is a [GrapghQL](https://graphql.org/) api.
 
 If `NODE_ENV` is set to `development` [graphiql](https://github.com/graphql/graphiql) will be enabled.
-That point you can explore api by yourself via graphiql
 
-**Endpoints:**
+## Endpoints
 
-- [find](endpoints/find.md): Search and Filter users.
+- [find](endpoints/find.md): Returns list of users with given filters.
 
-- [get](endpoints/get.md): Get information about specific user.
+- [get](endpoints/get.md): Returns one user if exits.
 
 - [create](endpoints/create.md): Create user.
 
-- [update](endpoints/update.md): Update specific user information.
+- [update](endpoints/update.md): Update specific user.
 
-- [delete](endpoints/delete.md): Delete specific user information.
+- [delete](endpoints/delete.md): Delete specific user.
 
 - [password](endpoints/password.md): Check user password is valid.

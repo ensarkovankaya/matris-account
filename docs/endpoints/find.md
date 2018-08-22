@@ -1,53 +1,61 @@
 # Query: Find
 
-Search and filter users.
+Query users with given filters.
 
-Returns: [User](../user.md)\[\]
+Arguments: 
 
-## Args
+**Returns**: [List](../models/list.result.md)<[User](../models/user.md)>
 
-Query filter arguments if not
+## Inputs
 
-- `active`: Boolean.
+- [User Filter Input](../graphql/inputs/user.filter.md)
 
-    Is user active.
+- [Pagination Input](../graphql/inputs/pagination.md)
 
-- `gender`: [Gender](../types.md#gender)
+## Example
 
-    User gender.
+**Request:**
+```
+curl -X POST \
+  http://localhost:3000/ \
+  -H 'Content-Type: application/json' \
+  -d '{
+	"query": "query search($role: RoleQuery, $limit: Float) { result: find(filters: {role: $role}, pagination: {limit: $limit}) { docs { _id }, page, pages, limit, total } }",
+	"variables": {
+		"role": {"eq": "ADMIN"},
+		"limit": 5
+	}
+}'
+```
 
-- `role`: [Gender](../types.md#gender)
+**Response:**
 
-    User role.
-
-- `deleted`: Boolean.
-
-    Is account deleted.
-
-- `createdAt`: [CompareDateInput](../input.md#comparedateinput)
-
-    Account created date.
-
-- `updatedAt`: [CompareDateInput](../input.md#comparedateinput)
-
-    Account updated date.
-
-- `deletedAt`: [CompareDateInput](../input.md#comparedateinput)
-
-    Account deleted date.
-
-- `lastLogin`: [CompareDateInput](../input.md#comparedateinput)
-
-    Account last login date.
-
-- `groups`: String[]
-
-    User associated group ids.
-
-### [RoleQuery](#rolequery)
-
-Gender query input.
-
-- `eq`: [Gender](../types.md#gender)
-
-- `in`: \[[Gender](../types.md#gender)\]
+```
+{
+  "data": {
+    "result": {
+      "docs": [
+        {
+          "_id": "5b4b57f3fc13ae17300007ca"
+        },
+        {
+          "_id": "5b4b57f3fc13ae17300008b1"
+        },
+        {
+          "_id": "5b4b57f4fc13ae173000091e"
+        },
+        {
+          "_id": "5b4b57f2fc13ae1730000792"
+        },
+        {
+          "_id": "5b4b57f3fc13ae1730000828"
+        }
+      ],
+      "page": 1,
+      "pages": 41,
+      "limit": 5,
+      "total": 202
+    }
+  }
+}
+```

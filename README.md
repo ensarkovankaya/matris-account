@@ -31,6 +31,7 @@ MONGODB_USERNAME=root
 MONGODB_PASSWORD=root
 PORT=3000
 HOST=0.0.0.0
+LOG_LEVEL=info
 ```
 
 * MONGO_INITDB_ROOT_USERNAME: Mongodb root user for initialization.
@@ -42,6 +43,7 @@ HOST=0.0.0.0
 * MONGODB_PASSWORD: Database password. Should be same with MONGO_INITDB_ROOT_PASSWORD.
 * PORT: Express app listen port.
 * HOST: Express app listen host.
+* LOG_LEVEL: Log level.
 
 
 ### 2) Installing Dependencies
@@ -54,3 +56,7 @@ Run `docker-compose run app install` installing dependencies.
 ## Running the tests
 
 `docker-compose run app test` or inside the container `npm run test`
+
+## TODO
+
+- Update docs.

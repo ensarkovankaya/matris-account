@@ -1,24 +1,66 @@
 # Query: Get
 
-Get user account information by one of given arg.
+Get user account information by one of given argument.
 
-Returns: [User](../user.md).
+Returns: [User](../models/user.md) | null.
 
-## Args
+## Arguments
 
-- `id`: String.
+```
+{
+    id?: string;
+    email?: string;
+    username?: string;
+}
+```
 
-    User id.
+- `id`: String. User id.
 
-- `email`: String.
+- `email`: String. User email.
 
-    User email.
-
-- `username`: String.
-
-    User username.
+- `username`: String. User username.
 
 
 ## Exceptions
 
-- [UserNotFound](../exceptons.md#usernotfound)
+- [ParameterRequired](../graphql/exceptions/parameter.required.md): If none of id, email or username is given.
+
+## Validation Errors
+
+- `id`
+    - [isMongoId](../validation.errors.md#ismongoid)
+- `email`
+    - [isEmail](../validation.errors.md#isemail)
+- `username`
+    - [length](../validation.errors.md#length)
+    - [isLowercase](../validation.errors.md#isLowercase)
+    - [isAlphanumeric](../validation.errors.md#isAlphanumeric)
+
+## Example
+
+**Request:**
+
+```
+curl -X POST \
+  http://localhost:3000/ \
+  -H 'Content-Type: application/json' \
+  -d '{
+	"query": "query getUser($id: String) { user: get(id: $id) { firstName, lastName } }",
+	"variables": {
+		"id": "5b4b57f3fc13ae1730000828"
+	}
+}'
+```
+
+**Response:**
+
+```
+{
+    "data": {
+        "user": {
+            "firstName": "Clemence",
+            "lastName": "Wyllie"
+        }
+    }
+}
+```
