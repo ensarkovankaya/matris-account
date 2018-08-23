@@ -71,7 +71,7 @@ export class DatabaseService implements IDatabaseModel<IUserModel> {
 
     public async all(conditions: IUserFilterModel = {}, pagination: PaginateOptions):
         Promise<PaginateResult<IUserModel>> {
-        this.logger.debug('All', {conditions});
+        this.logger.debug('All', {conditions, pagination});
         try {
             let query = User.find();
             if (typeof conditions.deleted === 'boolean') {
