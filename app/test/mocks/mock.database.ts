@@ -3,7 +3,7 @@ import { PaginateOptions } from 'mongoose';
 import { Service } from 'typedi';
 import { ParameterRequired } from '../../src/errors';
 import { getLogger } from '../../src/logger';
-import { ICompareDateModel } from '../../src/models/compare.model';
+import { ICompareDateModel, ICompareNumberModel } from '../../src/models/compare.model';
 import { ICreateUserModel } from '../../src/models/create.user.model';
 import { IDatabaseModel } from '../../src/models/database.model';
 import { IUpdateUserModel } from '../../src/models/update.user.model';
@@ -30,7 +30,7 @@ export interface ILoadOptions {
 @Service()
 export class MockDatabase implements IDatabaseModel<IUserModel> {
 
-    private static compare(data: any[], path: string, filter: ICompareDateModel | ICompareDateModel): any[] {
+    private static compare(data: any[], path: string, filter: ICompareDateModel | ICompareNumberModel): any[] {
         if (filter.eq !== undefined) {
             return data.filter(d => d[path] === filter.eq);
         }
