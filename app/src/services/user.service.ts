@@ -221,7 +221,7 @@ export class UserService {
         try {
             this.logger.debug('NormalizeUsername', {unNormalized: username});
             // Lowercase
-            username = username.normalize().toLowerCase();
+            username = username.trim().normalize().toLowerCase();
 
             // Replace Turkish characters
             username = username
